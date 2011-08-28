@@ -144,27 +144,31 @@
 	 */
 
 	void test_commons_file_getKey() {
-		String line = "nombre=hudson";
+		String line = strdup("nombre=hudson");
 
 		String key = commons_file_getKey(line);
 		CU_ASSERT_PTR_NOT_NULL(key);
 		CU_ASSERT_STRING_EQUAL(key,"nombre");
+		free(line);
 
-		line = "sinKeyNiValue";
+		line = strdup("sinKeyNiValue");
 		key = commons_file_getKey(line);
 		CU_ASSERT_PTR_NULL(key);
+		free(line);
 	}
 
 	void test_commons_file_getValue() {
-		String line = "nombre=hudson";
+		String line = strdup("nombre=hudson");
 
 		String value = commons_file_getValue(line);
 		CU_ASSERT_PTR_NOT_NULL(value);
 		CU_ASSERT_STRING_EQUAL(value,"hudson");
+		free(line);
 
-		line = "sinKeyNiValue";
+		line = strdup("sinKeyNiValue");
 		value = commons_file_getKey(line);
 		CU_ASSERT_PTR_NULL(value);
+		free(line);
 	}
 
 	void test_commons_file_parseKeyAndValueFile() {

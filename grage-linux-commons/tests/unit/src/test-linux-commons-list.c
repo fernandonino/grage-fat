@@ -395,7 +395,6 @@
 
 		String serialized = "hola,a,todos,lalala";
 		List list = commons_list_deserialize(serialized);
-
 		CU_ASSERT_PTR_NOT_NULL(list);
 		CU_ASSERT_EQUAL(list->size , 4);
 	}

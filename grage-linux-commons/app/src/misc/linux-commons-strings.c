@@ -31,7 +31,7 @@
 	String commons_string_fillIntString(int v , int spacesToFix){
 		String result = commons_misc_intToString(v);
 
-		while(strlen(result) <spacesToFix)
+		while(strlen(result) < spacesToFix)
 			result = commons_string_concat("0" , result);
 
 		return result;
@@ -55,47 +55,82 @@
 			return strndup(string + startIndex , endIndex +1 -startIndex);
 	}
 
+	Boolean commos_string_isEmpty(String string){
+		return commons_string_equals(commons_string_trim(string),"");
+	}
+
+	/*
+	 * Funcion trim para cuando se pasa como parametro
+	 * un string estatico (inmutable), crea memoria dinamica.
+	 */
+	String commons_string_trimd(String string){
+		return commons_string_trim(strdup(string));
+	}
+
+	/*
+	 * Realiza el trim de una cadena eliminando los espacios,
+	 * un puntero con misma direccion al puntero enviado por parametro.
+	 * Si se necesita usar con strings estaticos hay que hacer
+	 * commons_string_trim(strdup("string estatico")) o usar la funcion commons_string_trimd
+	 * sino da Segmentation fault.
+	 */
 	String commons_string_trim(String string){
-
-		if(commons_string_equals(string , ""))
-			return "";
-
 		int start = 0;
 		int end = strlen(string) -1;
+		String aux = NULL;
 
-		while(string[start] == ' ')
+		if(commons_string_equals(string , ""))
+			return string;
+
+		while(end > 0 && (string[end] == SP || string[end] == EOL)){
+			string[end] = EOS;
+			end--;
+		}
+
+		while(string[start] == SP)
 			start++;
 
-		while(string[end] == ' ' || string[end] == '\n' )
-			end--;
+		aux = (String)malloc(strlen(&string[start]) + 1);
 
-		return commons_string_subString(string , start , end);
+		strcpy(aux,&string[start]);
+
+		strcpy(string,aux);
+
+		free(aux);
+
+		return string;
 	}
 
 	String commons_string_concat(String s1 , String s2){
 		if(s1 == NULL || s2 == NULL)
 			return NULL;
-
 		String buffer = (String)malloc(strlen(s1) + strlen(s2) +1);
 		sprintf(buffer, "%s%s" , s1 , s2);
 		return commons_string_trim(buffer);
 	}
 
-
-
 	String commons_string_concatAll(int n , ...){
-
-		char buffer[SYSTEM_STRING_CONCATENATION_SIZE];
-		bzero(buffer , SYSTEM_STRING_CONCATENATION_SIZE);
+		String aux_buffer = (String) malloc(SYSTEM_STRING_CONCATENATION_SIZE*sizeof(char));
+		String result = NULL;
+		bzero(aux_buffer , SYSTEM_STRING_CONCATENATION_SIZE);
 
 		va_list ap;
 		va_start(ap, n);
 		int i; for(i=0 ; i<n ; i++){
-			strcat(buffer, va_arg(ap, char*));
+			strcat(aux_buffer, va_arg(ap, char*));
 		}
 		va_end(ap);
 
-		return commons_string_trim(buffer);
+		commons_string_trim(aux_buffer);
+
+		// utilizo la memoria suficiente par la cadena q arme.
+		result = (String) malloc((strlen(aux_buffer)+1)*sizeof(char));
+		bzero(result,strlen(aux_buffer)+1);
+		strcpy(result,aux_buffer);
+
+		free(aux_buffer);
+
+		return result;
 	}
 
 
@@ -152,10 +187,9 @@
 		if(count == 0)
 			return s1;
 
-		int size = strlen(s1) + count*(strlen(s3) - strlen(s2));
-		String buffer = malloc(size+1);
-
-		bzero(buffer , size+1);
+		int size = 1 + strlen(s1) + count * (strlen(s3) - strlen(s2));
+		String buffer = (String)malloc(size*sizeof(char));
+		bzero(buffer, size);
 
 		String found = s1;
 		int pos = 0;

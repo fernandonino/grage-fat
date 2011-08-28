@@ -111,40 +111,41 @@
 	void test_commons_string_trim(){
 		String result = NULL;
 
-		result = commons_string_trim("hola");
+		result = commons_string_trim(strdup("hola"));
 		CU_ASSERT_PTR_NOT_NULL(result);
 		CU_ASSERT_STRING_EQUAL(result,"hola");
-		doFreeNull(&result);
 
-		result = commons_string_trim("no separar");
+		result = commons_string_trim(strdup("no separar"));
 		CU_ASSERT_PTR_NOT_NULL(result);
 		CU_ASSERT_STRING_EQUAL(result,"no separar");
-		doFreeNull(&result);
 
-		result = commons_string_trim("uno a derecha ");
+		result = commons_string_trim(strdup("uno a derecha "));
 		CU_ASSERT_PTR_NOT_NULL(result);
 		CU_ASSERT_STRING_EQUAL(result,"uno a derecha");
-		doFreeNull(&result);
 
-		result = commons_string_trim(" uno a izquierda");
+		result = commons_string_trim(strdup(" uno a izquierda"));
 		CU_ASSERT_PTR_NOT_NULL(result);
 		CU_ASSERT_STRING_EQUAL(result,"uno a izquierda");
-		doFreeNull(&result);
 
-		result = commons_string_trim("  dos");
+		result = commons_string_trim(strdup("  dos"));
 		CU_ASSERT_PTR_NOT_NULL(result);
 		CU_ASSERT_STRING_EQUAL(result,"dos");
-		doFreeNull(&result);
 
-		result = commons_string_trim("dos  ");
+		result = commons_string_trim(strdup("dos  "));
 		CU_ASSERT_PTR_NOT_NULL(result);
 		CU_ASSERT_STRING_EQUAL(result,"dos");
-		doFreeNull(&result);
 
-		result = commons_string_trim("     todos  ");
+		result = commons_string_trim(strdup("     todos  "));
 		CU_ASSERT_PTR_NOT_NULL(result);
 		CU_ASSERT_STRING_EQUAL(result,"todos");
-		doFreeNull(&result);
+
+		result = commons_string_trim(strdup("    "));
+		CU_ASSERT_PTR_NOT_NULL(result);
+		CU_ASSERT_STRING_EQUAL(result,"");
+
+		result = commons_string_trim(strdup("a"));
+		CU_ASSERT_PTR_NOT_NULL(result);
+		CU_ASSERT_STRING_EQUAL(result,"a");
 
 	}
 
@@ -190,7 +191,7 @@
 	void test_commons_string_equals(){
 		String result = NULL;
 
-		result = commons_string_trim("hola ");
+		result = commons_string_trimd("hola ");
 		CU_ASSERT_PTR_NOT_NULL(result);
 		CU_ASSERT_STRING_EQUAL(result,"hola");
 		CU_ASSERT_TRUE(commons_string_equals(result,"hola"));

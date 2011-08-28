@@ -10,7 +10,9 @@
 #ifndef LINUX_COMMONS_STRINGS_H_
 #define LINUX_COMMONS_STRINGS_H_
 
-
+#define SP ' '
+#define EOL '\n'
+#define EOS '\0'
 	/*
 	 * Strings...
 	 */
