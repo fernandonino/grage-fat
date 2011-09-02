@@ -23,6 +23,7 @@
  */
 void commons_logging_setLoggingLevelEnabled(int level);
 int commons_logging_getLoggingLevelEnabled();
+void commons_logging_disablePrintf();
 Boolean commons_logging_isDebugEnabled();
 Boolean commons_logging_isInfoEnabled();
 
