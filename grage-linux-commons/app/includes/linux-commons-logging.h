@@ -35,6 +35,7 @@ void commons_logging_writeLogString(char *, char *);
 void commons_logging_disablePrintf();
 void commons_logging_initLog(char *);
 void commons_logging_regSignals();
+void commons_logging_defaultSigHandler();
 void commons_logging_shutdownLog();
 
 void commons_logging_println(char *, char *, char *);

@@ -92,19 +92,23 @@ void commons_logging_initLog(char * procName) {
 }
 
 void commons_logging_regSignals() {
-	signal(SIGINT, commons_logging_shutdownLog);
-	signal(SIGKILL, commons_logging_shutdownLog);
-	signal(SIGTERM, commons_logging_shutdownLog);
-	signal(SIGSTOP, commons_logging_shutdownLog);
+	signal(SIGINT, commons_logging_defaultSigHandler);
+	signal(SIGKILL, commons_logging_defaultSigHandler);
+	signal(SIGTERM, commons_logging_defaultSigHandler);
+	signal(SIGSTOP, commons_logging_defaultSigHandler);
 }
 
-void commons_logging_shutdownLog() {
+void commons_logging_defaultSigHandler() {
 	fclose(logfile);
 	signal(SIGINT, SIG_DFL);
 	signal(SIGKILL, SIG_DFL);
 	signal(SIGTERM, SIG_DFL);
 	signal(SIGSTOP, SIG_DFL);
 	kill(getpid(),SIGINT);
+}
+
+void commons_logging_shutdownLog() {
+	fclose(logfile);
 }
 
 void commons_logging_writeLogString(char * procName, char * logString) {
