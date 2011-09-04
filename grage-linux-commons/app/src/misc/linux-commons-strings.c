@@ -102,12 +102,11 @@
 	}
 
 	String commons_string_concat(String s1 , String s2){
-		return NULL;
-//		if(s1 == NULL || s2 == NULL)
-//			return NULL;
-//		String buffer = (String)malloc(strlen(s1) + strlen(s2) +1);
-//		sprintf(buffer, "%s%s" , s1 , s2);
-//		return commons_string_trim(buffer);
+		if(s1 == NULL || s2 == NULL)
+			return NULL;
+		String buffer = (String)malloc(strlen(s1) + strlen(s2) +1);
+		sprintf(buffer, "%s%s" , s1 , s2);
+		return commons_string_trim(buffer);
 	}
 
 	String commons_string_concatAll(int n , ...){
