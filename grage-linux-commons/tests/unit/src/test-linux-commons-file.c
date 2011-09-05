@@ -28,7 +28,7 @@
 	void test_commons_file_updateEntry(void);
 	void test_commons_file_createOrTruncateFile(void);
 	void test_commons_file_insertLine(void);
-	//void test_commons_file_getDirectoryFiles(void);
+	void test_commons_file_getDirectoryFiles(void);
 
 	/*
 	 * Realiza la configuracion de la suite
@@ -66,8 +66,8 @@
 		if( unit_testing_addToSuite(suite , "Abrir un archivo e insertar una linea" , test_commons_file_insertLine) == NULL)
 			return EXIT_FAILURE;
 
-		//if( unit_testing_addToSuite(suite , "Abrir un directorio y listar archivos" , test_commons_file_getDirectoryFiles) == NULL)
-		//	return EXIT_FAILURE;
+		if( unit_testing_addToSuite(suite , "Abrir un directorio y listar archivos" , test_commons_file_getDirectoryFiles) == NULL)
+			return EXIT_FAILURE;
 
 		/*
 		 * TODO: Agregar las entradas para levantar los tests
@@ -219,7 +219,7 @@
 		commons_file_removeFile(nameFile);
 	}
 
-	/*void test_commons_file_getDirectoryFiles(){
+	void test_commons_file_getDirectoryFiles(){
 		String file;
 
 		String directory = "/opt/grage-repository/includes";
@@ -231,6 +231,8 @@
 			file = commons_iterator_next(ite);
 			printf("commons_file_getDirectoryTest hallo el archivo: %s\n" , file);
 		}
+
 		free(file);
+		free(files);
 		free(ite);
-	}*/
+	}
