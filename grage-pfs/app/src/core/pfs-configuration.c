@@ -32,7 +32,7 @@
 	 * Inicializacion de la configuracion
 	 */
 
-	char * configurationFile = PPD_DEFAULT_CONFIGURATION_FILE;
+	char * configurationFile = PFS_DEFAULT_CONFIGURATION_FILE;
 
 	void pfs_configuration_setConfigurationFile(char * s){
 		configurationFile = s;

@@ -8,7 +8,7 @@
 #ifndef PFS_CONFIGURATION_H_
 #define PFS_CONFIGURATION_H_
 
-#define PFS_DEFAULT_CONFIGURATION_FILE		"../conf/grage-ppd.properties"
+#define PFS_DEFAULT_CONFIGURATION_FILE		"../conf/grage-pfs.properties"
 
 	void pfs_configuration_setup();
 
