@@ -27,7 +27,7 @@
 	void test_commons_string_endsWith();
 	void test_commons_string_getIndexOf();
 
-	void doFreeNull(const void **pointer);
+	void doFreeNull(void **pointer);
 
 	/*
 	 * Realiza la configuracion de la suite
@@ -253,9 +253,11 @@
 	/*
 	 * Libera y asigna null a un puntero.
 	 */
-	void doFreeNull(const void **pointer){
-		free(*pointer);
-		*pointer = NULL;
+	void doFreeNull(void **pointer){
+		if(*pointer == NULL){
+			free(*pointer);
+			*pointer = NULL;
+		}
 	}
 
 

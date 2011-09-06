@@ -42,6 +42,8 @@
 	void commons_misc_lockThreadMutex(ThreadMutex * m);
 	void commons_misc_unlockThreadMutex(ThreadMutex * m);
 	int commons_misc_digitsCount(int i);
+
+	void commons_misc_doFreeNull(void **pointer);
 #endif
 
 

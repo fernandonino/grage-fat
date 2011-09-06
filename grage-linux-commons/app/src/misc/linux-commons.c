@@ -76,4 +76,15 @@
 	}
 
 
+	/*
+	 * Libera y asigna null a un puntero.
+	 */
+	void commons_misc_doFreeNull(void **pointer){
+		if(*pointer == NULL){
+			free(*pointer);
+			*pointer = NULL;
+		}
+	}
+
+
 
