@@ -5,6 +5,9 @@
  * 
  *
  */
+
+#include "linux-commons.h"
+
 #ifndef COMMONS_LOGGING_H
 #define COMMONS_LOGGING_H
 
