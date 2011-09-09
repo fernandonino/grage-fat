@@ -115,6 +115,33 @@
 		if(commons_string_equals(key,PPD_CONFIGURATION_ALGORITMO)){
 			setPpdAlgoritmo(value);
 		}
+		if(commons_string_equals(key,PPD_CONFIGURATION_LISTEN_PORT)){
+			setPpdPort(value);
+		}
+		if(commons_string_equals(key,PPD_CONFIGURATION_ID_DISK)){
+			setPpdIdDisk(value);
+		}
+		if(commons_string_equals(key,PPD_CONFIGURATION_CILINDER)){
+			setPpdDiskCilinder(value);
+		}
+		if(commons_string_equals(key,PPD_CONFIGURATION_HEAD)){
+			setPpdDiskHead(value);
+		}
+		if(commons_string_equals(key,PPD_CONFIGURATION_SECTOR)){
+			setPpdDiskSector(value);
+		}
+		if(commons_string_equals(key,PPD_CONFIGURATION_READ_TIME)){
+			setPpdReadTimeMs(value);
+		}
+		if(commons_string_equals(key,PPD_CONFIGURATION_WRITE_TIME)){
+			setPpdWriteTimeMs(value);
+		}
+		if(commons_string_equals(key,PPD_CONFIGURATION_RPM)){
+			setPpdRpm(value);
+		}
+		if(commons_string_equals(key,PPD_CONFIGURATION_SALTO_PISTA)){
+			setPpdSaltoPistaMs(value);
+		}
 	}
 
 	/*
