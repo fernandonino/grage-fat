@@ -2,7 +2,7 @@
  * ppd-launcher.c
  *
  *  Created on: 05/09/2011
- *      Author: gonzalo
+ *      Author: EL Seba
  */
 
 #include <stdlib.h>
