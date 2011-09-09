@@ -13,15 +13,15 @@
 #include "ppd-utils.h"
 	char * ppdMode;
 	char * ppdAlgoritmo;
-	int ppdPort;
-	int ppdIdDisk;
-	int ppdDiskCilinder;
-	int ppdDiskHead;
-	int ppdDiskSector;
-	int ppdReadTimeMs;
-	int ppdWriteTimeMs;
-	int ppdRpm;
-	int ppdSaltoPistaMs;
+	char * ppdPort;
+	char * ppdIdDisk;
+	char * ppdDiskCilinder;
+	char * ppdDiskHead;
+	char * ppdDiskSector;
+	char * ppdReadTimeMs;
+	char * ppdWriteTimeMs;
+	char * ppdRpm;
+	char * ppdSaltoPistaMs;
 	/*
 	 * Configuracion
 	 */
@@ -31,31 +31,31 @@
 	void setPpdAlgoritmo(char * p){
 		ppdAlgoritmo = p;
 	}
-	void setPpdPort(int p){
+	void setPpdPort(char * p){
 		ppdPort = p;
 	}
-	void setPpdIdDisk(int p){
+	void setPpdIdDisk(char * p){
 		ppdIdDisk = p;
 	}
-	void setPpdDiskCilinder(int p){
+	void setPpdDiskCilinder(char * p){
 		ppdDiskCilinder = p;
 	}
-	void setPpdDiskHead(int p){
+	void setPpdDiskHead(char * p){
 		ppdDiskHead = p;
 	}
-	void setPpdDiskSector(int p){
+	void setPpdDiskSector(char * p){
 		ppdDiskSector = p;
 	}
-	void setPpdReadTimeMs(int p){
+	void setPpdReadTimeMs(char * p){
 		ppdReadTimeMs = p;
 	}
-	void setPpdWriteTimeMs(int p){
+	void setPpdWriteTimeMs(char * p){
 		ppdWriteTimeMs = p;
 	}
-	void setPpdRpm(int p){
+	void setPpdRpm(char * p){
 		ppdRpm = p;
 	}
-	void setPpdSaltoPistaMs(int p){
+	void setPpdSaltoPistaMs(char * p){
 		ppdSaltoPistaMs = p;
 	}
 	char * getPpdMode(){
@@ -64,31 +64,31 @@
 	char * getPpdAlgoritmo(){
 		return ppdAlgoritmo;
 	}
-	int getPpdPort(){
+	char * getPpdPort(){
 		return ppdPort;
 	}
-	int getPpdIdDisk(){
+	char * getPpdIdDisk(){
 		return ppdIdDisk;
 	}
-	int getPpdDiskCilinder(){
+	char * getPpdDiskCilinder(){
 		return ppdDiskCilinder;
 	}
-	int getPpdDiskHead(){
+	char * getPpdDiskHead(){
 		return ppdDiskHead;
 	}
-	int getPpdDiskSector(){
+	char * getPpdDiskSector(){
 		return ppdDiskSector;
 	}
-	int getPpdReadTimeMs(){
+	char * getPpdReadTimeMs(){
 		return ppdReadTimeMs;
 	}
-	int getPpdWriteTimeMs(){
+	char * getPpdWriteTimeMs(){
 		return ppdWriteTimeMs;
 	}
-	int getPpdRpm(){
+	char * getPpdRpm(){
 		return ppdRpm;
 	}
-	int getPpdSaltoPistaMs(){
+	char * getPpdSaltoPistaMs(){
 		return ppdSaltoPistaMs;
 	}
 	void setPpdLoggingLevel(char * v){
