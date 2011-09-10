@@ -17,7 +17,7 @@
 
 	int unit_testing_loadAll(){
 
-		if(test_pfs_example_configureSuite())
+		if(test_pfs_configurationSuite())
 			return 1;
 
 		return 0;

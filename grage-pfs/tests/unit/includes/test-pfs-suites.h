@@ -9,6 +9,6 @@
 #ifndef TEST_LINUX_COMMONS_SUITES_H_
 #define TEST_LINUX_COMMONS_SUITES_H_
 
-	Boolean test_pfs_example_configureSuite();
+	Boolean test_pfs_configurationSuite();
 
 #endif /* TEST_LINUX_COMMONS_SUITES_H_ */

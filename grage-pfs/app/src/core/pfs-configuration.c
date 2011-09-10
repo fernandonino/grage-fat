@@ -5,6 +5,7 @@
  *      Author: gonzalo
  */
 
+#include <string.h>
 #include "linux-commons-file.h"
 
 #include "pfs-configuration.h"
@@ -14,18 +15,59 @@
 	 * Configuracion
 	 */
 
+	char * deviceAddress = NULL;
+	char * devicePort = NULL;
+	char * maxConnections = NULL;
+	char * cacheSize = NULL;
+
+	char * getDeviceAddress(void){
+		return deviceAddress;
+	}
+
+	void setDeviceAddress(char * devAddress){
+		deviceAddress = devAddress;
+	}
+
+	char * getDevicePort(void){
+		return devicePort;
+	}
+
+	void setDevicePort(char * devPort){
+		devicePort = devPort;
+	}
+
+	char * getMaxConnections(void){
+		return maxConnections;
+	}
+
+	void setMaxConnections(char * numberOfConnections){
+		maxConnections = numberOfConnections;
+	}
+
+	char * getCacheSize(void){
+		return cacheSize;
+	}
+
+	void setCacheSize(char * sizeOfCache){
+		cacheSize = sizeOfCache;
+	}
+
+	/*
+	 * Procesamiento de la configuracion
+	 */
 
 	void pfs_configuration_processEntries(char * key , char * value , void * object){
 
-		/**
-		 * aca va el procesamiento de los keys y values.
-		 */
+		if( !strcmp(key , PFS_DEVICE_ADDRESS)){
+                setDeviceAddress(value);
+        }else if(!strcmp(key , PFS_DEVICE_PORT)){
+                setDevicePort(value);
+        }else if(!strcmp(key , PFS_MAX_CONNECTIONS)){
+                setMaxConnections(value);
+        }else if(!strcmp(key , PFS_CACHE_SIZE)){
+                setCacheSize(value);
+        }
 	}
-
-
-
-
-
 
 
 	/*
