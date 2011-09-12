@@ -17,7 +17,7 @@
 
 	int unit_testing_loadAll(){
 
-		if(test_ppd_example_configureSuite())
+		if(test_ppd_configuration_configureSuite())
 			return 1;
 
 		return 0;

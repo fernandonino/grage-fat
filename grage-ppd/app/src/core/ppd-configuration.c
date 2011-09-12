@@ -105,7 +105,7 @@
 
 		/**
 		 * aca va el procesamiento de los keys y values.
-		 */
+		*/
 		if(commons_string_equals(key , PPD_CONFIGURATION_LOGGING_LEVEL)){
 			setPpdLoggingLevel(value);
 		}
@@ -142,6 +142,7 @@
 		if(commons_string_equals(key,PPD_CONFIGURATION_SALTO_PISTA)){
 			setPpdSaltoPistaMs(value);
 		}
+
 	}
 
 	/*
