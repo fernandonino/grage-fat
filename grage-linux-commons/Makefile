@@ -75,6 +75,7 @@ clean:
 	make clean-test
 	make clean-integration
 	make clean-target
+	make clean-eclipse-Debug
 
 ##
 ## Corrida completa de los tests
@@ -143,3 +144,7 @@ clean-integration:
 
 clean-target:
 	if [ -d target ]; then rm -r target ; fi
+	
+clean-eclipse-Debug:
+	if [ -d Debug ]; then rm -r Debug ; fi
+	

@@ -47,3 +47,8 @@ objdir:
 
 clean:
 	rm -rf build
+	make clean-eclipse-Debug
+
+	
+clean-eclipse-Debug:
+	if [ -d Debug ]; then rm -r Debug ; fi
