@@ -17,7 +17,7 @@
 
 	int unit_testing_loadAll(){
 
-		if(test_praid_example_configureSuite())
+		if(test_praid_configurationSuite())
 			return 1;
 
 		return 0;

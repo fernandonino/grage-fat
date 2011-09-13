@@ -4,35 +4,44 @@
  *  Created on: 05/09/2011
  *      Author: gonzalo
  */
-
+#include <string.h>
 #include "linux-commons-file.h"
 
 #include "praid-configuration.h"
 
-
-	/*
-	 * Configuracion
-	 */
+	char * deviceAddress = NULL;
+	char * consoleStatus = NULL;
 
 
-	void praid_configuration_processEntries(char * key , char * value , void * object){
-
-		/**
-		 * aca va el procesamiento de los keys y values.
-		 */
+	char * getDevicePort(void){
+		return deviceAddress;
 	}
 
+	void setDevicePort(char * devAddress){
+		deviceAddress = devAddress;
+	}
 
+	char * getConsoleStatus(void){
+		return consoleStatus;
+	}
 
+	void setConsoleStatus(char * consoleStatusValue){
+		consoleStatus = consoleStatusValue;
+	}
 
-
-
+	void praid_configuration_processEntries(char * key , char * value , void * object){
+		if( !strcmp(key, PRAID_DEVICE_PORT)){
+			setDevicePort(value);
+		}else if(!strcmp(key , PRAID_CONSOLE_STATUS)){
+			setConsoleStatus(value);
+		}
+	}
 
 	/*
 	 * Inicializacion de la configuracion
 	 */
 
-	char * configurationFile = PPD_DEFAULT_CONFIGURATION_FILE;
+	char * configurationFile = PRAID_DEFAULT_CONFIGURATION_FILE;
 
 	void praid_configuration_setConfigurationFile(char * s){
 		configurationFile = s;
