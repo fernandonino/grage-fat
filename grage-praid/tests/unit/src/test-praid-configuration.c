@@ -53,6 +53,7 @@
 
 
 	void test_praid_getDevicePort(){
+     setDevicePort(NULL);
 		char * port = getDevicePort();
 		CU_ASSERT_PTR_NULL(port);
 		setDevicePort("10000");
@@ -63,6 +64,7 @@
 	}
 
 	void test_praid_getConsoleStatus(){
+    setConsoleStatus(NULL);
 		char * port = getConsoleStatus();
 		CU_ASSERT_PTR_NULL(port);
 		setConsoleStatus("1");
