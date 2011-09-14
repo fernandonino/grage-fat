@@ -15,15 +15,15 @@
 #define	PFS_MAX_CONNECTIONS	"pfs.max.connections"
 #define PFS_CACHE_SIZE		"pfs.cache.size"
 
-	char * getDeviceAddress(void);
-	char * getMaxConnections(void);
-	char * getDevicePort(void);
-	char * getCacheSize(void);
+	char * pfs_configuration_getDeviceAddress(void);
+	char * pfs_configuration_getMaxConnections(void);
+	char * pfs_configuration_getDevicePort(void);
+	char * pfs_configuration_getCacheSize(void);
 
-	void setDevicePort(char * devPort);
-	void setDeviceAddress(char *);
-	void setMaxConnections(char * numberOfConnections);
-	void setCacheSize(char * sizeOfCache);
+	void pfs_configuration_setDevicePort(char * devPort);
+	void pfs_configuration_setDeviceAddress(char *);
+	void pfs_configuration_setMaxConnections(char * numberOfConnections);
+	void pfs_configuration_setCacheSize(char * sizeOfCache);
 
 	void pfs_configuration_processEntries(char * key , char * value , void * object);
 

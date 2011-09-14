@@ -67,49 +67,49 @@
 
 
 	void test_pfs_setDevicePort(){
-		setDevicePort("10000");
-		char * port = getDevicePort();
+		pfs_configuration_setDevicePort("10000");
+		char * port = pfs_configuration_getDevicePort();
 		CU_ASSERT_PTR_NOT_NULL(port);
 		CU_ASSERT_STRING_EQUAL(port,"10000");
 	}
 
 	void test_pfs_setDeviceAddress(){
-		setDeviceAddress("127.0.0.1");
-		char * address = getDeviceAddress();
+		pfs_configuration_setDeviceAddress("127.0.0.1");
+		char * address = pfs_configuration_getDeviceAddress();
 		CU_ASSERT_PTR_NOT_NULL(address);
 		CU_ASSERT_STRING_EQUAL(address,"127.0.0.1");
 	}
 
 	void test_pfs_setMaxConnections(){
-		setMaxConnections("5");
-		char * connections = getMaxConnections();
+		pfs_configuration_setMaxConnections("5");
+		char * connections = pfs_configuration_getMaxConnections();
 		CU_ASSERT_PTR_NOT_NULL(connections);
 		CU_ASSERT_STRING_EQUAL(connections,"5");
 	}
 
 	void test_pfs_setCacheSize(){
-		setCacheSize("32");
-		char * size = getCacheSize();
+		pfs_configuration_setCacheSize("32");
+		char * size = pfs_configuration_getCacheSize();
 		CU_ASSERT_PTR_NOT_NULL(size);
 		CU_ASSERT_STRING_EQUAL(size,"32");
 	}
 
 	void test_pfs_getDevicePort(){
-		char * port = getDevicePort();
+		char * port = pfs_configuration_getDevicePort();
 		CU_ASSERT_PTR_NULL(port);
 	}
 
 	void test_pfs_getDeviceAddress(){
-		char * address = getDeviceAddress();
+		char * address = pfs_configuration_getDeviceAddress();
 		CU_ASSERT_PTR_NULL(address);
 	}
 
 	void test_pfs_getMaxConnections(){
-		char * connections = getMaxConnections();
+		char * connections = pfs_configuration_getMaxConnections();
 		CU_ASSERT_PTR_NULL(connections);
 	}
 
 	void test_pfs_getCacheSize(){
-		char * size = getCacheSize();
+		char * size = pfs_configuration_getCacheSize();
 		CU_ASSERT_PTR_NULL(size);
 	}

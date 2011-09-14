@@ -20,35 +20,35 @@
 	char * maxConnections = NULL;
 	char * cacheSize = NULL;
 
-	char * getDeviceAddress(void){
+	char * pfs_configuration_getDeviceAddress(void){
 		return deviceAddress;
 	}
 
-	void setDeviceAddress(char * devAddress){
+	void pfs_configuration_setDeviceAddress(char * devAddress){
 		deviceAddress = devAddress;
 	}
 
-	char * getDevicePort(void){
+	char * pfs_configuration_getDevicePort(void){
 		return devicePort;
 	}
 
-	void setDevicePort(char * devPort){
+	void pfs_configuration_setDevicePort(char * devPort){
 		devicePort = devPort;
 	}
 
-	char * getMaxConnections(void){
+	char * pfs_configuration_getMaxConnections(void){
 		return maxConnections;
 	}
 
-	void setMaxConnections(char * numberOfConnections){
+	void pfs_configuration_setMaxConnections(char * numberOfConnections){
 		maxConnections = numberOfConnections;
 	}
 
-	char * getCacheSize(void){
+	char * pfs_configuration_getCacheSize(void){
 		return cacheSize;
 	}
 
-	void setCacheSize(char * sizeOfCache){
+	void pfs_configuration_setCacheSize(char * sizeOfCache){
 		cacheSize = sizeOfCache;
 	}
 
@@ -59,13 +59,13 @@
 	void pfs_configuration_processEntries(char * key , char * value , void * object){
 
 		if( !strcmp(key , PFS_DEVICE_ADDRESS)){
-                setDeviceAddress(value);
+			pfs_configuration_setDeviceAddress(value);
         }else if(!strcmp(key , PFS_DEVICE_PORT)){
-                setDevicePort(value);
+        	pfs_configuration_setDevicePort(value);
         }else if(!strcmp(key , PFS_MAX_CONNECTIONS)){
-                setMaxConnections(value);
+        	pfs_configuration_setMaxConnections(value);
         }else if(!strcmp(key , PFS_CACHE_SIZE)){
-                setCacheSize(value);
+        	pfs_configuration_setCacheSize(value);
         }
 	}
 
