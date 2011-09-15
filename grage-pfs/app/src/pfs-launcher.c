@@ -12,27 +12,27 @@
 
 
 	void pfs_launcher_initialize(){
-		pfs_configuration_setup();
+		pfs_configuration_initialize();
 	}
 
 
-	void pfs_launcher_doLaunch(){
+	void pfs_launcher_launch(){
 
 	}
 
 
-	int main(int argc, char *args[]){
+	int main(int argc, char *argv[]){
 
 		/*
 		 * Parametro de la aplicacion - path al archivo de conf
 		 */
 		if(argc > 0){
-			pfs_configuration_setConfigurationFile(args[0]);
+			pfs_configuration_setConfigurationFile(argv[1]);
 		}
 
 		pfs_launcher_initialize();
 
-		pfs_launcher_doLaunch();
+		pfs_launcher_launch();
 
 		return EXIT_SUCCESS;
 	}

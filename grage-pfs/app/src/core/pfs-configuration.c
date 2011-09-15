@@ -83,7 +83,7 @@
 		return configurationFile;
 	}
 
-	void pfs_configuration_setup(){
+	void pfs_configuration_initialize(){
 		File * file = commons_file_openFile(configurationFile);
 		commons_file_loadConfiguration(file , pfs_configuration_processEntries);
 		commons_misc_doFreeNull((void**) &file);

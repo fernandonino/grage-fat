@@ -5,6 +5,8 @@
 ## Parametros a customizar para cada aplicacion
 GRAGE_PROJECT_NAME=grage-pfs
 BUILD_SOURCE=app/src/core/*
+BUILD_SOURCE_CONSOLE=app/src/console/*
+BUILD_SOURCE_SERVICES=app/src/services/*
 
 
 
@@ -45,7 +47,7 @@ build:
 	mkdir build/bin
 	mkdir build/conf
 	mkdir build/logs
-	gcc $(BUILD_SOURCE) ./app/src/*.c $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET)
+	gcc $(BUILD_SOURCE) $(BUILD_SOURCE_SERVICES) $(BUILD_SOURCE_CONSOLE) ./app/src/*.c $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET)
 	cp app/conf/* build/conf
 
 

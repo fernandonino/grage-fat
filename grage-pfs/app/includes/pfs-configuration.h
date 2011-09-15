@@ -30,6 +30,6 @@
 	void pfs_configuration_setConfigurationFile(char * s);
 	char * pfs_configuration_getConfigurationFile();
 
-	void pfs_configuration_setup();
+	void pfs_configuration_initialize();
 
 #endif /* PFS_CONFIGURATION_H_ */
