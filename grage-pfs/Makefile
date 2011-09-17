@@ -84,9 +84,8 @@ test-build:
 ## Ejecucion de los tests
 ##
 test-run:
-	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then ./$(TEST_UNIT_TARGET_DIR)/bin/$(TEST_LAUNCHER); fi 
-	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then mv $(GRAGE_PROJECT_NAME)-Listing.xml $(TEST_UNIT_TARGET_DIR); fi
-	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then mv $(GRAGE_PROJECT_NAME)-Results.xml $(TEST_UNIT_TARGET_DIR);	fi
+	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then cd ./$(TEST_UNIT_TARGET_DIR)/bin && ./$(TEST_LAUNCHER) && cd ../../.. ; fi 
+	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then mv $(TEST_UNIT_TARGET_DIR)/bin/*.xml $(TEST_UNIT_TARGET_DIR); fi
 	
 ##
 ## Generacion de los reportes
