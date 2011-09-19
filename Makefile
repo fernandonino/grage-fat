@@ -5,7 +5,9 @@ install:
 	make install -C grage-linux-testing-unit
 	make install -C grage-linux-testing-integration
 	make install -C grage-linux-commons
-
+	make build   -C grage-pfs
+	make build   -C grage-praid
+	make build   -C grage-ppd
 clean:
 	make clean -C grage-linux-commons
 	make clean -C grage-linux-testing-integration
