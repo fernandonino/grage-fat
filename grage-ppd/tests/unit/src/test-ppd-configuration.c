@@ -32,8 +32,8 @@
 		return EXIT_SUCCESS;
 	}
 
-	void test_ppd_configuration_setup(){
-		/*char * p;
+	/*void test_ppd_configuration_setup(){
+		char * p;
 		ppd_configuration_setup();
 		p=getPpdMode();
 		CU_ASSERT_EQUAL(p,"connect");
@@ -57,7 +57,49 @@
 		CU_ASSERT_EQUAL(p,"7200");
 		p=getPpdSaltoPistaMs();
 		CU_ASSERT_EQUAL(p,"5");
-		CU_ASSERT_EQUAL(commons_logging_getLoggingLevelEnabled(),LOGGING_LEVEL_INFO);*/
+		CU_ASSERT_EQUAL(commons_logging_getLoggingLevelEnabled(),LOGGING_LEVEL_INFO);
+	}*/
+
+	void test_ppd_configuration_setup(){
+		char * value;
+
+		ppd_configuration_setConfigurationFile("../conf/grage-ppd.properties");
+		ppd_configuration_setup();
+
+		value = getPpdMode();
+		CU_ASSERT_STRING_EQUAL(value,"connect");
+
+		value = getPpdAlgoritmo();
+		CU_ASSERT_STRING_EQUAL(value , "scan");
+
+		value = getPpdPort();
+		CU_ASSERT_STRING_EQUAL(value , "666");
+
+		value = getPpdIdDisk();
+		CU_ASSERT_STRING_EQUAL(value , "7");
+
+		value = getPpdDiskCilinder();
+		CU_ASSERT_STRING_EQUAL(value , "10");
+
+		value = getPpdDiskHead();
+		CU_ASSERT_STRING_EQUAL(value , "9");
+
+		value = getPpdDiskSector();
+		CU_ASSERT_STRING_EQUAL(value , "8");
+
+		value = getPpdReadTimeMs();
+		CU_ASSERT_STRING_EQUAL(value , "2");
+
+		value = getPpdWriteTimeMs();
+		CU_ASSERT_STRING_EQUAL(value , "3");
+
+		value = getPpdRpm();
+		CU_ASSERT_STRING_EQUAL(value , "7200");
+
+		value = getPpdSaltoPistaMs();
+		CU_ASSERT_STRING_EQUAL(value , "5");
+
+		CU_ASSERT_EQUAL(commons_logging_getLoggingLevelEnabled(),LOGGING_LEVEL_INFO);
 	}
 
 
