@@ -47,11 +47,9 @@
 		if( unit_testing_addToSuite(suite , "Apertura y escritura en log" ,
 				test_commons_logging_writeLogString) == NULL)
 			return EXIT_FAILURE;
-		/*
 		if( unit_testing_addToSuite(suite , "Impresion en pantalla de la linea de log" ,
 				test_commons_logging_println) == NULL)
 			return EXIT_FAILURE;
-		*/
 		if( unit_testing_addToSuite(suite , "Impresion en pantalla de la linea de log de tipo INFO y escribirla en su archivo" ,
 				test_commons_logging_logInfo) == NULL)
 			return EXIT_FAILURE;
@@ -124,11 +122,11 @@
 			}
 		}
 	}
-/*
+
 	void test_commons_logging_println(){
 		//No requiere test
 	}
-*/
+
 	void test_commons_logging_logError(){
 		int testLevelEnabled = 1;
 		char testingProcedure[10], path[50];
