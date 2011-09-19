@@ -19,6 +19,7 @@
 
 #include "linux-commons.h"
 #include "linux-commons-logging.h"
+#include "linux-commons-strings.h"
 
 	Boolean printfEnabled = TRUE;
 	int levelEnabled;
@@ -92,7 +93,7 @@
 	}
 
 	void commons_logging_regSignals() {
-		signal(SIGINT, commons_logging_defaultSigHandler);
+		signal(SIGINT,  commons_logging_defaultSigHandler);
 		signal(SIGKILL, commons_logging_defaultSigHandler);
 		signal(SIGTERM, commons_logging_defaultSigHandler);
 		signal(SIGSTOP, commons_logging_defaultSigHandler);

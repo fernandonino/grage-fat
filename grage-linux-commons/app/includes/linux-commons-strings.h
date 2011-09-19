@@ -24,6 +24,7 @@
 	String commons_string_cloneString(String string);
 	String commons_string_fillIntString(int v , int spacesToFix);
 	String commons_string_replaceAll(String s1 , String s2 , String s3);
+	String commons_string_trimd(String string);
 
 	Boolean commons_string_equals(String s1 , String s2);
 	Boolean commons_string_startsWith(String s1 , String s2);
