@@ -81,7 +81,7 @@
 		char logname[20];
 
 		bzero(logname, sizeof(logname));
-		sprintf(logname, "app/logs/%s.log", procName);
+		sprintf(logname, "../logs/%s.log", procName);
 
 		logfile = fopen(logname, "a+");
 

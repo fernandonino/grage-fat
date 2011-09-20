@@ -1,4 +1,0 @@
-[0:20:59:362] [Proc:linux-commons] [PID:2899] [TID:18626656] [Type:DEBUG] Ejecutando comando nativo del sistema: 'rm -r /opt/grage-repository/hudson/reports/directorio.txt'
-[0:21:10:513] [Proc:linux-commons] [PID:2960] [TID:39217248] [Type:ERROR] no se pudo bindear el socket
-[0:22:47:270] [Proc:linux-commons] [PID:3107] [TID:20768864] [Type:DEBUG] Ejecutando comando nativo del sistema: 'rm -r /opt/grage-repository/hudson/reports/directorio.txt'
-[12:10:45:552] [Proc:linux-commons] [PID:2743] [TID:24438880] [Type:ERROR] no se pudo bindear el socket

@@ -101,7 +101,7 @@
 		bzero( path , sizeof(path) );
 		bzero( line , sizeof(line) );
 		strcpy(testingProcedure, "init");
-		sprintf( path , "app/logs/%s.log" , testingProcedure );
+		sprintf( path , "../logs/%s.log" , testingProcedure );
 		logfilePrueba = fopen(path, "r+");
 		CU_ASSERT_PTR_NULL(logfilePrueba);
 
@@ -134,7 +134,7 @@
 
 		bzero(testingProcedure, sizeof(testingProcedure));
 		strcpy(testingProcedure, "init");
-		sprintf(path, "app/logs/%s.log", testingProcedure);
+		sprintf(path, "../logs/%s.log", testingProcedure);
 
 		commons_logging_setLoggingLevelEnabled(testLevelEnabled);
 		commons_logging_initLog(testingProcedure);
@@ -163,7 +163,7 @@
 
 		bzero(testingProcedure, sizeof(testingProcedure));
 		strcpy(testingProcedure, "init");
-		sprintf(path, "app/logs/%s.log", testingProcedure);
+		sprintf(path, "../logs/%s.log", testingProcedure);
 
 		commons_logging_setLoggingLevelEnabled(testLevelEnabled);
 		commons_logging_initLog(testingProcedure);
@@ -200,7 +200,7 @@
 
 		bzero(testingProcedure, sizeof(testingProcedure));
 		strcpy(testingProcedure, "init");
-		sprintf(path, "app/logs/%s.log", testingProcedure);
+		sprintf(path, "../logs/%s.log", testingProcedure);
 
 		commons_logging_setLoggingLevelEnabled(testLevelEnabled);
 		commons_logging_initLog(testingProcedure);
