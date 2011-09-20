@@ -44,14 +44,6 @@ TEST_INTEG_TARGET_DIR = target/integration
 
 TEST_LAUNCHER=testLauncher-$(GRAGE_PROJECT_NAME)
 
-#
-# Instalacion de librerias y headers en un
-# repositorio comun
-#
-install: build
-	if [ -d $(GRAGE_REPOSITORY_INCLUDES) ]; then cp $(BUILD_INCLUDES)/*.h $(GRAGE_REPOSITORY_INCLUDES); fi
-	if [ -d $(GRAGE_REPOSITORY_LIB) ]; then cp $(BUILD_TARGET) $(GRAGE_REPOSITORY_LIB); fi
-
 
 #
 # Comportamiento comun
@@ -67,38 +59,16 @@ objdir:
 	gcc -I$(BUILD_INCLUDES) $(BUILD_SOURCE) -w -g -c -lm
 	mv *.o build/obj
 
-clean-build:
-	if [ -d $(BUILD_DIR) ]; then rm -r $(BUILD_DIR); fi
 
-clean:
-	make clean-build
-	make clean-test
-	make clean-integration
-	make clean-target
-	make clean-eclipse-Debug
+#
+# Instalacion de librerias y headers en un
+# repositorio comun
+#
+install: build
+	if [ -d $(GRAGE_REPOSITORY_INCLUDES) ]; then cp $(BUILD_INCLUDES)/*.h $(GRAGE_REPOSITORY_INCLUDES); fi
+	if [ -d $(GRAGE_REPOSITORY_LIB) ]; then cp $(BUILD_TARGET) $(GRAGE_REPOSITORY_LIB); fi
 
-##
-## Corrida completa de los tests
-##
-tests: clean-test test-build test-run test-reports test-install
 
-##
-## Compilacion de los test
-##
-test-build:
-	mkdir $(TEST_UNIT_TARGET_DIR) -p
-	gcc $(TEST_UNIT_SOURCE) -I$(GRAGE_REPOSITORY_INCLUDES) -I$(TEST_UNIT_INCLUDES) -L$(GRAGE_REPOSITORY_LIB) -l$(GRAGE_UNIT_TESTING_LIB)\
-	  -l$(GRAGE_PROJECT_NAME) -lm -lpthread -I/usr/local/include/CUnit -L/usr/local/lib -lcunit\
-	  -static -o $(TEST_UNIT_TARGET_DIR)/$(TEST_LAUNCHER)
-
-##
-## Ejecucion de los tests
-##
-test-run:
-	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then ./$(TEST_UNIT_TARGET_DIR)/$(TEST_LAUNCHER); fi 
-	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then mv $(GRAGE_PROJECT_NAME)-Listing.xml $(TEST_UNIT_TARGET_DIR); fi
-	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then mv $(GRAGE_PROJECT_NAME)-Results.xml $(TEST_UNIT_TARGET_DIR);	fi
-	
 ##
 ## Generacion de los reportes
 ##
@@ -113,17 +83,20 @@ test-reports:
 ##	
 test-install:	 
 	cp  $(TEST_UNIT_TARGET_DIR)/$(GRAGE_PROJECT_NAME)-Hudson-Reports.xml $(GRAGE_REPOSITORY_HUDSON_REPORTS)
+
 	
 ##
-## Clean de test y reportes
-##	
-clean-test:
-	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then rm -r $(TEST_UNIT_TARGET_DIR); fi
-
+## Compilacion de los test de unidad
+##
+test-build:
+	mkdir $(TEST_UNIT_TARGET_DIR) -p
+	gcc $(TEST_UNIT_SOURCE) -I$(GRAGE_REPOSITORY_INCLUDES) -I$(TEST_UNIT_INCLUDES) -L$(GRAGE_REPOSITORY_LIB) -l$(GRAGE_UNIT_TESTING_LIB)\
+	  -l$(GRAGE_PROJECT_NAME) -lm -lpthread -I/usr/local/include/CUnit -L/usr/local/lib -lcunit\
+	  -static -o $(TEST_UNIT_TARGET_DIR)/$(TEST_LAUNCHER)
 
 
 ##
-## 
+## Compilacion de los test de integracion
 ##
 integration: clean-integration integration-build integration-run
 
@@ -136,15 +109,43 @@ integration-build:
 integration-run:
 	if [ -d $(TEST_INTEG_TARGET_DIR) ]; then ./$(TEST_INTEG_TARGET_DIR)/$(TEST_LAUNCHER); fi 
 
+
+##
+## Corrida completa de los tests
+##
+tests: clean-test test-build test-run test-reports test-install
+
+
+##
+## Ejecucion de los tests
+##
+test-run:
+	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then ./$(TEST_UNIT_TARGET_DIR)/$(TEST_LAUNCHER); fi 
+	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then mv $(GRAGE_PROJECT_NAME)-Listing.xml $(TEST_UNIT_TARGET_DIR); fi
+	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then mv $(GRAGE_PROJECT_NAME)-Results.xml $(TEST_UNIT_TARGET_DIR); fi
+
+
+##
+## Clean de test y reportes
+##	
+clean-build:
+	if [ -d $(BUILD_DIR) ]; then rm -r $(BUILD_DIR); fi
+
+clean-test:
+	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then rm -r $(TEST_UNIT_TARGET_DIR); fi
+
 clean-integration:
 	if [ -d $(TEST_INTEG_TARGET_DIR) ]; then rm -r $(TEST_INTEG_TARGET_DIR); fi
 
-	
-	
-
 clean-target:
 	if [ -d target ]; then rm -r target ; fi
-	
+
 clean-eclipse-Debug:
 	if [ -d Debug ]; then rm -r Debug ; fi
-	
+
+clean:
+	make clean-build
+	make clean-test
+	make clean-integration
+	make clean-target
+	make clean-eclipse-Debug	
