@@ -26,6 +26,7 @@ GRAGE_REPOSITORY=/opt/grage-repository
 
 BUILD_DIR=build
 BUILD_TARGET = build/bin/$(GRAGE_PROJECT_NAME)
+BUILD_LIB = build/lib$(GRAGE_PROJECT_NAME).a
 BUILD_INCLUDES = -I./app/includes -I$(GRAGE_REPOSITORY_INCLUDES) 
 BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-linux-commons -lm -lpthread 
 
@@ -48,6 +49,15 @@ build:
 	gcc $(BUILD_SOURCE) ./app/src/*.c $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET)
 	cp app/conf/* build/conf
 
+build-lib: objdir
+	ar rcs $(BUILD_LIB) build/obj/*.o
+	rm -rf build/obj
+	
+objdir:
+	if [ -d build ]; then rm -rf build; fi
+	mkdir -p build/obj
+	gcc $(BUILD_INCLUDES) $(BUILD_SOURCE) -w -g -c -lm
+	mv *.o build/obj
 	
 ##
 ## Generacion de los reportes
