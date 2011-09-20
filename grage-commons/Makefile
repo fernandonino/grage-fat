@@ -15,7 +15,7 @@ GRAGE_REPOSITORY_HUDSON_XSLT=$(GRAGE_REPOSITORY_HUDSON)/xslt
 GRAGE_XSLT_TEMPLATE=$(GRAGE_REPOSITORY_HUDSON_XSLT)/template1.xsl
 
 ## nombres generales del projecto
-GRAGE_PROJECT_NAME=grage-linux-commons
+GRAGE_PROJECT_NAME=grage-commons
 GRAGE_UNIT_TESTING_LIB=grage-linux-testing-unit
 GRAGE_INTEGRATION_TESTING_LIB=grage-linux-testing-integration
 
