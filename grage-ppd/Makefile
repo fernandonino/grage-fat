@@ -11,7 +11,7 @@ BUILD_SOURCE=app/src/core/*
 
 
 ##
-##Compilacion de la aplicacin (app)
+##Compilacion de la aplicacion (app)
 ##
 
 GRAGE_REPOSITORY_HUDSON=$(GRAGE_REPOSITORY)/hudson
@@ -49,23 +49,24 @@ build:
 	cp app/conf/* build/conf
 
 
-clean-build:
-	if [ -d $(BUILD_DIR) ]; then rm -r $(BUILD_DIR); fi
+##
+## Generacion de los reportes
+##
+test-reports:
+	xsltproc --stringparam suitename $(GRAGE_PROJECT_NAME)\
+	 -o $(TEST_UNIT_TARGET_DIR)/$(GRAGE_PROJECT_NAME)-Hudson-Reports.xml\
+	 $(GRAGE_XSLT_TEMPLATE) $(TEST_UNIT_TARGET_DIR)/$(GRAGE_PROJECT_NAME)-Results.xml 
 
-clean:
-	make clean-build
-	make clean-test
-	make clean-integration
-	make clean-target
-	make clean-eclipse-Debug
-	
-##
-## Corrida completa de los tests
-##
-tests: clean-test test-build test-run test-reports test-install
 
 ##
-## Compilacion de los test
+## Instalacion de los reportes
+##	
+test-install:	 
+	cp  $(TEST_UNIT_TARGET_DIR)/$(GRAGE_PROJECT_NAME)-Hudson-Reports.xml $(GRAGE_REPOSITORY_HUDSON_REPORTS)
+
+
+##
+## Compilacion de los test de unidad
 ##
 test-build:
 	mkdir $(TEST_UNIT_TARGET_DIR) -p
@@ -77,39 +78,10 @@ test-build:
 	   $(BUILD_DEPS) -I/usr/local/include/CUnit -L/usr/local/lib -lcunit -static -o $(TEST_UNIT_TARGET_DIR)/bin/$(TEST_LAUNCHER)
 
 	cp -r app/conf/* $(TEST_UNIT_TARGET_DIR)/conf
-
-##
-## Ejecucion de los tests
-##
-test-run:
-	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then cd ./$(TEST_UNIT_TARGET_DIR)/bin && ./$(TEST_LAUNCHER) && cd ../../.. ; fi 
-	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then mv $(TEST_UNIT_TARGET_DIR)/bin/*.xml $(TEST_UNIT_TARGET_DIR); fi
-
-##
-## Generacion de los reportes
-##
-test-reports:
-	xsltproc --stringparam suitename $(GRAGE_PROJECT_NAME)\
-	 -o $(TEST_UNIT_TARGET_DIR)/$(GRAGE_PROJECT_NAME)-Hudson-Reports.xml\
-	 $(GRAGE_XSLT_TEMPLATE) $(TEST_UNIT_TARGET_DIR)/$(GRAGE_PROJECT_NAME)-Results.xml 
 	
-	
-##
-## Instalacion de los reportes
-##	
-test-install:	 
-	cp  $(TEST_UNIT_TARGET_DIR)/$(GRAGE_PROJECT_NAME)-Hudson-Reports.xml $(GRAGE_REPOSITORY_HUDSON_REPORTS)
-	
-##
-## Clean de test y reportes
-##	
-clean-test:
-	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then rm -r $(TEST_UNIT_TARGET_DIR); fi
-
-
 
 ##
-## 
+## Compilacion de test de integracion
 ##
 integration: clean-integration integration-build integration-run
 
@@ -121,12 +93,42 @@ integration-build:
 integration-run:
 	if [ -d $(TEST_INTEG_TARGET_DIR) ]; then ./$(TEST_INTEG_TARGET_DIR)/$(TEST_LAUNCHER); fi 
 
+
+##
+## Corrida completa de los tests
+##
+tests: clean-test test-build test-run test-reports test-install
+
+
+##
+## Ejecucion de los tests
+##
+test-run:
+	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then cd ./$(TEST_UNIT_TARGET_DIR)/bin && ./$(TEST_LAUNCHER) && cd ../../.. ; fi 
+	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then mv $(TEST_UNIT_TARGET_DIR)/bin/*.xml $(TEST_UNIT_TARGET_DIR); fi
+
+
+##
+## Clean de build, test y reportes
+##
+clean-build:
+	if [ -d $(BUILD_DIR) ]; then rm -r $(BUILD_DIR); fi
+
+clean-test:
+	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then rm -r $(TEST_UNIT_TARGET_DIR); fi
+
 clean-integration:
 	if [ -d $(TEST_INTEG_TARGET_DIR) ]; then rm -r $(TEST_INTEG_TARGET_DIR); fi
 
-	
 clean-target:
 	if [ -d target ]; then rm -r target ; fi
 
 clean-eclipse-Debug:
 	if [ -d Debug ]; then rm -r Debug ; fi
+
+clean:
+	make clean-build
+	make clean-test
+	make clean-integration
+	make clean-target
+	make clean-eclipse-Debug
