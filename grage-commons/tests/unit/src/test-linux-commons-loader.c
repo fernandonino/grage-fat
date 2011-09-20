@@ -13,7 +13,7 @@
 #include "test-linux-commons-suites.h"
 
 	char * unit_testing_getProjectName(){
-		return "grage-linux-commons";
+		return "grage-commons";
 	}
 
 
