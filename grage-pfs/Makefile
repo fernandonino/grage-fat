@@ -29,7 +29,7 @@ GRAGE_REPOSITORY=/opt/grage-repository
 BUILD_DIR=build
 BUILD_TARGET = build/bin/$(GRAGE_PROJECT_NAME)
 BUILD_INCLUDES = -I./app/includes -I$(GRAGE_REPOSITORY_INCLUDES) 
-BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-linux-commons -lm -lpthread 
+BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-linux-commons -lm -lpthread -D_FILE_OFFSET_BITS=64
 
 TEST_UNIT_INCLUDES=./tests/unit/includes
 TEST_UNIT_SOURCE=./tests/unit/src/*

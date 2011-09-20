@@ -26,8 +26,10 @@
 		/*
 		 * Parametro de la aplicacion - path al archivo de conf
 		 */
-		if(argc > 0){
+		if(argc > 1){
 			pfs_configuration_setConfigurationFile(argv[1]);
+		} else {
+			pfs_configuration_setConfigurationFile(PFS_DEFAULT_CONFIGURATION_FILE);
 		}
 
 		pfs_launcher_initialize();

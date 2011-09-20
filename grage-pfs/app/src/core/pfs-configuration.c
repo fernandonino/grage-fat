@@ -19,6 +19,7 @@
 	char * devicePort = NULL;
 	char * maxConnections = NULL;
 	char * cacheSize = NULL;
+	char * configurationFile = NULL;
 
 	char * pfs_configuration_getDeviceAddress(void){
 		return deviceAddress;
@@ -73,8 +74,6 @@
 	/*
 	 * Inicializacion de la configuracion
 	 */
-
-	char * configurationFile = PFS_DEFAULT_CONFIGURATION_FILE;
 
 	void pfs_configuration_setConfigurationFile(char * s){
 		configurationFile = s;
