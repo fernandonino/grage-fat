@@ -7,6 +7,8 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <stdint.h>
+
 
 #ifndef COMMONS_DEFINITIONS
 #define COMMONS_DEFINITIONS
@@ -31,6 +33,10 @@
 	typedef int Boolean;
 	typedef char * String;
 	typedef void * Object;
+
+
+	typedef uint32_t uint32;
+	typedef int32_t int32;
 
 
 	/*
