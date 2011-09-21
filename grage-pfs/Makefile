@@ -29,7 +29,9 @@ GRAGE_REPOSITORY=/opt/grage-repository
 BUILD_DIR=build
 BUILD_TARGET = build/bin/$(GRAGE_PROJECT_NAME)
 BUILD_INCLUDES = -I./app/includes -I$(GRAGE_REPOSITORY_INCLUDES) 
-BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-linux-commons -lm -lpthread -D_FILE_OFFSET_BITS=64
+BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-commons -lm -lpthread `pkg-config fuse --cflags --libs` -DFUSE_USE_VERSION=22
+BUILD_LIB_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-commons -lgrage-ppd -lgrage-praid \
+		-lm -lpthread `pkg-config fuse --cflags --libs` -DFUSE_USE_VERSION=22
 
 TEST_UNIT_INCLUDES=./tests/unit/includes
 TEST_UNIT_SOURCE=./tests/unit/src/*
@@ -48,6 +50,15 @@ build:
 	mkdir build/conf
 	mkdir build/logs
 	gcc $(BUILD_SOURCE) $(BUILD_SOURCE_SERVICES) $(BUILD_SOURCE_CONSOLE) ./app/src/*.c $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET)
+	cp app/conf/* build/conf
+	
+build-lib:
+	if [ -d build ]; then rm -rf build; fi
+	mkdir build
+	mkdir build/bin
+	mkdir build/conf
+	mkdir build/logs
+	gcc $(BUILD_SOURCE) $(BUILD_SOURCE_SERVICES) $(BUILD_SOURCE_CONSOLE) ./app/src/*.c $(BUILD_INCLUDES) $(BUILD_LIB_DEPS) -o $(BUILD_TARGET)
 	cp app/conf/* build/conf
 
 	

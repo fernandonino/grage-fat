@@ -8,7 +8,10 @@
 #ifndef PFS_FUSE_H_
 #define PFS_FUSE_H_
 
-	int pfs_fuse_create(const char *path, mode_t mode, struct fuse_file_info *fi);
+	/* Funciones a llamar por el Kernel
+	para interactuar con el volumen FAT32 */
+
+	int pfs_fuse_mknod(const char *path, mode_t mode, dev_t dev);
 	int pfs_fuse_open(const char *path, struct fuse_file_info *fi);
 	int pfs_fuse_read(const char *path, char *buf,
 			size_t size, off_t offset, struct fuse_file_info *fi);
@@ -24,5 +27,7 @@
 	int pfs_fuse_rmdir(const char * path);
 	int pfs_fuse_getattr(const char *path, struct stat *statbuf);
 	int pfs_fuse_rename(const char * path, const char * newpath);
+
+	int pfs_fuse_startFuse(int , char ** , struct fuse_operations *);
 
 #endif /* PFS_FUSE_H_ */

@@ -28,7 +28,7 @@ BUILD_DIR=build
 BUILD_TARGET = build/bin/$(GRAGE_PROJECT_NAME)
 BUILD_LIB = build/lib$(GRAGE_PROJECT_NAME).a
 BUILD_INCLUDES = -I./app/includes -I$(GRAGE_REPOSITORY_INCLUDES) 
-BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-linux-commons -lm -lpthread 
+BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-commons -lm -lpthread 
 
 TEST_UNIT_INCLUDES=./tests/unit/includes
 TEST_UNIT_SOURCE=./tests/unit/src/*
@@ -52,6 +52,8 @@ build:
 build-lib: objdir
 	ar rcs $(BUILD_LIB) build/obj/*.o
 	rm -rf build/obj
+	cp $(BUILD_LIB) $(GRAGE_REPOSITORY_LIB)
+	cp app/includes/*.h $(GRAGE_REPOSITORY_INCLUDES)
 	
 objdir:
 	if [ -d build ]; then rm -rf build; fi

@@ -13,7 +13,25 @@
 
 #include <pfs-fuse.h>
 
-	int pfs_fuse_create(const char *path, mode_t mode, struct fuse_file_info *fi){
+	struct fuse_operations grage_oper = {
+	  .getattr = pfs_fuse_getattr,
+	  .getdir = NULL, //getdir aparentemente esta deprecated
+	  .mkdir = pfs_fuse_mkdir,
+	  .unlink = pfs_fuse_unlink,
+	  .rmdir = pfs_fuse_rmdir,
+	  .rename = pfs_fuse_rename,
+	  .open = pfs_fuse_open,
+	  .read = pfs_fuse_read,
+	  .write = pfs_fuse_write,
+	  .flush = pfs_fuse_flush,
+	  .release = pfs_fuse_release,
+	  .readdir = pfs_fuse_readdir,
+	  .mknod = pfs_fuse_mknod,
+	  .truncate = pfs_fuse_truncate,
+	};
+
+
+	int pfs_fuse_mknod(const char *path, mode_t mode, dev_t dev){
 		return EXIT_SUCCESS;
 	}
 
@@ -68,4 +86,9 @@
 
 	int pfs_fuse_rename(const char * path, const char * newpath){
 		return EXIT_SUCCESS;
+	}
+
+	int pfs_fuse_startFuse(int argc , char * argv[] , struct fuse_operations * operations){
+		int fuse_stat = fuse_main(argc, argv, operations);
+		return fuse_stat;
 	}
