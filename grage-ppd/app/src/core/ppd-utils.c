@@ -6,15 +6,4 @@
  */
 #include "linux-commons-logging.h"
 
-	void ppd_utils_info(char * m){
-		commons_logging_logInfo("PPD" , m);
-	}
-
-	void ppd_utils_debug(char * m){
-		commons_logging_logDebug("PPD" , m);
-	}
-
-	void ppd_utils_error(char * m){
-		commons_logging_logError("PPD" , m);
-	}
 

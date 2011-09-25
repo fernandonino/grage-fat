@@ -98,8 +98,6 @@
 
 		value = getPpdSaltoPistaMs();
 		CU_ASSERT_STRING_EQUAL(value , "5");
-
-		CU_ASSERT_EQUAL(commons_logging_getLoggingLevelEnabled(),LOGGING_LEVEL_INFO);
 	}
 
 

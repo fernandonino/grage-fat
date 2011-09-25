@@ -6,11 +6,12 @@
  */
 
 #include <stdlib.h>
+#include <linux-commons-logging.h>
 #include "linux-commons-file.h"
 #include "linux-commons-strings.h"
-#include "linux-commons-logging.h"
 #include "ppd-configuration.h"
 #include "ppd-utils.h"
+	extern t_log * logstruct;
 	char * ppdMode;
 	char * ppdAlgoritmo;
 	char * ppdPort;
@@ -92,16 +93,10 @@
 		return ppdSaltoPistaMs;
 	}
 	void setPpdLoggingLevel(char * v){
-		if(commons_string_equals(v , DEBUG_LVL)){
-			commons_logging_setLoggingLevelEnabled(LOGGING_LEVEL_DEBUG);
-		}else if(commons_string_equals(v , INFO_LVL)){
-			commons_logging_setLoggingLevelEnabled(LOGGING_LEVEL_INFO);
-		}else if (commons_string_equals(v , ERROR_LVL)){
-			commons_logging_setLoggingLevelEnabled(LOGGING_LEVEL_ERROR);
-		}
 	}
+
 	void ppd_configuration_processEntries(char * key , char * value , void * object){
-		if (commons_logging_isDebugEnabled()) ppd_utils_debug(commons_string_concatAll(4, "Seteando ", key , "=" , value));
+		log_debug_t(logstruct,"Seteando [%s]=[%s]", key, value);
 
 		/**
 		 * aca va el procesamiento de los keys y values.
@@ -167,5 +162,5 @@
 		}
 
 		commons_file_loadConfiguration(file , ppd_configuration_processEntries);
-		commons_misc_doFreeNull((void**) &file);
+		commons_file_closeFile(file);
 	}
