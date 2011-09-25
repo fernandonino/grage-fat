@@ -28,9 +28,6 @@
 		if(linux_commons_file_configureSuite())
 			return 1;
 
-		if(linux_commons_logging_configureSuite())
-			return 1;
-
 		if(linux_commons_configureSuite())
 			return 1;
 

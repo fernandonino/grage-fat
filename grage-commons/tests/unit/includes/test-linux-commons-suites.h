@@ -12,8 +12,6 @@
 
 	Boolean linux_commons_list_configureSuite();
 
-	Boolean linux_commons_logging_configureSuite();
-
 	Boolean linux_commons_file_configureSuite();
 
 	Boolean linux_commons_configureSuite();

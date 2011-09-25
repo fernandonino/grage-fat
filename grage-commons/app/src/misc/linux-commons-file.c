@@ -18,6 +18,7 @@
 #include "linux-commons-file.h"
 #include "linux-commons-logging.h"
 #include "linux-commons-list.h"
+extern t_log * logstruct;
 
 	Boolean commons_file_isPropertiesCommentedOrBlanckLine(char * line);
 
@@ -153,9 +154,7 @@
 		//return !rmdir(dirname);
 
 		char * cmd = commons_string_concatAll(2 , "rm -r " , dirname);
-		if(commons_logging_isDebugEnabled())
-			commons_logging_logDebug("linux-commons" , commons_string_concatAll(3 ,
-					"Ejecutando comando nativo del sistema: '" , cmd , "'"));
+		log_debug_t(logstruct, "Ejecutando comando nativo del sistema: [%s]" , cmd);
 		return !system(cmd);
 	}
 
@@ -170,9 +169,7 @@
 
 	void commons_file_insertLine(const char * line , File * file){
 		int inserted = fwrite(line , sizeof(char) , strlen(line) , file);
-		if(commons_logging_isDebugEnabled())
-			commons_logging_logDebug("linux-commons" , commons_string_concatAll(3 ,
-					"Se han insertado " , commons_misc_intToString(inserted) , " bytes en el archivo"));
+		log_debug_t(logstruct, "Se han insertado %d bytes en el archivo" , inserted);
 		fputc('\n' , file);
 	}
 

@@ -16,7 +16,7 @@
 #include "linux-commons-strings.h"
 #include "linux-commons-socket.h"
 #include "linux-commons-logging.h"
-
+extern t_log * logstruct;
 
 	ServerSocket * commons_socket_openServerConnection(char * port) {
 
@@ -25,7 +25,7 @@
 		serverSocket->listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
 
 		if (serverSocket->listenSocket == SOCKET_ERROR) {
-			commons_logging_logError("linux-commons" , "No se pudo crear el socket con la llamada 'socket'");
+			log_error_t(logstruct,"No se pudo crear el socket con la llamada 'socket' fd %d",serverSocket->listenSocket);
 			return NULL;
 		}
 
@@ -40,12 +40,12 @@
 		if (bind(serverSocket->listenSocket,
 				(struct sockaddr*) &serverSocket->address,
 				sizeof(struct sockaddr_in)) == SOCKET_ERROR) {
-			commons_logging_logError("linux-commons" , "no se pudo bindear el socket");
+			log_error_t(logstruct, "no se pudo bindear el socket %d ",serverSocket->listenSocket);
 			return NULL;
 		}
 
 		if (listen(serverSocket->listenSocket, 5) == SOCKET_ERROR) {
-			commons_logging_logError("linux-commons" , "no se pudo poner el socket en escucha");
+			log_error_t(logstruct,"no se pudo poner el socket en escucha %d",serverSocket->listenSocket);
 			return NULL;
 		}
 
@@ -64,7 +64,7 @@
 	ListenSocket commons_socket_openClientConnection(char * host , char * port ){
 
 		if(host == NULL || port == NULL){
-			commons_logging_logError("linux-commons" , "invocando 'openClientConnection' con parametros {host} o {port} en NULL");
+			log_error_t(logstruct,"invocando 'openClientConnection' con parametros {host} o {port} en NULL %s","");
 			return INVALID_SOCKET;
 		}
 
@@ -100,9 +100,7 @@
 				break;
 		}
 
-		if(commons_logging_isDebugEnabled())
-			commons_logging_logDebug("linux-commons" , commons_string_concatAll(3 , "Se han enviado " ,
-					commons_misc_intToString(allSsended) , " bytes"));
+		log_debug_t(logstruct,"Se han enviado %d bytes" ,allSsended);
 		return allSsended;
 	}
 
@@ -119,9 +117,7 @@
 				break;
 		}
 
-		if(commons_logging_isDebugEnabled())
-			commons_logging_logDebug("linux-commons" , commons_string_concatAll(3, "Se han recibido " ,
-					commons_misc_intToString(allReceived) , " bytes") );
+		log_debug_t(logstruct,"Se han recibido %d bytes" ,allReceived);
 		return allReceived;
 	}
 
