@@ -7,17 +7,21 @@
 
 
 #include "linux-commons.h"
-
+#include <linux-commons-logging.h>
 #include "linux-testing-unit.h"
 
 #include "test-linux-commons-suites.h"
 
-	char * unit_testing_getProjectName(){
+t_log * logstruct;
+
+	char * unit_testing_getProjectName(void){
 		return "grage-commons";
 	}
 
 
-	int unit_testing_loadAll(){
+	int unit_testing_loadAll(void){
+
+		logstruct = log_create("test","../logs/tests.log",INFO,M_CONSOLE_DISABLE);
 
 		if(linux_commons_errors_configureSuite())
 			return 1;

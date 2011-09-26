@@ -19,15 +19,14 @@
 	void test_commons_misc_generateRandomKey();
 	void test_commons_misc_digitsCount();
 
-
+	int suiteInitAndClean(){
+		return EXIT_SUCCESS;
+	}
 	/*
 	 * Realiza la configuracion de la suite
 	 */
 	Boolean linux_commons_configureSuite(){
 
-		int suiteInitAndClean(){
-			return EXIT_SUCCESS;
-		}
 
 		TestSuite suite = unit_testing_createSuite("Linux Common" , suiteInitAndClean , suiteInitAndClean);
 
