@@ -7,11 +7,12 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <linux-commons-logging.h>
 #include "pfs-configuration.h"
-
+t_log * logstruct;
 
 	void pfs_launcher_initialize(){
+		log_create("pfs","../logs/pfs.log",DEBUG | INFO | WARNING | ERROR, M_CONSOLE_DISABLE);
 		pfs_configuration_initialize();
 	}
 
