@@ -12,8 +12,6 @@
 #define GRAGE_COMMONS_H_
 
 
-
-
 	typedef struct {
 
 		uint32 sectorNumber;
@@ -23,12 +21,8 @@
 
 
 	typedef struct {
-
-		DiskSector sector1;
-		DiskSector sector2;
-
-	}DiskSectors;
-
+		DiskSector sectors[8];
+	}Cluster;
 
 
 #endif /* GRAGE_COMMONS_H_ */
