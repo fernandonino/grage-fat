@@ -7,7 +7,7 @@
 
 #ifndef PPD_CONFIGURATION_H_
 #define PPD_CONFIGURATION_H_
-
+#define PPD_DEFAULT_LOG_FILE "../logs/grage-praid.log"
 #define PPD_DEFAULT_CONFIGURATION_FILE		"../conf/grage-ppd.properties"
 #define PPD_CONFIGURATION_MODE				"ppd.configuration.mode"
 #define PPD_CONFIGURATION_ALGORITMO			"ppd.configuration.algoritmo"

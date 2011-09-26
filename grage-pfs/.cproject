@@ -42,9 +42,9 @@
 								<option id="gnu.c.link.option.libs.200474727" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="cunit"/>
 									<listOptionValue builtIn="false" value="m"/>
-									<listOptionValue builtIn="false" value="grage-linux-commons"/>
-									<listOptionValue builtIn="false" value="grage-linux-testing-unit"/>
+									<listOptionValue builtIn="false" value="grage-commons"/>
 									<listOptionValue builtIn="false" value="grage-linux-testing-integration"/>
+									<listOptionValue builtIn="false" value="grage-linux-testing-unit"/>
 								</option>
 								<option id="gnu.c.link.option.paths.1809119535" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/opt/grage-repository/lib"/>
