@@ -22,5 +22,8 @@ t_log * logstruct;
 		if(test_ppd_configuration_configureSuite())
 			return 1;
 
+		if(test_ppd_queues_configureSuite())
+			return 1;
+
 		return 0;
 	}
