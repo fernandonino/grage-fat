@@ -16,7 +16,7 @@
 #include "linux-commons-strings.h"
 #include "linux-commons-socket.h"
 #include "linux-commons-logging.h"
-extern t_log * logstruct;
+
 
 	ServerSocket * commons_socket_openServerConnection(char * port) {
 
@@ -25,7 +25,7 @@ extern t_log * logstruct;
 		serverSocket->listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
 
 		if (serverSocket->listenSocket == SOCKET_ERROR) {
-			log_error_t(logstruct,"No se pudo crear el socket con la llamada 'socket' fd %d",serverSocket->listenSocket);
+			log_error_t("No se pudo crear el socket con la llamada 'socket' fd %d",serverSocket->listenSocket);
 			return NULL;
 		}
 
@@ -40,12 +40,12 @@ extern t_log * logstruct;
 		if (bind(serverSocket->listenSocket,
 				(struct sockaddr*) &serverSocket->address,
 				sizeof(struct sockaddr_in)) == SOCKET_ERROR) {
-			log_error_t(logstruct, "no se pudo bindear el socket %d ",serverSocket->listenSocket);
+			log_error_t("no se pudo bindear el socket %d ",serverSocket->listenSocket);
 			return NULL;
 		}
 
 		if (listen(serverSocket->listenSocket, 5) == SOCKET_ERROR) {
-			log_error_t(logstruct,"no se pudo poner el socket en escucha %d",serverSocket->listenSocket);
+			log_error_t("no se pudo poner el socket en escucha %d",serverSocket->listenSocket);
 			return NULL;
 		}
 
@@ -64,7 +64,7 @@ extern t_log * logstruct;
 	ListenSocket commons_socket_openClientConnection(char * host , char * port ){
 
 		if(host == NULL || port == NULL){
-			log_error_t(logstruct,"invocando 'openClientConnection' con parametros {host} o {port} en NULL %s","");
+			log_error_t("invocando 'openClientConnection' con parametros {host} o {port} en NULL %s","");
 			return INVALID_SOCKET;
 		}
 
@@ -100,7 +100,7 @@ extern t_log * logstruct;
 				break;
 		}
 
-		log_debug_t(logstruct,"Se han enviado %d bytes" ,allSsended);
+		log_debug_t("Se han enviado %d bytes" ,allSsended);
 		return allSsended;
 	}
 
@@ -117,7 +117,7 @@ extern t_log * logstruct;
 				break;
 		}
 
-		log_debug_t(logstruct,"Se han recibido %d bytes" ,allReceived);
+		log_debug_t("Se han recibido %d bytes" ,allReceived);
 		return allReceived;
 	}
 

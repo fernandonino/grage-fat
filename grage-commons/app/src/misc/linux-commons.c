@@ -15,7 +15,6 @@
 
 #include "linux-commons.h"
 
-
 	int commons_misc_digitsCount(int i){
 		return (i == 0) ? 1 : log10(i) + 1;
 	}

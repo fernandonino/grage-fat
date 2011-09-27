@@ -9,10 +9,9 @@
 #include <stdio.h>
 #include <linux-commons-logging.h>
 #include "pfs-configuration.h"
-t_log * logstruct;
 
 	void pfs_launcher_initialize(){
-		log_create("pfs","../logs/pfs.log",DEBUG | INFO | WARNING | ERROR, M_CONSOLE_DISABLE);
+		log_create("pfs","../logs/pfs.log",INFO|DEBUG|WARNING|ERROR,M_CONSOLE_DISABLE);
 		pfs_configuration_initialize();
 	}
 
@@ -21,6 +20,9 @@ t_log * logstruct;
 
 	}
 
+	void pfs_launcher_exit(){
+		log_destroy();
+	}
 
 	int main(int argc, char *argv[]){
 

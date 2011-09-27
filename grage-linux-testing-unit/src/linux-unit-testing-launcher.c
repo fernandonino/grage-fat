@@ -14,6 +14,7 @@
 
 		if (CUE_SUCCESS != unit_testing_initialize())
 			return CU_get_error();
+		suite_setup();
 
 		if(unit_testing_loadAll() == EXIT_FAILURE){
 			unit_testing_finalize();
@@ -22,6 +23,7 @@
 
 		unit_testing_runAll();
 
+		suite_tearDown();
 		unit_testing_finalize();
 
 		return EXIT_SUCCESS;

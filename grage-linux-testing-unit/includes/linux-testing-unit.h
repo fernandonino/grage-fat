@@ -40,5 +40,8 @@
 
 	char * unit_testing_getProjectName();
 
+	void suite_setup();
+
+	void suite_tearDown();
 
 #endif /* UNIT_TEST_COMMONS_H_ */

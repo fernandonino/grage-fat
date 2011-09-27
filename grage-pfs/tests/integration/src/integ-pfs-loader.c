@@ -7,7 +7,7 @@
 
 
 #include "linux-testing-integration.h"
-
+#include <linux-commons-logging.h>
 #include "integ-pfs-suites.h"
 
 	int commons_testing_integration_doInitialize(){
@@ -16,7 +16,6 @@
 		 * Aca va cualquier cosa o recurso q sea necesario
 		 * inicializar para todas las corridas de integracion
 		 */
-
 		return SUCCESS;
 	}
 

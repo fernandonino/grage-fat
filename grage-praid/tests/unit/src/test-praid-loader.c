@@ -10,7 +10,15 @@
 #include <linux-commons-logging.h>
 #include "test-praid-suites.h"
 
-t_log * logstruct;
+	void suite_setup(){
+		if(log_create("test","../logs/tests.log",INFO,M_CONSOLE_DISABLE)){
+			perror("Error creando la configuracion de los logs.");
+		}
+	}
+
+	void suite_tearDown(){
+		log_destroy();
+	}
 
 	char * unit_testing_getProjectName(){
 		return "grage-praid";
@@ -18,9 +26,6 @@ t_log * logstruct;
 
 
 	int unit_testing_loadAll(){
-
-		logstruct = log_create("test","../logs/tests.log",INFO,M_CONSOLE_DISABLE);
-
 		if(test_praid_configurationSuite())
 			return 1;
 

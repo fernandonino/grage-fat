@@ -11,7 +11,6 @@
 #include "linux-commons-strings.h"
 #include "ppd-configuration.h"
 #include "ppd-utils.h"
-	extern t_log * logstruct;
 	char * ppdMode;
 	char * ppdAlgoritmo;
 	char * ppdPort;
@@ -96,7 +95,7 @@
 	}
 
 	void ppd_configuration_processEntries(char * key , char * value , void * object){
-		log_debug_t(logstruct,"Seteando [%s]=[%s]", key, value);
+		log_debug_t("Seteando [%s]=[%s]", key, value);
 
 		/**
 		 * aca va el procesamiento de los keys y values.

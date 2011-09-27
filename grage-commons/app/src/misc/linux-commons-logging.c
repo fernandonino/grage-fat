@@ -42,11 +42,13 @@
 #include <sys/prctl.h>
 #include "linux-commons-logging.h"
 
+//Variable global de configuracion de log.
+log_config_t * logConfig;
 
 /*
  * Private Functions
  */
-inline static int log_vwrite(t_log *log, const char *thread_name, e_message_level level, const char* format, va_list args_list);
+inline static int log_vwrite(log_config_t *log, const char *thread_name, e_message_level level, const char* format, va_list args_list);
 static char *log_error_as_string(e_message_level type);
 
 /*
@@ -57,40 +59,42 @@ static char *log_error_as_string(e_message_level type);
  * @NAME: log_create
  * @DESC: Crea un log
  */
-t_log *log_create(const char *program_name, const char* file_name, unsigned char log_levels, e_console_mode console_mode) {
+int log_create(const char *program_name, const char* file_name, unsigned char log_levels, e_console_mode console_mode) {
 	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-	t_log* log = malloc(sizeof(t_log));
+	log_config_t* logCfg = malloc(sizeof(log_config_t));
 
-	log->file = NULL;
+	logCfg->file = NULL;
 
-	if (file_name != NULL && (log->file = fopen(file_name, "a")) == NULL) {
-		free(log);
-		return NULL;
+	if (file_name != NULL && (logCfg->file = fopen(file_name, "a")) == NULL) {
+		free(logCfg);
+		return -1;
 	}
 
-	log->mutex = mutex;
+	logCfg->mutex = mutex;
 
-	log->console_mode = console_mode;
+	logCfg->console_mode = console_mode;
 
 	if( program_name != NULL ){
-		log->program_name = program_name;
+		logCfg->program_name = program_name;
 	} else {
-		log->program_name = "";
+		logCfg->program_name = "";
 	}
 
-	log->program_pid = getpid();
+	logCfg->program_pid = getpid();
 
-	log->log_levels = log_levels;
+	logCfg->log_levels = log_levels;
 
-	return log;
+	log_setLogConfig(logCfg);
+
+	return 0;
 }
 
-int log_info_t(t_log* log, const char *format, ... ){
+int log_info_t(const char *format, ... ){
 	va_list args_list;
 	char * thread_name = calloc(20,sizeof(char));
 	va_start(args_list, format);
 	sprintf(thread_name,"th-%d",pthread_self());
-	int ret = log_vwrite(log, thread_name, INFO, format, args_list);
+	int ret = log_vwrite(log_getLogConfig(), thread_name, INFO, format, args_list);
 	free(thread_name);
 	return ret;
 }
@@ -99,19 +103,19 @@ int log_info_t(t_log* log, const char *format, ... ){
  * @NAME: log_info
  * @DESC: Escribe en el log un mensaje con el nivel info
  */
-int log_info(t_log *log, const char *thread_name, const char* format, ... ) {
+int log_info(const char *thread_name, const char* format, ... ) {
 	va_list args_list;
 	va_start(args_list, format);
-	return log_vwrite(log, thread_name, INFO, format, args_list);
+	return log_vwrite(log_getLogConfig(), thread_name, INFO, format, args_list);
 }
 
 
-int log_warning_t(t_log* log, const char *format, ... ){
+int log_warning_t(const char *format, ... ){
 	va_list args_list;
 	char * thread_name = calloc(20,sizeof(char));
 	va_start(args_list, format);
 	sprintf(thread_name,"th-%d",pthread_self());
-	int ret = log_vwrite(log, thread_name, WARNING, format, args_list);
+	int ret = log_vwrite(log_getLogConfig(), thread_name, WARNING, format, args_list);
 	free(thread_name);
 	return ret;
 }
@@ -119,18 +123,18 @@ int log_warning_t(t_log* log, const char *format, ... ){
  * @NAME: log_warning
  * @DESC: Escribe en el log un mensaje con el nivel warning
  */
-int log_warning(t_log *log, const char *thread_name, const char* format, ... ) {
+int log_warning(const char *thread_name, const char* format, ... ) {
 	va_list args_list;
 	va_start(args_list, format);
-	return log_vwrite(log, thread_name, WARNING, format, args_list);
+	return log_vwrite(log_getLogConfig(), thread_name, WARNING, format, args_list);
 }
 
-int log_error_t(t_log* log, const char *format, ... ){
+int log_error_t(const char *format, ... ){
 	va_list args_list;
 	char * thread_name = calloc(20,sizeof(char));
 	va_start(args_list, format);
 	sprintf(thread_name,"th-%d",pthread_self());
-	int ret = log_vwrite(log, thread_name, ERROR, format, args_list);
+	int ret = log_vwrite(log_getLogConfig(), thread_name, ERROR, format, args_list);
 	free(thread_name);
 	return ret;
 }
@@ -139,18 +143,18 @@ int log_error_t(t_log* log, const char *format, ... ){
  * @NAME: log_error
  * @DESC: Escribe en el log un mensaje con el nivel error
  */
-int log_error(t_log *log, const char *thread_name, const char* format, ... ) {
+int log_error(const char *thread_name, const char* format, ... ) {
 	va_list args_list;
 	va_start(args_list, format);
-	return log_vwrite(log, thread_name, ERROR, format, args_list);
+	return log_vwrite(log_getLogConfig(), thread_name, ERROR, format, args_list);
 }
 
-int log_debug_t(t_log* log, const char *format, ... ){
+int log_debug_t(const char *format, ... ){
 	va_list args_list;
 	char * thread_name = calloc(20,sizeof(char));
 	va_start(args_list, format);
 	sprintf(thread_name,"th-%d",pthread_self());
-	int ret = log_vwrite(log, thread_name, DEBUG, format, args_list);
+	int ret = log_vwrite(log_getLogConfig(), thread_name, DEBUG, format, args_list);
 	free(thread_name);
 	return ret;
 }
@@ -159,17 +163,18 @@ int log_debug_t(t_log* log, const char *format, ... ){
  * @NAME: log_debug
  * @DESC: Escribe en el log un mensaje con el nivel debug
  */
-int log_debug(t_log *log, const char *thread_name, const char* format, ... ) {
+int log_debug(const char *thread_name, const char* format, ... ) {
+
 	va_list args_list;
 	va_start(args_list, format);
-	return log_vwrite(log, thread_name, DEBUG, format, args_list);
+	return log_vwrite(log_getLogConfig(), thread_name, DEBUG, format, args_list);
 }
 
 /*
  * @NAME: log_vwrite
  * @DESC: Genera el log!
  */
-inline static int log_vwrite(t_log *log, const char *thread_name, e_message_level level, const char* format, va_list args_list) {
+inline static int log_vwrite(log_config_t *log, const char *thread_name, e_message_level level, const char* format, va_list args_list) {
 	time_t log_time;
 	struct tm *log_tm;
 	struct timeb tmili;
@@ -236,10 +241,22 @@ static char *log_error_as_string(e_message_level type) {
  * @NAME: log_destroy
  * @DESC: Destruye el puntero al log y cierra el archivo
  */
-void log_destroy(t_log *log) {
-	if (log != NULL) {
-		fclose(log->file);
-		pthread_mutex_destroy(&log->mutex);
-		free(log);
+void log_destroy(void) {
+	log_config_t * logCfg = log_getLogConfig();
+	if (logCfg != NULL) {
+		fclose(logCfg->file);
+		pthread_mutex_destroy(&(logCfg->mutex));
+		free(logCfg);
 	}
+}
+
+log_config_t * log_getLogConfig(void){
+	if(logConfig == NULL){
+		fprintf(stderr, "Debe inicializar el log antes de usarlo.");
+	}
+	return logConfig;
+}
+
+void log_setLogConfig(log_config_t *aLogConfig){
+	logConfig = aLogConfig;
 }

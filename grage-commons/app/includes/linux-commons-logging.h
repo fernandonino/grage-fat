@@ -60,18 +60,20 @@
 		unsigned char log_levels;
 		e_console_mode console_mode;
 		pthread_mutex_t mutex;
-	} t_log;
+	} log_config_t;
 
-	t_log* 	log_create(const char *program_name, const char* file_name, unsigned char log_levels, e_console_mode console_mode);
-	int 	log_info_t(t_log* log, const char *format, ... );
-	int 	log_info(t_log* log, const char *thread_name, const char *format, ... );
-	int 	log_warning_t(t_log* log, const char *format, ... );
-	int 	log_warning(t_log* log, const char *thread_name, const char *format, ... );
-	int 	log_error_t(t_log* log, const char *format, ... );
-	int 	log_error(t_log* log, const char *thread_name, const char *format, ... );
-	int 	log_debug_t(t_log* log, const char *format, ... );
-	int 	log_debug(t_log* log, const char *thread_name, const char *format, ... );
+	int 	log_create(const char *program_name, const char* file_name, unsigned char log_levels, e_console_mode console_mode);
+	int 	log_info_t(const char *format, ... );
+	int 	log_info(const char *thread_name, const char *format, ... );
+	int 	log_warning_t(const char *format, ... );
+	int 	log_warning(const char *thread_name, const char *format, ... );
+	int 	log_error_t(const char *format, ... );
+	int 	log_error(const char *thread_name, const char *format, ... );
+	int 	log_debug_t(const char *format, ... );
+	int 	log_debug(const char *thread_name, const char *format, ... );
 	#define log_has_level(log, level)	((log->log_levels & level) == level)
-	void 	log_destroy(t_log *log);
+	void 	log_destroy(void);
+	log_config_t * log_getLogConfig(void);
+	void 	log_setLogConfig(log_config_t * logConfig);
 
 #endif /*OLD_LOG_H_*/

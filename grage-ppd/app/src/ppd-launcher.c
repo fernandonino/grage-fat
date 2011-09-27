@@ -7,20 +7,22 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "linux-commons-logging.h"
+#include <linux-commons-logging.h>
 #include "ppd-configuration.h"
-
-t_log * logstruct;
 
 
 	void ppd_launcher_initialize(){
-		logstruct = log_create("ppd", PPD_DEFAULT_LOG_FILE, DEBUG | INFO | WARNING | ERROR, M_CONSOLE_DISABLE);
+		log_create("ppd","../logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 		ppd_configuration_setup();
 	}
 
 
 	void ppd_launcher_doLaunch(){
 
+	}
+
+	void ppd_laucher_exit(){
+		log_destroy();
 	}
 
 
@@ -36,6 +38,8 @@ t_log * logstruct;
 		ppd_launcher_initialize();
 
 		ppd_launcher_doLaunch();
+
+		ppd_laucher_exit();
 
 		return EXIT_SUCCESS;
 	}
