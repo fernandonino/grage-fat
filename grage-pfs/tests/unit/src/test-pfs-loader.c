@@ -30,7 +30,5 @@
 			return 1;
 		if(test_pfs_cache_configurationSuite())
 			return 1;
-		if(test_pfs_consoleSuite())
-			return 1;
 		return 0;
 	}
