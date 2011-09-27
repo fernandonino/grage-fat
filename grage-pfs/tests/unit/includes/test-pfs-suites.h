@@ -13,4 +13,6 @@
 
 	Boolean test_pfs_cache_configurationSuite();
 
+	Boolean test_pfs_consoleSuite();
+
 #endif /* TEST_LINUX_COMMONS_SUITES_H_ */
