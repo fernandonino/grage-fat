@@ -28,6 +28,7 @@
 	int unit_testing_loadAll(){
 		if(test_pfs_configurationSuite())
 			return 1;
-
+		if(test_pfs_cache_configurationSuite())
+			return 1;
 		return 0;
 	}

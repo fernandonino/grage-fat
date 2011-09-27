@@ -21,6 +21,7 @@
 
 
 	typedef struct {
+		uint32 clusterNumber;
 		DiskSector sectors[8];
 	}Cluster;
 
