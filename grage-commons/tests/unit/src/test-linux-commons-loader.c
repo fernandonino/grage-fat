@@ -38,6 +38,9 @@ t_log * logstruct;
 		if(linux_commons_string_configureSuite())
 			return 1;
 
+		if(linux_commons_queue_configureSuite())
+			return 1;
+
 //		if(linux_commons_socket_configureSuite())
 //			return 1;
 //
