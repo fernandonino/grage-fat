@@ -24,3 +24,12 @@ clean:
 	make clean -C grage-pfs
 	make clean -C grage-praid
 	make clean -C grage-ppd
+
+joaco:
+	grage-docs/install_repo.sh joaquin grage-docs/template1.xsl
+	make clean install 	 -C grage-linux-testing-unit
+	make clean install 	 -C grage-linux-testing-integration
+	make clean install tests -C grage-commons
+	make build -C grage-pfs
+	make build -C grage-ppd
+	make build -C grage-praid

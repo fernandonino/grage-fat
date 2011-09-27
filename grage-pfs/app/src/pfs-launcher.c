@@ -9,10 +9,12 @@
 #include <stdio.h>
 #include <linux-commons-logging.h>
 #include "pfs-configuration.h"
+#include "pfs-console.h"
 
 	void pfs_launcher_initialize(){
 		log_create("pfs","../logs/pfs.log",INFO|DEBUG|WARNING|ERROR,M_CONSOLE_DISABLE);
 		pfs_configuration_initialize();
+		pfs_console_initialize();
 	}
 
 
