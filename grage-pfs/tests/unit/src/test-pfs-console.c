@@ -31,7 +31,6 @@
 
 		TestSuite suite = unit_testing_createSuite("Grage PFS Console Suite" , suiteInitAndClean , suiteInitAndClean);
 
-
 		if ( unit_testing_addToSuite(suite , "Crear hilo de consola" , test_pfs_console_initialize ) ==NULL )
 			return EXIT_FAILURE;
 
@@ -39,7 +38,7 @@
 	}
 
 	void test_pfs_console_initialize(){
-		//int test_thread = pfs_console_initialize();
-		//CU_ASSERT(test_thread == 0);
+		int test_thread = pfs_console_initialize();
+		CU_ASSERT(test_thread == 0);
 	}
 

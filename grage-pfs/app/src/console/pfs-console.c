@@ -8,7 +8,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
+#include <linux-commons.h>
 
 #define NUM_THREADS     1
 
@@ -24,12 +24,11 @@ void *pfs_console_thread(void *argument)
 }
 
 int pfs_console_initialize(){
-	pthread_t threads[NUM_THREADS];
+	Thread threads[NUM_THREADS];
 	int console_thread;
 	console_thread = pthread_create(&threads[NUM_THREADS], NULL, pfs_console_thread, NULL);
-	assert(0 == console_thread);
 
-	pthread_exit(NULL);
+	//pthread_exit(NULL);
 	return console_thread;
 
 }
