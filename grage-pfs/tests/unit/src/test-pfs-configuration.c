@@ -108,8 +108,8 @@
 	}
 
 	void test_pfs_getDevicePort(){
-		//char * port = pfs_configuration_getDevicePort();
-		CU_ASSERT_PTR_NULL(pfs_configuration_getDevicePort());
+		char * port = pfs_configuration_getDevicePort();
+		CU_ASSERT_PTR_NULL(port);
 	}
 
 	void test_pfs_getDeviceAddress(){
