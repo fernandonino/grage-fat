@@ -31,6 +31,8 @@
 
 		if(test_ppd_queues_configureSuite())
 			return 1;
+		if(test_ppd_persistanceSuite())
+			return 1;
 
 		return 0;
 	}

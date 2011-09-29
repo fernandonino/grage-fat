@@ -5,8 +5,76 @@
  *      Author: gonzalo
  */
 
+#include <stdio.h>
+#include <fcntl.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/mman.h>
+
 #include "grage-commons.h"
+#include "ppd-persistance.h"
 
-	void ppd_persistence_persist(DiskSector aSector){
+	void ppd_persistence_writeSector(DiskSector aSector){
 
+	}
+
+	void ppd_persistence_readSector(DiskSector aSector){
+
+	}
+
+	// REEMPLAZAR perror POR FUNCIONES DE commons-logging
+	char * ppd_persistance_mapDisk(char * diskId){
+		struct stat filestat;
+
+		int fd =  open(diskId , O_RDWR);
+		if (fd == -1){
+			perror("Error en open del disco");
+			return NULL;
+		}
+
+		if ( fstat(fd , &filestat) ){
+			perror("fstat - error al obtener atributos del disco");
+			return NULL;
+		}
+
+		char * map = mmap((caddr_t)0 , filestat.st_size , PROT_WRITE , MAP_SHARED , fd , 0);
+		if( map == MAP_FAILED ){
+			perror("Error al mapear el disco");
+			return NULL;
+		}
+
+		if( posix_madvise(map , filestat.st_size , POSIX_MADV_SEQUENTIAL) ){
+			perror("Error en posix_madvise");
+			return NULL;
+		}
+
+		close(fd);
+
+		return map;
+	}
+
+	// REEMPLAZAR perror POR FUNCIONES DE commons-logging
+	// REVISAR EL RETURN VALUE
+	char * ppd_persistance_unmapDisk(char * diskId , char * mapping){
+		struct stat filestat;
+
+		int fd =  open(diskId , O_RDONLY);
+		if (fd == -1){
+			perror("Error en open del disco");
+		}
+
+		if ( fstat(fd , &filestat) ){
+			perror("fstat - error al obtener atributos del disco");
+		}
+
+		if( munmap(mapping , filestat.st_size) ){
+			perror("Error en unmapping.");
+		}
+
+		return NULL;
+
+		close(fd);
 	}
