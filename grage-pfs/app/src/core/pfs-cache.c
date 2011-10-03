@@ -5,10 +5,13 @@
  *      Author: Fernando
  */
 
-
+#include <time.h>
+#include <sys/timeb.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "grage-commons.h"
+#include "linux-commons-file.h"
+#include "linux-commons-strings.h"
 #include "pfs-configuration.h"
 #include "pfs-cache.h"
 	CacheRecord Cache[8];
@@ -73,4 +76,39 @@
 			if (Cache[i].cluster->clusterNumber==clusterID) return i;
 		}
 		return -1;
+	}
+	void pfs_cache_dump()
+	{
+		char linea[512];
+		long i;
+		time_t log_time;
+		struct tm *log_tm;
+		char str_time[128];
+		FILE * cache_dump = commons_file_openOrCreateFile("cache_dump.txt");
+		time (&log_time);
+		log_tm = localtime(&log_time);
+		strftime(str_time, 128, "%Y.%m.%d  %H:%M:%S", log_tm);
+
+		sprintf(linea,"%s",str_time);
+		commons_file_insertLine(linea,cache_dump);
+		sprintf(linea,"Tamaño de Bloque de Cache: %s b",pfs_configuration_getCacheSize());
+		commons_file_insertLine(linea,cache_dump);
+		i=0;
+		if (pfs_configuration_getCacheSize()!=NULL)	i=atoi(pfs_configuration_getCacheSize());
+
+		sprintf(linea,"Cantidad de bloques de Cache: %d",i);
+		commons_file_insertLine(linea,cache_dump);
+		i = 0;
+		while (Cache[i].cluster->clusterNumber!=-1 && i != 8)
+		{
+			sprintf(linea,"Contenido de Bloque de Cache %d:",i);
+			commons_file_insertLine(linea,cache_dump);
+			commons_file_insertLine((commons_string_concatAll(8,Cache[i].cluster->sectors[0].sectorContent,Cache[i].cluster->sectors[1].sectorContent,
+					Cache[i].cluster->sectors[2].sectorContent , Cache[i].cluster->sectors[3].sectorContent,
+					Cache[i].cluster->sectors[4].sectorContent , Cache[i].cluster->sectors[5].sectorContent,
+					Cache[i].cluster->sectors[6].sectorContent , Cache[i].cluster->sectors[7].sectorContent)),cache_dump);
+			i++;
+		}
+
+		commons_file_closeFile(cache_dump);
 	}

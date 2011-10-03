@@ -8,6 +8,7 @@
 #include <stdlib.h>
 
 #include "linux-commons.h"
+#include "linux-commons-file.h"
 #include "linux-testing-unit.h"
 #include "grage-commons.h"
 #include "pfs-cache.h"
@@ -17,7 +18,7 @@
 	 */
 
 	void test_pfs_cache_put_get();
-
+	void test_pfs_cache_dump();
 
 
 	/*
@@ -34,7 +35,8 @@
 
 		if ( unit_testing_addToSuite(suite , "Obtener cluster" , test_pfs_cache_put_get ) ==NULL )
 			return EXIT_FAILURE;
-
+		if ( unit_testing_addToSuite(suite , "Generar Cache Dump" , test_pfs_cache_dump ) ==NULL )
+					return EXIT_FAILURE;
 		return EXIT_SUCCESS;
 	}
 	Cluster * generarClusterForTesting()
@@ -59,4 +61,9 @@
 		pfs_cache_put(clusterPut);
 		Cluster * clusterGet = pfs_cache_get(clusterPut->clusterNumber);
 		CU_ASSERT_PTR_EQUAL(clusterPut,clusterGet);
+	}
+	void test_pfs_cache_dump()
+	{
+		pfs_cache_dump();
+		CU_ASSERT_TRUE(commons_file_existsFile("cache_dump.txt"));
 	}

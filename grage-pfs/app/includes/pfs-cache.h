@@ -16,5 +16,6 @@
 	void pfs_cache_put(Cluster * cluster);
 	void pfs_cache_registrar_acceso();
 	int pfs_cache_tiene_cluster(int clusterID);
+	void pfs_cache_dump();
 
 #endif /* PFS_CACHE_H_ */
