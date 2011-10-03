@@ -39,6 +39,7 @@
 					return EXIT_FAILURE;
 		return EXIT_SUCCESS;
 	}
+
 	Cluster * generarClusterForTesting()
 	{
 		Cluster * clusterForTests;
@@ -52,8 +53,10 @@
 		strcpy(clusterForTests->sectors[2].sectorContent,"tal");
 		clusterForTests->sectors[2].sectorNumber=45;
 		free(clusterForTests);
+
 		return clusterForTests;
 	}
+
 	void test_pfs_cache_put_get()
 	{
 		Cluster * clusterPut = generarClusterForTesting();
@@ -62,8 +65,11 @@
 		Cluster * clusterGet = pfs_cache_get(clusterPut->clusterNumber);
 		CU_ASSERT_PTR_EQUAL(clusterPut,clusterGet);
 	}
+
 	void test_pfs_cache_dump()
 	{
+		pfs_configuration_setConfigurationFile("../conf/grage-pfs.properties");
+		pfs_configuration_initialize();
 		pfs_cache_dump();
 		CU_ASSERT_TRUE(commons_file_existsFile("cache_dump.txt"));
 	}
