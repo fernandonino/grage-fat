@@ -46,6 +46,8 @@
 	}
 
 	char * pfs_configuration_getCacheSize(void){
+		if (cacheSize == NULL)
+			return "0";
 		return cacheSize;
 	}
 

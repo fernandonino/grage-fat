@@ -124,8 +124,8 @@
 
 	void test_pfs_getCacheSize(){
 		char * size = pfs_configuration_getCacheSize();
-		CU_ASSERT_PTR_NULL(size);
-
+		CU_ASSERT_PTR_NOT_NULL(size);
+		CU_ASSERT_STRING_EQUAL(size,"0");
 	}
 
 	void test_pfs_defineConfFile(){
