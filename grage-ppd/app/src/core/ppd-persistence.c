@@ -17,15 +17,28 @@
 #include "grage-commons.h"
 #include "ppd-persistance.h"
 
-	void ppd_persistence_writeSector(DiskSector aSector){
+	// TODO: REEMPLAZAR perror POR FUNCIONES DE commons-logging
+
+	// Funciones (read+write)sector candidatas para RuntimeValidator
+	void ppd_persistence_writeSector(DiskSector aSector , void * dest){
+
+		char * validator = memcpy(dest , aSector.sectorContent , SECTOR_SIZE );
+        if (validator == NULL){
+                perror("Error en memcpy");
+        }
 
 	}
 
-	void ppd_persistence_readSector(DiskSector aSector){
+	void ppd_persistence_readSector(DiskSector aSector , void * source){
+
+		char * validator = memcpy(aSector.sectorContent , source , SECTOR_SIZE );
+        if (validator == NULL){
+                perror("Error en memcpy");
+        }
 
 	}
 
-	// REEMPLAZAR perror POR FUNCIONES DE commons-logging
+
 	char * ppd_persistance_mapDisk(char * diskId){
 		struct stat filestat;
 
@@ -56,8 +69,7 @@
 		return map;
 	}
 
-	// REEMPLAZAR perror POR FUNCIONES DE commons-logging
-	// REVISAR EL RETURN VALUE
+	// TODO: Revisar si el return value es sensato
 	char * ppd_persistance_unmapDisk(char * diskId , char * mapping){
 		struct stat filestat;
 
@@ -74,7 +86,8 @@
 			perror("Error en unmapping.");
 		}
 
-		return NULL;
-
 		close(fd);
+
+		return NULL;
 	}
+

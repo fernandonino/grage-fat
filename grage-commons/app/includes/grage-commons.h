@@ -6,16 +6,17 @@
  */
 
 
-#include "linux-commons.h"
-
 #ifndef GRAGE_COMMONS_H_
 #define GRAGE_COMMONS_H_
 
+#include "linux-commons.h"
+
+#define SECTOR_SIZE	512
 
 	typedef struct {
 
 		uint32 sectorNumber;
-		char sectorContent[512];
+		char sectorContent[SECTOR_SIZE];
 
 	}DiskSector;
 
