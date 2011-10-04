@@ -4,13 +4,14 @@
  *  Created on: 15/09/2011
  *      Author: Fernando
  */
-#include "grage-commons.h"
+
 #ifndef PFS_CACHE_H_
 #define PFS_CACHE_H_
+#include "grage-commons.h"
 
 		typedef struct {
 			Cluster * cluster;
-			uint32 estado;
+			uint32_t estado;
 		}CacheRecord;
 
 		void pfs_cache_initialize(void);
