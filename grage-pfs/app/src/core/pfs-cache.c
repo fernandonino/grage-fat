@@ -92,7 +92,7 @@
 	void pfs_cache_dump()
 	{
 		char linea[512];
-		long i;
+		int i;
 		time_t log_time;
 		struct tm *log_tm;
 		char str_time[128];
