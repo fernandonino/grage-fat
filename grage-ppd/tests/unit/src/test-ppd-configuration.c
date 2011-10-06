@@ -18,7 +18,7 @@
 	/*
 	 * Realiza la configuracion de la suite
 	 */
-	Boolean test_ppd_configuration_configureSuite(){
+	Boolean test_ppd_configurationSuite(){
 
 		int suiteInitAndClean(){
 			return EXIT_SUCCESS;
@@ -32,33 +32,6 @@
 		return EXIT_SUCCESS;
 	}
 
-	/*void test_ppd_configuration_setup(){
-		char * p;
-		ppd_configuration_setup();
-		p=getPpdMode();
-		CU_ASSERT_EQUAL(p,"connect");
-		p=getPpdAlgoritmo();
-		CU_ASSERT_EQUAL(p,"scan");
-		p=getPpdPort();
-		CU_ASSERT_EQUAL(p,"666");
-		p=getPpdIdDisk();
-		CU_ASSERT_EQUAL(p,"7");
-		p=getPpdDiskCilinder();
-		CU_ASSERT_EQUAL(p,"10");
-		p=getPpdDiskHead();
-		CU_ASSERT_EQUAL(p,"9");
-		p=getPpdDiskSector();
-		CU_ASSERT_EQUAL(p,"8");
-		p=getPpdReadTimeMs();
-		CU_ASSERT_EQUAL(p,"2");
-		p=getPpdWriteTimeMs();
-		CU_ASSERT_EQUAL(p,"3");
-		p=getPpdRpm();
-		CU_ASSERT_EQUAL(p,"7200");
-		p=getPpdSaltoPistaMs();
-		CU_ASSERT_EQUAL(p,"5");
-		CU_ASSERT_EQUAL(commons_logging_getLoggingLevelEnabled(),LOGGING_LEVEL_INFO);
-	}*/
 
 	void test_ppd_configuration_setup(){
 		char * value;
@@ -98,6 +71,12 @@
 
 		value = getPpdSaltoPistaMs();
 		CU_ASSERT_STRING_EQUAL(value , "5");
+
+		value = getPpdReadDelay();
+		CU_ASSERT_STRING_EQUAL(value , "10");
+
+		value = getPpdWriteDelay();
+		CU_ASSERT_STRING_EQUAL(value , "10");
 	}
 
 

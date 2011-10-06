@@ -7,7 +7,7 @@
 
 #ifndef PPD_CONFIGURATION_H_
 #define PPD_CONFIGURATION_H_
-#define PPD_DEFAULT_LOG_FILE "../logs/grage-praid.log"
+
 #define PPD_DEFAULT_CONFIGURATION_FILE		"../conf/grage-ppd.properties"
 #define PPD_CONFIGURATION_MODE				"ppd.configuration.mode"
 #define PPD_CONFIGURATION_ALGORITMO			"ppd.configuration.algoritmo"
@@ -21,6 +21,8 @@
 #define PPD_CONFIGURATION_WRITE_TIME		"ppd.configuration.write.time"
 #define PPD_CONFIGURATION_RPM				"ppd.configuration.rpm"
 #define PPD_CONFIGURATION_SALTO_PISTA		"ppd.configuration.salto.pista"
+#define PPD_CONFIGURATION_WRITE_DELAY		"ppd.configuration.write.delay"
+#define PPD_CONFIGURATION_READ_DELAY		"ppd.configuration.read.delay"
 
 	void ppd_configuration_setup();
 	void ppd_configuration_setConfigurationFile(char * s);
@@ -37,6 +39,8 @@
 	void setPpdWriteTimeMs(char * p);
 	void setPpdRpm(char * p);
 	void setPpdSaltoPistaMs(char * p);
+	void setPpdWriteDelay(char *);
+	void setPpdReadDelay(char *);
 
 	char * getPpdMode();
 	char * getPpdAlgoritmo();
@@ -49,5 +53,8 @@
 	char * getPpdWriteTimeMs();
 	char * getPpdRpm();
 	char * getPpdSaltoPistaMs();
+	char * getPpdReadDelay();
+	char * getPpdWriteDelay();
 
 #endif /* PFS_CONFIGURATION_H_ */
+

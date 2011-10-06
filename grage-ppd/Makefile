@@ -28,7 +28,7 @@ BUILD_DIR=build
 BUILD_TARGET = build/bin/$(GRAGE_PROJECT_NAME)
 BUILD_LIB = build/lib$(GRAGE_PROJECT_NAME).a
 BUILD_INCLUDES = -I./app/includes -I$(GRAGE_REPOSITORY_INCLUDES) 
-BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-commons -lm -lpthread 
+BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-commons -lm -lpthread -lssl -lcrypto
 
 TEST_UNIT_INCLUDES=./tests/unit/includes
 TEST_UNIT_SOURCE=./tests/unit/src/*

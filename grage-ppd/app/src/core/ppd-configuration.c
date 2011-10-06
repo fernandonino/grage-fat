@@ -11,6 +11,7 @@
 #include "linux-commons-strings.h"
 #include "ppd-configuration.h"
 #include "ppd-utils.h"
+
 	char * ppdMode;
 	char * ppdAlgoritmo;
 	char * ppdPort;
@@ -22,6 +23,9 @@
 	char * ppdWriteTimeMs;
 	char * ppdRpm;
 	char * ppdSaltoPistaMs;
+	char * ppdWriteDelay;
+	char * ppdReadDelay;
+
 	/*
 	 * Configuracion
 	 */
@@ -58,6 +62,15 @@
 	void setPpdSaltoPistaMs(char * p){
 		ppdSaltoPistaMs = p;
 	}
+	void setPddWriteDelay(char * secs){
+		ppdWriteDelay = secs;
+	}
+	void setPpdReadDelay(char * secs){
+		ppdReadDelay = secs;
+	}
+	void setPpdLoggingLevel(char * v){
+	}
+
 	char * getPpdMode(){
 		return ppdMode;
 	}
@@ -91,8 +104,13 @@
 	char * getPpdSaltoPistaMs(){
 		return ppdSaltoPistaMs;
 	}
-	void setPpdLoggingLevel(char * v){
+	char * getPpdWriteDelay(){
+		return ppdWriteDelay;
 	}
+	char * getPpdReadDelay(){
+		return ppdReadDelay;
+	}
+
 
 	void ppd_configuration_processEntries(char * key , char * value , void * object){
 		log_debug_t("Seteando [%s]=[%s]", key, value);
@@ -135,6 +153,12 @@
 		}
 		if(commons_string_equals(key,PPD_CONFIGURATION_SALTO_PISTA)){
 			setPpdSaltoPistaMs(value);
+		}
+		if(commons_string_equals(key,PPD_CONFIGURATION_READ_DELAY)){
+			setPpdReadDelay(value);
+		}
+		if(commons_string_equals(key,PPD_CONFIGURATION_WRITE_DELAY)){
+			setPddWriteDelay(value);
 		}
 
 	}

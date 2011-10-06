@@ -15,23 +15,30 @@
 #include <sys/mman.h>
 
 #include "grage-commons.h"
+#include "ppd-configuration.h"
 #include "ppd-persistance.h"
 
 	// TODO: REEMPLAZAR perror POR FUNCIONES DE commons-logging
 
 	// Funciones (read+write)sector candidatas para RuntimeValidator
-	void ppd_persistence_writeSector(DiskSector aSector , void * dest){
+	void ppd_persistence_writeSector(DiskSector * aSector , void * dest){
 
-		char * validator = memcpy(dest , aSector.sectorContent , SECTOR_SIZE );
+		//int delay = atoi( getPpdWriteDelay() );
+		//sleep(delay);
+
+		char * validator = memcpy(dest , aSector->sectorContent , SECTOR_SIZE );
         if (validator == NULL){
                 perror("Error en memcpy");
         }
 
 	}
 
-	void ppd_persistence_readSector(DiskSector aSector , void * source){
+	void ppd_persistence_readSector(DiskSector * aSector , void * source){
 
-		char * validator = memcpy(aSector.sectorContent , source , SECTOR_SIZE );
+		//int delay = atoi( getPpdReadDelay() );
+		//sleep(delay);
+
+		char * validator = memcpy(aSector->sectorContent , source , SECTOR_SIZE );
         if (validator == NULL){
                 perror("Error en memcpy");
         }
@@ -90,4 +97,5 @@
 
 		return NULL;
 	}
+
 
