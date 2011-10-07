@@ -18,6 +18,10 @@
 
 	void praid_launcher_doLaunch(){
 
+		//lanzar el thread que atiende peticiones
+
+
+
 	}
 
 	void praid_launcher_exit() {

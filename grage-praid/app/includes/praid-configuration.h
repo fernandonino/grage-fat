@@ -13,15 +13,14 @@
 #define PRAID_DEVICE_PORT	"praid.device.port"
 #define PRAID_CONSOLE_STATUS "praid.console.status"
 
-	char * getDevicePort(void);
-	char * getConsoleStatus(void);
+	char * praid_configuration_getDevicePort(void);
+	char * praid_configuration_getConsoleStatus(void);
 
-	void setDevicePort(char * devAddress);
-	void setConsoleStatus(char * devAddress);
-
-	void praid_configuration_setup();
+	void praid_configuration_setDevicePort(char * devAddress);
+	void praid_configuration_setConsoleStatus(char * devAddress);
 
 	void praid_configuration_setup();
 	char * praid_configuration_getConfigurationFile();
 	void praid_configuration_setConfigurationFile(char * s);
+
 #endif /* PFS_CONFIGURATION_H_ */

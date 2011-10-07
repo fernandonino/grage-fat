@@ -13,27 +13,27 @@
 	char * consoleStatus = NULL;
 
 
-	char * getDevicePort(void){
+	char * praid_configuration_getDevicePort(void){
 		return deviceAddress;
 	}
 
-	void setDevicePort(char * devAddress){
+	void praid_configuration_setDevicePort(char * devAddress){
 		deviceAddress = devAddress;
 	}
 
-	char * getConsoleStatus(void){
+	char * praid_configuration_getConsoleStatus(void){
 		return consoleStatus;
 	}
 
-	void setConsoleStatus(char * consoleStatusValue){
+	void praid_configuration_setConsoleStatus(char * consoleStatusValue){
 		consoleStatus = consoleStatusValue;
 	}
 
 	void praid_configuration_processEntries(char * key , char * value , void * object){
 		if( !strcmp(key, PRAID_DEVICE_PORT)){
-			setDevicePort(value);
+			praid_configuration_setDevicePort(value);
 		}else if(!strcmp(key , PRAID_CONSOLE_STATUS)){
-			setConsoleStatus(value);
+			praid_configuration_setConsoleStatus(value);
 		}
 	}
 
@@ -53,5 +53,5 @@
 	void praid_configuration_setup(){
 		File * file = commons_file_openFile(configurationFile);
 		commons_file_loadConfiguration(file , praid_configuration_processEntries);
-		commons_misc_doFreeNull((void**) &file);
+		commons_file_closeFile(file);
 	}

@@ -82,8 +82,14 @@ test-install:
 ##
 test-build:
 	mkdir $(TEST_UNIT_TARGET_DIR) -p
+	mkdir $(TEST_UNIT_TARGET_DIR)/conf
+	mkdir $(TEST_UNIT_TARGET_DIR)/logs
+	mkdir $(TEST_UNIT_TARGET_DIR)/bin
+	
 	gcc $(TEST_UNIT_SOURCE) $(BUILD_SOURCE) -I$(TEST_UNIT_INCLUDES) $(BUILD_INCLUDES) -l$(GRAGE_TESTING_UNIT_LIB)\
-	  $(BUILD_DEPS) -I/usr/local/include/CUnit -L/usr/local/lib -lcunit -static -o $(TEST_UNIT_TARGET_DIR)/$(TEST_LAUNCHER)
+	  $(BUILD_DEPS) -I/usr/local/include/CUnit -L/usr/local/lib -lcunit -static -o $(TEST_UNIT_TARGET_DIR)/bin/$(TEST_LAUNCHER)
+	  
+	cp -r app/conf/* $(TEST_UNIT_TARGET_DIR)/conf
 
 
 ##
@@ -110,9 +116,8 @@ tests: clean-test test-build test-run test-reports test-install
 ## Ejecucion de los tests
 ##
 test-run:
-	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then ./$(TEST_UNIT_TARGET_DIR)/$(TEST_LAUNCHER); fi 
-	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then mv $(GRAGE_PROJECT_NAME)-Listing.xml $(TEST_UNIT_TARGET_DIR); fi
-	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then mv $(GRAGE_PROJECT_NAME)-Results.xml $(TEST_UNIT_TARGET_DIR); fi
+	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then cd ./$(TEST_UNIT_TARGET_DIR)/bin && ./$(TEST_LAUNCHER) && cd ../../.. ; fi
+	if [ -d $(TEST_UNIT_TARGET_DIR) ]; then mv $(TEST_UNIT_TARGET_DIR)/bin/*.xml $(TEST_UNIT_TARGET_DIR); fi
 	
 
 ##
