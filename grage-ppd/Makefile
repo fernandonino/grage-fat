@@ -85,11 +85,13 @@ test-build:
 	mkdir $(TEST_UNIT_TARGET_DIR)/conf
 	mkdir $(TEST_UNIT_TARGET_DIR)/logs
 	mkdir $(TEST_UNIT_TARGET_DIR)/bin
+	mkdir $(TEST_UNIT_TARGET_DIR)/resources
 
 	gcc $(TEST_UNIT_SOURCE) $(BUILD_SOURCE) -I$(TEST_UNIT_INCLUDES) $(BUILD_INCLUDES) -l$(GRAGE_TESTING_UNIT_LIB)\
 	   $(BUILD_DEPS) -I/usr/local/include/CUnit -L/usr/local/lib -lcunit -static -o $(TEST_UNIT_TARGET_DIR)/bin/$(TEST_LAUNCHER)
 
 	cp -r app/conf/* $(TEST_UNIT_TARGET_DIR)/conf
+	cp -r tests/resources/* $(TEST_UNIT_TARGET_DIR)/resources
 	
 
 ##

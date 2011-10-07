@@ -80,19 +80,19 @@
 		DiskSector testSector;
 		testSector.sectorNumber = 0;
 
-		char * oneFile =  ppd_persistance_mapDisk("/vfs/face-01.png");
+		char * oneFile =  ppd_persistance_mapDisk("../resources/face-01.png");
 		CU_ASSERT_PTR_NOT_NULL(oneFile);
 		ppd_persistence_readSector(&testSector , oneFile);
-		oneFile = ppd_persistance_unmapDisk("/vfs/face-01.png" , oneFile);
+		oneFile = ppd_persistance_unmapDisk("../resources/face-01.png" , oneFile);
 		CU_ASSERT_PTR_NULL(oneFile);
 
-		char * anotherFile = ppd_persistance_mapDisk("/vfs/face-02.png");
+		char * anotherFile = ppd_persistance_mapDisk("../resources/face-02.png");
 		CU_ASSERT_PTR_NOT_NULL(anotherFile);
 		ppd_persistence_writeSector(&testSector , anotherFile);
-		anotherFile = ppd_persistance_unmapDisk("/vfs/face-02.png" , anotherFile);
+		anotherFile = ppd_persistance_unmapDisk("../resources/face-02.png" , anotherFile);
 		CU_ASSERT_PTR_NULL(anotherFile);
 
-		int result = compareFiles("/vfs/face-01.png" , "/vfs/face-02.png");
+		int result = compareFiles("../resources/face-01.png" , "../resources/face-02.png");
 		CU_ASSERT_EQUAL(result , 0);
 
 	}
