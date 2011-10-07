@@ -30,7 +30,7 @@
 
 		int suiteInitAndClean(){
 			praid_configuration_setDevicePort(NULL);
-			praid_configuration_setDevicePort(NULL);
+			praid_configuration_setConsoleStatus(NULL);
 			return EXIT_SUCCESS;
 		}
 
@@ -63,8 +63,8 @@
 	}
 
 	void test_praid_getConsoleStatus(){
-		char * port = praid_configuration_getConsoleStatus();
-		CU_ASSERT_PTR_NULL(port);
+		char * status = praid_configuration_getConsoleStatus();
+		CU_ASSERT_PTR_NULL(status);
 	}
 
 	void test_praid_setDevicePort(){
