@@ -8,6 +8,7 @@ install:
 	make build   -C grage-pfs
 	make build   -C grage-praid
 	make build   -C grage-ppd
+	make build   -C grage-nipc
 
 build:
 	make install -C grage-linux-testing-unit
@@ -24,8 +25,9 @@ clean:
 	make clean -C grage-pfs
 	make clean -C grage-praid
 	make clean -C grage-ppd
+	make clean   -C grage-nipc
 
-joaco:
+joaco-chupa-pene:
 	grage-docs/install_repo.sh joaquin grage-docs/template1.xsl
 	make clean install 	 -C grage-linux-testing-unit
 	make clean install 	 -C grage-linux-testing-integration
