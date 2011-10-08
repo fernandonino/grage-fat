@@ -46,7 +46,7 @@
 		uint16_t payloadLength;
 
 		uint8_t operationId;
-		uint8_t errorCode;
+		uint8_t responseCode;
 
 	} NipcHeader;
 
@@ -54,7 +54,6 @@
 	typedef struct {
 
 		DiskSector diskSector;
-		uint32_t sectorId;
 
 	} NipcPayload;
 
@@ -75,17 +74,24 @@
 
 
 	NipcMessage nipc_mbuilder_buildNipcMessage();
+	NipcMessage nipc_mbuilder_buildNipcMessageFromHeader(NipcHeader header);
+	NipcMessage nipc_mbuilder_buildNipcMessageFromHeaderAndPayload(NipcHeader header , NipcPayload payload);
 	NipcMessage nipc_mbuilder_addMessageType(NipcMessage aMessage , uint8_t aType);
 	NipcMessage nipc_mbuilder_addResponseCode(NipcMessage aMessage , uint8_t aCode);
+	NipcMessage nipc_mbuilder_addPayloadLength(NipcMessage , uint16_t lenth);
+	NipcMessage nipc_mbuilder_addOperationId(NipcMessage , uint8_t);
 	NipcMessage nipc_mbuilder_addDiskSector(NipcMessage aMessage , DiskSector aSector);
-	NipcMessage nipc_mbuilder_addSectorId(NipcMessage aMessage , uint32_t sectorId);
-
+	NipcMessage nipc_mbuilder_addDiskSectorId(NipcMessage aMessage , uint32_t sectorId);
+	NipcMessage nipc_mbuilder_addDiskSectorContent(NipcMessage aMessage , char * aContent , uint16_t aLength);
 
 
 	NipcStream nipc_stream_buildNipcStream();
-	NipcMessage nipc_stream_deserializeNipcPayloadStream(NipcStream aStream , NipcHeader aHeader);
-	NipcStream nipc_stream_serializeNipcMessage(NipcMessage aMessage);
 
+
+	NipcMessage nipc_stream_deserializeNipcMessageStream(NipcStream aStream);
+	NipcStream nipc_stream_serializeNipcPayload(NipcPayload aPayload);
+	NipcStream nipc_stream_serializeNipcMessage(NipcMessage aMessage);
+	NipcPayload nipc_stream_deserializeNipcPayloadStream(NipcStream aStream );
 
 
 

@@ -12,13 +12,36 @@
 		return builder;
 	}
 
+	NipcMessage nipc_mbuilder_buildNipcMessageFromHeader(NipcHeader header){
+		NipcMessage builder ;
+		builder.header = header;
+		return builder;
+	}
+
+	NipcMessage nipc_mbuilder_buildNipcMessageFromHeaderAndPayload(NipcHeader header , NipcPayload payload){
+		NipcMessage builder ;
+		builder.payload = payload;
+		builder.header = header;
+		return builder;
+	}
+
 	NipcMessage nipc_mbuilder_addMessageType(NipcMessage aMessage , uint8_t aType){
 		aMessage.header.messageType = aType;
 		return aMessage;
 	}
 
 	NipcMessage nipc_mbuilder_addResponseCode(NipcMessage aMessage , uint8_t aCode){
-		aMessage.header.errorCode = aCode;
+		aMessage.header.responseCode = aCode;
+		return aMessage;
+	}
+
+	NipcMessage nipc_mbuilder_addPayloadLength(NipcMessage aMessage , uint16_t lenth){
+		aMessage.header.payloadLength = lenth;
+		return aMessage;
+	}
+
+	NipcMessage nipc_mbuilder_addOperationId(NipcMessage aMessage , uint8_t operationId){
+		aMessage.header.operationId = operationId;
 		return aMessage;
 	}
 
@@ -27,8 +50,13 @@
 		return aMessage;
 	}
 
-	NipcMessage nipc_mbuilder_addSectorId(NipcMessage aMessage , uint32_t sectorId){
-		aMessage.payload.sectorId = sectorId;
+	NipcMessage nipc_mbuilder_addDiskSectorId(NipcMessage aMessage , uint32_t sectorId){
+		aMessage.payload.diskSector.sectorNumber = sectorId;
+		return aMessage;
+	}
+
+	NipcMessage nipc_mbuilder_addDiskSectorContent(NipcMessage aMessage , char * aContent , uint16_t aLength){
+		memcpy( aMessage.payload.diskSector.sectorContent , aContent , aLength);
 		return aMessage;
 	}
 

@@ -28,7 +28,9 @@
 
 		stream.offset = header.payloadLength;
 
-		return nipc_stream_deserializeNipcPayloadStream(stream , header);
+		NipcPayload payload = nipc_stream_deserializeNipcPayloadStream(stream );
+
+		return nipc_mbuilder_buildNipcMessageFromHeaderAndPayload(header , payload);
 	}
 
 

@@ -15,33 +15,43 @@
 	}
 
 
-	NipcMessage nipc_stream_deserializeNipcPayloadStream(NipcStream aStream , NipcHeader aHeader){
-		NipcMessage message;
-		message.header = aHeader;
+	NipcPayload nipc_stream_deserializeNipcPayloadStream(NipcStream aStream ){
 
-		if(aHeader.messageType == NIPC_MESSAGE_TYPE_SECTOR_DISK){
-			memcpy(&message.payload.diskSector , aStream.data , aStream.offset);
-		}else if(aHeader.messageType == NIPC_MESSAGE_TYPE_SECTOR_ID){
-			memcpy(&message.payload.sectorId , aStream.data , aStream.offset);
-		}
+		NipcPayload payload;
+		memcpy(&payload.diskSector , aStream.data , aStream.offset);
 
-		return message;
+		return payload;
 	}
 
 	NipcStream nipc_stream_serializeNipcMessage(NipcMessage aMessage){
 
 		NipcStream stream = nipc_stream_buildNipcStream();
 
-		if(aMessage.header.messageType == NIPC_MESSAGE_TYPE_HANDSHAKE){
-			memcpy(stream.data , &(aMessage.header) , stream.offset += sizeof(NipcHeader));
-		}else if(aMessage.header.messageType == NIPC_MESSAGE_TYPE_SECTOR_DISK){
-			memcpy(&stream.data , &(aMessage.header) , stream.offset += sizeof(NipcHeader));
-			memcpy(&stream.data , &(aMessage.payload.diskSector) , stream.offset += sizeof(aMessage.payload.diskSector));
-		}else if(aMessage.header.messageType == NIPC_MESSAGE_TYPE_SECTOR_ID){
-			memcpy(&stream.data , &(aMessage.header) , stream.offset += sizeof(NipcHeader));
-			memcpy(&stream.data , &(aMessage.payload.sectorId) , stream.offset += sizeof(aMessage.payload.sectorId));
-		}
+		memcpy(stream.data , &aMessage.header , stream.offset += sizeof(NipcHeader));
+
+		NipcStream payloadStream = nipc_stream_serializeNipcPayload(aMessage.payload);
+
+		memcpy(&stream.data + stream.offset , payloadStream.data , stream.offset += payloadStream.offset);
+
 		return stream;
 	}
 
+
+	NipcMessage nipc_stream_deserializeNipcMessageStream(NipcStream aStream){
+		NipcMessage m = nipc_mbuilder_buildNipcMessage();
+
+		uint32 offset;
+
+		memcpy(&m.header, aStream.data , offset += sizeof(m.header));
+		memcpy(&m.payload , aStream.data + offset , sizeof(m.payload));
+
+		return m;
+	}
+
+
+	NipcStream nipc_stream_serializeNipcPayload(NipcPayload aPayload){
+		NipcStream stream = nipc_stream_buildNipcStream();
+		memcpy(&stream.data , &aPayload.diskSector , stream.offset += sizeof(aPayload.diskSector));
+		return stream;
+	}
 
