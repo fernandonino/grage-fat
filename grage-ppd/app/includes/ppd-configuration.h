@@ -8,6 +8,10 @@
 #ifndef PPD_CONFIGURATION_H_
 #define PPD_CONFIGURATION_H_
 
+
+#define PPD_CONFIGURATION_MODE_CONNECT		"connect"
+#define PPD_CONFIGURATION_MODE_LISTEN		"listen"
+
 #define PPD_DEFAULT_CONFIGURATION_FILE		"../conf/grage-ppd.properties"
 #define PPD_CONFIGURATION_MODE				"ppd.configuration.mode"
 #define PPD_CONFIGURATION_ALGORITMO			"ppd.configuration.algoritmo"
@@ -28,7 +32,7 @@
 	void ppd_configuration_setConfigurationFile(char * s);
 	char * ppd_configuration_getConfigurationFile(void);
 
-	void setPpdMode(char * p);
+	void ppd_conf_setPpdMode(char * p);
 	void setPpdAlgoritmo(char * p);
 	void setPpdPort(char * p);
 	void setPpdIdDisk(char * p);
@@ -42,7 +46,7 @@
 	void setPpdWriteDelay(char *);
 	void setPpdReadDelay(char *);
 
-	char * getPpdMode();
+	char * ppd_conf_getPpdMode();
 	char * getPpdAlgoritmo();
 	char * getPpdPort();
 	char * getPpdIdDisk();

@@ -26,16 +26,37 @@
 	char * ppdWriteDelay;
 	char * ppdReadDelay;
 
+	char * praidAddress;
+	char * praidPort;
+
+
+
+	void ppd_conf_setPraidPort(char * p){
+		praidPort = p;
+	}
+	char * ppd_conf_getPraidPort(){
+		return praidPort;
+	}
+
+	void ppd_conf_setPraidAddress(char * p){
+		praidAddress = p;
+	}
+	char * ppd_conf_getPraidAddress(){
+		return praidAddress;
+	}
+
+
+
 	/*
 	 * Configuracion
 	 */
-	void setPpdMode(char * p){
+	void ppd_conf_setPpdMode(char * p){
 		ppdMode = p;
 	}
 	void setPpdAlgoritmo(char * p){
 		ppdAlgoritmo = p;
 	}
-	void setPpdPort(char * p){
+	void ppd_conf_setPpdPort(char * p){
 		ppdPort = p;
 	}
 	void setPpdIdDisk(char * p){
@@ -71,13 +92,13 @@
 	void setPpdLoggingLevel(char * v){
 	}
 
-	char * getPpdMode(){
+	char * ppd_conf_getPpdMode(){
 		return ppdMode;
 	}
 	char * getPpdAlgoritmo(){
 		return ppdAlgoritmo;
 	}
-	char * getPpdPort(){
+	char * ppd_conf_getPpdPort(){
 		return ppdPort;
 	}
 	char * getPpdIdDisk(){
@@ -122,13 +143,13 @@
 			setPpdLoggingLevel(value);
 		}
 		if(commons_string_equals(key , PPD_CONFIGURATION_MODE)){
-			setPpdMode(value);
+			 ppd_conf_setPpdMode(value);
 		}
 		if(commons_string_equals(key,PPD_CONFIGURATION_ALGORITMO)){
 			setPpdAlgoritmo(value);
 		}
 		if(commons_string_equals(key,PPD_CONFIGURATION_LISTEN_PORT)){
-			setPpdPort(value);
+			 ppd_conf_setPpdPort(value);
 		}
 		if(commons_string_equals(key,PPD_CONFIGURATION_ID_DISK)){
 			setPpdIdDisk(value);
@@ -180,7 +201,7 @@
 		File * file = commons_file_openFile(configurationFile);
 
 		if(file == NULL){
-			//error("No existe el archivo de configuracion");
+			printf("No existe el archivo de configuracion\n");
 			exit(EXIT_FAILURE);
 		}
 

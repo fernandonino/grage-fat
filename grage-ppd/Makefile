@@ -4,7 +4,7 @@
 
 ## Parametros a customizar para cada aplicacion
 GRAGE_PROJECT_NAME=grage-ppd
-BUILD_SOURCE=app/src/core/*
+BUILD_SOURCE=app/src/core/*.c ./app/src/*.c ./app/src/services/*.c ./app/src/planifier/*.c
 
 
 
@@ -28,7 +28,7 @@ BUILD_DIR=build
 BUILD_TARGET = build/bin/$(GRAGE_PROJECT_NAME)
 BUILD_LIB = build/lib$(GRAGE_PROJECT_NAME).a
 BUILD_INCLUDES = -I./app/includes -I$(GRAGE_REPOSITORY_INCLUDES) 
-BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-commons -lm -lpthread -lssl -lcrypto
+BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-commons -lm -lpthread -lgrage-nipc
 
 TEST_UNIT_INCLUDES=./tests/unit/includes
 TEST_UNIT_SOURCE=./tests/unit/src/*
@@ -46,7 +46,7 @@ build:
 	mkdir build/bin
 	mkdir build/conf
 	mkdir build/logs
-	gcc $(BUILD_SOURCE) ./app/src/*.c $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET)
+	gcc $(BUILD_SOURCE)  $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET)
 	cp app/conf/* build/conf
 
 build-lib: objdir
@@ -88,7 +88,7 @@ test-build:
 	mkdir $(TEST_UNIT_TARGET_DIR)/resources
 
 	gcc $(TEST_UNIT_SOURCE) $(BUILD_SOURCE) -I$(TEST_UNIT_INCLUDES) $(BUILD_INCLUDES) -l$(GRAGE_TESTING_UNIT_LIB)\
-	   $(BUILD_DEPS) -I/usr/local/include/CUnit -L/usr/local/lib -lcunit -static -o $(TEST_UNIT_TARGET_DIR)/bin/$(TEST_LAUNCHER)
+	   $(BUILD_DEPS) -I/usr/local/include/CUnit -L/usr/local/lib -lcunit -static -lssl -lcrypto -o $(TEST_UNIT_TARGET_DIR)/bin/$(TEST_LAUNCHER)
 
 	cp -r app/conf/* $(TEST_UNIT_TARGET_DIR)/conf
 	cp -r tests/resources/* $(TEST_UNIT_TARGET_DIR)/resources

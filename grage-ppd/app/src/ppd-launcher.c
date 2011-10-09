@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <linux-commons-logging.h>
 #include "ppd-configuration.h"
+#include "ppd-queues.h"
 
 
 	void ppd_launcher_initialize(){
@@ -19,6 +20,14 @@
 
 	void ppd_launcher_doLaunch(){
 
+		//ppd_queues_initialize();
+
+		if(commons_string_equals(ppd_conf_getPpdMode() ,
+				PPD_CONFIGURATION_MODE_CONNECT)){
+			ppd_connections_connectToPraid();
+		}else{
+			ppd_connections_waitForPfsConnections();
+		}
 	}
 
 	void ppd_laucher_exit(){
@@ -27,13 +36,6 @@
 
 
 	int main(int argc, char *args[]){
-
-		/*
-		 * Parametro de la aplicacion - path al archivo de conf
-		 */
-		if(argc > 0){
-			ppd_configuration_setConfigurationFile(args[0]);
-		}
 
 		ppd_launcher_initialize();
 

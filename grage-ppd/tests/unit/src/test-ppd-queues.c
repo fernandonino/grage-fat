@@ -24,6 +24,7 @@
 	void test_ppd_queues_putForWrite();
 
 
+
 	/*
 	 * Realiza la configuracion de la suite
 	 */
@@ -43,9 +44,26 @@
 
 
 
-	void test_ppd_queues_buildJob(){}
-	void test_ppd_queues_isTheSameJob(){}
-	void test_ppd_queues_pickForWrite(){}
-	void test_ppd_queues_pickForRead(){}
-	void test_ppd_queues_putForRead(){}
-	void test_ppd_queues_putForWrite(){}
+	void test_ppd_queues_buildJob(){
+
+	}
+
+	void test_ppd_queues_isTheSameJob(){
+
+	}
+
+	void test_ppd_queues_pickForWrite(){
+
+	}
+
+	void test_ppd_queues_pickForRead(){
+
+	}
+
+	void test_ppd_queues_putForRead(){
+
+	}
+
+	void test_ppd_queues_putForWrite(){
+
+	}

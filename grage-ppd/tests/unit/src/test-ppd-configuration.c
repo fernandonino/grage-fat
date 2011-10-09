@@ -39,13 +39,13 @@
 		ppd_configuration_setConfigurationFile("../conf/grage-ppd.properties");
 		ppd_configuration_setup();
 
-		value = getPpdMode();
+		value =  ppd_conf_getPpdMode();
 		CU_ASSERT_STRING_EQUAL(value,"connect");
 
 		value = getPpdAlgoritmo();
 		CU_ASSERT_STRING_EQUAL(value , "scan");
 
-		value = getPpdPort();
+		value =  ppd_conf_getPpdPort();
 		CU_ASSERT_STRING_EQUAL(value , "666");
 
 		value = getPpdIdDisk();

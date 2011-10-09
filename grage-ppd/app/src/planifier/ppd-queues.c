@@ -9,8 +9,14 @@
 #include "linux-commons-queue.h"
 #include "ppd-queues.h"
 
+	NipcMessage ppd_queues_buildNipcMessageFromJob(Job * theJob);
+
+
 	Queue readingQueue;
 	Queue writingQueue;
+
+	uint32_t readingJobId;
+	uint32_t writingJobId;
 
 
 	void ppd_queues_initialize(){
@@ -22,11 +28,18 @@
 
 
 
-	Job * ppd_queues_buildJob(Object aData){
+	Job * ppd_queues_buildJob(NipcMessage mes){
 		Job * theJob = (Job *) malloc(sizeof(Job));
-		theJob->jobData = aData;
 
-		//TODO: generar el jobId
+		theJob->pfsSocket = mes.payload.pfsSocket;
+		theJob->sectorId = mes.payload.diskSector.sectorNumber;
+		theJob->payloadLength = mes.header.payloadLength;
+		theJob->messageType = mes.header.messageType;
+		theJob->operationId = mes.header.operationId;
+		memcpy(theJob->sectorContent ,
+				mes.payload.diskSector.sectorContent ,
+				mes.header.payloadLength);
+
 		return theJob;
 	}
 
@@ -44,29 +57,52 @@
 	}
 
 
-	Object ppd_queues_pickForRead(){
+
+	NipcMessage  ppd_queues_pickForRead(){
 		Job * theJob = commons_queue_get(readingQueue);
-		Object theData = theJob->jobData;
+
+		NipcMessage mes = ppd_queues_buildNipcMessageFromJob(theJob);
+
 		commons_misc_doFreeNull((void**)theJob);
-		return theData;
+		return mes;
 	}
 
-	Object ppd_queues_pickForWrite(){
+
+	NipcMessage ppd_queues_pickForWrite(){
 		Job * theJob = commons_queue_get(writingQueue);
-		Object theData = theJob->jobData;
+
+		NipcMessage mes = ppd_queues_buildNipcMessageFromJob(theJob);
+
 		commons_misc_doFreeNull((void**)theJob);
-		return theData;
+		return mes;
 	}
 
 
-	void ppd_queues_putForRead(Object aData){
-		Job * theJob = ppd_queues_buildJob(aData);
+	void ppd_queues_putForRead(NipcMessage mes){
+		Job * theJob = ppd_queues_buildJob(mes);
+		theJob->jobId = readingJobId++;
 		commons_queue_put(readingQueue , theJob);
 	}
 
-	void ppd_queues_putForWrite(Object aData){
-		Job * theJob = ppd_queues_buildJob(aData);
+
+	void ppd_queues_putForWrite(NipcMessage mes){
+		Job * theJob = ppd_queues_buildJob(mes);
+		theJob->jobId = writingJobId++;
 		commons_queue_put(writingQueue , theJob);
 	}
 
 
+
+
+	NipcMessage ppd_queues_buildNipcMessageFromJob(Job * theJob){
+		NipcMessage mes;
+		mes.header.payloadLength = theJob->payloadLength;
+		mes.payload.pfsSocket = theJob->pfsSocket;
+		mes.payload.diskSector.sectorNumber = theJob->sectorId;
+		memcpy(mes.payload.diskSector.sectorContent ,
+				theJob->sectorContent , theJob->payloadLength);
+		mes.header.messageType = theJob->messageType;
+		mes.header.operationId = theJob->operationId;
+
+		return mes;
+	}
