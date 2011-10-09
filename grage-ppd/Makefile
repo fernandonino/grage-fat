@@ -4,7 +4,7 @@
 
 ## Parametros a customizar para cada aplicacion
 GRAGE_PROJECT_NAME=grage-ppd
-BUILD_SOURCE=app/src/core/*.c ./app/src/*.c ./app/src/services/*.c ./app/src/planifier/*.c
+BUILD_SOURCE=app/src/core/*.c ./app/src/services/*.c ./app/src/planifier/*.c
 
 
 
@@ -46,7 +46,7 @@ build:
 	mkdir build/bin
 	mkdir build/conf
 	mkdir build/logs
-	gcc $(BUILD_SOURCE)  $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET)
+	gcc $(BUILD_SOURCE) ./app/src/*.c $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET)
 	cp app/conf/* build/conf
 
 build-lib: objdir
