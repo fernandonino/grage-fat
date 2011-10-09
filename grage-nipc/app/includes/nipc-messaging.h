@@ -12,7 +12,7 @@
 
 #include "grage-commons.h"
 #include "linux-commons-socket.h"
-
+#include "linux-commons-errors.h"
 
 #ifndef NIPC_PROTOCOL_H_
 #define NIPC_PROTOCOL_H_
@@ -54,6 +54,7 @@
 	typedef struct {
 
 		DiskSector diskSector;
+		uint32_t pfsSocket;
 
 	} NipcPayload;
 
@@ -93,6 +94,12 @@
 	NipcStream nipc_stream_serializeNipcMessage(NipcMessage aMessage);
 	NipcPayload nipc_stream_deserializeNipcPayloadStream(NipcStream aStream );
 
+
+	void nipc_sendHandshake(ListenSocket lSocket , RuntimeErrorValidator * validator);
+	NipcMessage nipc_receiveHandshake(ListenSocket lSocket , RuntimeErrorValidator * validator);
+	void nipc_sendPutSectorRequest(ListenSocket l , DiskSector diskSector , RuntimeErrorValidator * validator);
+	void nipc_sendGetSectorRequest(ListenSocket l , uint32_t sector , RuntimeErrorValidator * validator);
+	void nipc_sendGetSectorResponse(ListenSocket l , DiskSector diskSector, uint32_t sector , RuntimeErrorValidator * validator);
 
 
 #endif /* NIPC_PROTOCOL_H_ */
