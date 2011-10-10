@@ -12,7 +12,7 @@
 
 	char * ppd_persistance_mapDisk(char * );
 	char * ppd_persistance_unmapDisk(char * , char * );
-	void ppd_persistence_writeSector(DiskSector * , void *);
-	void ppd_persistence_readSector(DiskSector * , void *);
+	void ppd_persistence_writeSector(DiskSector * , char *);
+	void ppd_persistence_readSector(DiskSector * , char *);
 
 #endif /* PPD_PERSISTANCE_H_ */

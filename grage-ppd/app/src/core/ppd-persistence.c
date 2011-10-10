@@ -21,10 +21,11 @@
 	// TODO: REEMPLAZAR perror POR FUNCIONES DE commons-logging
 
 	// Funciones (read+write)sector candidatas para RuntimeValidator
-	void ppd_persistence_writeSector(DiskSector * aSector , void * dest){
+	void ppd_persistence_writeSector(DiskSector * aSector , char * dest){
 
-		//int delay = atoi( getPpdWriteDelay() );
-		//sleep(delay);
+		int delay = atoi( getPpdWriteDelay() );
+		if (delay != 0)
+			sleep(delay);
 
 		char * validator = memcpy(dest , aSector->sectorContent , SECTOR_SIZE );
         if (validator == NULL){
@@ -33,10 +34,11 @@
 
 	}
 
-	void ppd_persistence_readSector(DiskSector * aSector , void * source){
+	void ppd_persistence_readSector(DiskSector * aSector , char * source){
 
-		//int delay = atoi( getPpdReadDelay() );
-		//sleep(delay);
+		int delay = atoi( getPpdReadDelay() );
+		if (delay != 0)
+			sleep(delay);
 
 		char * validator = memcpy(aSector->sectorContent , source , SECTOR_SIZE );
         if (validator == NULL){

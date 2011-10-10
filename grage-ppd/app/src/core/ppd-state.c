@@ -14,7 +14,7 @@
 
 	ListenSocket praidSocket;
 	ServerSocket * pfsConnection;
-
+	char * diskStartAddress;
 
 	void ppd_state_setPraidSocket(ListenSocket ls){
 		praidSocket = ls;
@@ -44,4 +44,12 @@
 			}
 		else
 			return 0;
+	}
+
+	char * ppd_state_getDiskStartAddress(){
+		return diskStartAddress;
+	}
+
+	void ppd_state_setDiskStartAddress(char * anAddress){
+		diskStartAddress = anAddress;
 	}

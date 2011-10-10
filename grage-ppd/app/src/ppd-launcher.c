@@ -10,15 +10,19 @@
 #include <linux-commons-logging.h>
 #include "ppd-configuration.h"
 #include "ppd-queues.h"
+#include "ppd-persistance.h"
+#include "ppd-state.h"
 
 	extern pthread_t entrypointThread;
 	extern pthread_t readingJobThread;
 	extern pthread_t writingJobThread;
 
 
-	void ppd_launcher_initialize(){
+	void ppd_launcher_initialize(char * disk){
 		log_create("ppd","../logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 		ppd_configuration_setup();
+
+		ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(disk) );
 	}
 
 
@@ -50,19 +54,20 @@
 	}
 
 
-	void ppd_laucher_exit(){
+	void ppd_launcher_exit(char * disk){
+		ppd_persistance_unmapDisk( disk , ppd_state_getDiskStartAddress() );
 		log_destroy();
 	}
 
 
-	int main(int argc, char *args[]){
+	int main(int argc, char *argv[]){
 
-		ppd_launcher_initialize();
+		ppd_launcher_initialize(argv[1]);
 		ppd_launcher_doLaunch();
 
 		//TODO: esta funcion hay q colgarla del evento del CTRL+C
 		//TODO: para ser ejecutada ahi.
-		// ppd_laucher_exit();
+		ppd_launcher_exit(argv[1]);
 
 		return EXIT_SUCCESS;
 	}

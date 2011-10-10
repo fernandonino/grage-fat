@@ -22,4 +22,7 @@
 
 	ListenSocket ppd_state_getActiveSocket();
 
+	char * ppd_state_getDiskStartAddress(void);
+	void ppd_state_setDiskStartAddress(char *);
+
 #endif /* PPD_STATE_H_ */
