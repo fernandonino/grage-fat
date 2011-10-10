@@ -26,7 +26,8 @@
 #define NIPC_RESPONSE_CODE_ERROR				1
 #define NIPC_OPERATION_ID_PUT_SECTORS			'P'
 #define NIPC_OPERATION_ID_GET_SECTORS			'G'
-
+#define NIPC_PROCESS_ID_PFS						4
+#define NIPC_PROCESS_ID_PPD						3
 
 
 
@@ -47,6 +48,8 @@
 
 		uint8_t operationId;
 		uint8_t responseCode;
+
+		uint8_t processHandshakeId;
 
 	} NipcHeader;
 
