@@ -51,3 +51,20 @@
 		theQueue->sortingCriteria = commons_list_ORDER_ALWAYS_LAST;
 		return theQueue;
 	}
+
+	Queue commons_queue_buildQueueWithSortingCriteria(
+			Boolean (*aEqualityCriteria)(Object , Object),
+			Boolean (*sortingCriteria)(Object , Object)){
+
+		ThreadMutex m = PTHREAD_MUTEX_INITIALIZER;
+
+		Queue theQueue = malloc(sizeof(L));
+		theQueue->size = 0;
+		theQueue->elements = NULL;
+		theQueue->mutex = m;
+		theQueue->equalityCriteria = aEqualityCriteria;
+		theQueue->sortingCriteria = commons_list_ORDER_ALWAYS_LAST;
+		return theQueue;
+	}
+
+

@@ -18,4 +18,9 @@
 	Object commons_queue_get(Queue);
 	void commons_queue_destroy(Queue aQueue);
 
+	Queue commons_queue_buildQueueWithSortingCriteria(
+			Boolean (*aEqualityCriteria)(Object , Object),
+			Boolean (*sortingCriteria)(Object , Object));
+
+
 #endif /* LINUX_COMMONS_QUEUE_H_ */
