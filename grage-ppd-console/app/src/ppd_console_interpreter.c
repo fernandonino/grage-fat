@@ -104,7 +104,7 @@ void ppd_console_interpreter(){
 		if(!strcmp(cmd, "clean")){
 			parameter  = ppd_console_get_cmd_parameter(buffer, strlen(cmd));
 			parameter2 = ppd_console_get_cmd_parameter(buffer, (strlen(cmd) + 1 + strlen(parameter)));
-			pfs_console_clean(atoi(parameter), atoi(parameter2));
+			ppd_console_clean(atoi(parameter), atoi(parameter2));
 		}
 		if(!strcmp(cmd, "trace")){
 			uint32 nro_parametros, i = 0;
