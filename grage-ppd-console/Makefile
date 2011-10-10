@@ -4,7 +4,7 @@
 
 ## Parametros a customizar para cada aplicacion
 GRAGE_PROJECT_NAME=grage-ppd-console
-BUILD_SOURCE=app/src/core/*
+BUILD_SOURCE=app/src/*.c
 
 
 
@@ -46,8 +46,7 @@ build:
 	mkdir build/bin
 	mkdir build/conf
 	mkdir build/logs
-	gcc $(BUILD_SOURCE) ./app/src/*.c $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET)
-	cp app/conf/* build/conf
+	gcc $(BUILD_SOURCE) $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET)
 
 build-lib: objdir
 	ar rcs $(BUILD_LIB) build/obj/*.o
@@ -60,6 +59,14 @@ objdir:
 	mkdir -p build/obj
 	gcc $(BUILD_INCLUDES) $(BUILD_SOURCE) -w -g -c -lm
 	mv *.o build/obj
+
+#
+# Instalacion de librerias y headers en un
+# repositorio comun
+#
+install: build
+	if [ -d $(GRAGE_REPOSITORY_LIB) ]; then cp $(BUILD_TARGET) $(GRAGE_REPOSITORY_LIB); fi
+
 	
 ##
 ## Generacion de los reportes

@@ -4,7 +4,7 @@
 
 ## Parametros a customizar para cada aplicacion
 GRAGE_PROJECT_NAME=grage-ppd
-BUILD_SOURCE=app/src/core/*.c ./app/src/services/*.c ./app/src/planifier/*.c
+BUILD_SOURCE=app/src/core/*.c ./app/src/services/*.c ./app/src/planifier/*.c ./app/src/console/*.c
 
 
 

@@ -13,6 +13,7 @@
 #include "ppd-planifier.h"
 #include "ppd-persistance.h"
 #include "ppd-state.h"
+#include "ppd-console.h"
 
 	extern pthread_t entrypointThread;
 	extern pthread_t readingJobThread;
@@ -22,7 +23,7 @@
 	void ppd_launcher_initialize(char * disk){
 		log_create("ppd","../logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 		ppd_configuration_setup();
-
+		ppd_console_initialize();
 		ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(disk) );
 	}
 
