@@ -22,5 +22,6 @@
 			Boolean (*aEqualityCriteria)(Object , Object),
 			Boolean (*sortingCriteria)(Object , Object));
 
+	Boolean commons_queue_isEmpty(Queue aQueue);
 
 #endif /* LINUX_COMMONS_QUEUE_H_ */

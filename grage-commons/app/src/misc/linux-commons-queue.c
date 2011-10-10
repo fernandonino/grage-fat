@@ -67,4 +67,9 @@
 		return theQueue;
 	}
 
+	Boolean commons_queue_isEmpty(Queue aQueue){
+		if(aQueue == NULL)
+			return TRUE;
+		return (aQueue->size == 0);
+	}
 
