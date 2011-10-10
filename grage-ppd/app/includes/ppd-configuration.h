@@ -33,8 +33,16 @@
 	char * ppd_configuration_getConfigurationFile(void);
 
 	void ppd_conf_setPpdMode(char * p);
+	char * ppd_conf_getPpdMode();
+	void ppd_conf_setPraidPort(char * p);
+	char * ppd_conf_getPraidPort();
+	void ppd_conf_setPraidAddress(char * p);
+	char * ppd_conf_getPraidAddress();
+
+
+
 	void setPpdAlgoritmo(char * p);
-	void setPpdPort(char * p);
+	void ppd_conf_setPpdPort(char * p);
 	void setPpdIdDisk(char * p);
 	void setPpdDiskCilinder(char * p);
 	void setPpdDiskHead(char * p);
@@ -46,9 +54,8 @@
 	void setPpdWriteDelay(char *);
 	void setPpdReadDelay(char *);
 
-	char * ppd_conf_getPpdMode();
 	char * getPpdAlgoritmo();
-	char * getPpdPort();
+	char * ppd_conf_getPpdPort();
 	char * getPpdIdDisk();
 	char * getPpdDiskCilinder();
 	char * getPpdDiskHead();

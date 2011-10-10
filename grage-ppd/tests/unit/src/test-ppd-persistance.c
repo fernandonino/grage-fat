@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <openssl/md5.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -26,12 +25,9 @@
 	 */
 	void test_ppd_persistance_mapDisk(void);
 	void test_ppd_persistance_unmapDisk(void);
-	void test_ppd_persistance_readAndWriteSector(void);
 
 
 	/* Funciones auxiliares para readAndWriteSector*/
-	int compareMd5Sum(unsigned char * , unsigned char * );
-	int compareFiles(char * , char * );
 	unsigned long get_size_by_fd(int);
 
 	/*
@@ -51,8 +47,6 @@
 		if ( unit_testing_addToSuite(suite , "Haciendo unmapping del disco" , test_ppd_persistance_unmapDisk) ==NULL )
 			return EXIT_FAILURE;
 
-		if ( unit_testing_addToSuite(suite , "Copiando un archivo mapeado" , test_ppd_persistance_readAndWriteSector) ==NULL )
-			return EXIT_FAILURE;
 
 		return EXIT_SUCCESS;
 	}
@@ -92,55 +86,16 @@
 		anotherFile = ppd_persistance_unmapDisk("../resources/face-02.png" , anotherFile);
 		CU_ASSERT_PTR_NULL(anotherFile);
 
-		int result = compareFiles("../resources/face-01.png" , "../resources/face-02.png");
-		CU_ASSERT_EQUAL(result , 0);
 
 	}
 
 
 	/* Funciones auxiliares para readAndWriteSector*/
 
-	int compareMd5Sum(unsigned char * stringOne , unsigned char * stringTwo) {
-		int i;
-		int compare = 0;
-		for(i=0 ; i < MD5_DIGEST_LENGTH ; i++) {
-			if ( stringOne[i] != stringTwo[i] )
-				compare = 1;
-		}
-		return compare;
-	}
 
 	unsigned long get_size_by_fd(int fd) {
 		struct stat statbuf;
 		if(fstat(fd, &statbuf) < 0) exit(-1);
 		return statbuf.st_size;
 	}
-
-	int compareFiles(char * fileOne , char * fileTwo){
-		int file_descript1, file_descript2;
-		unsigned long file_size1 , file_size2;
-		char * file_buffer1;
-		char * file_buffer2;
-		unsigned char result1[MD5_DIGEST_LENGTH];
-		unsigned char result2[MD5_DIGEST_LENGTH];
-
-		file_descript1 = open(fileOne, O_RDONLY);
-		if(file_descript1 < 0) exit(-1);
-		file_descript2 = open(fileTwo, O_RDONLY);
-		if(file_descript2 < 0) exit(-1);
-
-		file_size1 = get_size_by_fd(file_descript1);
-		file_size2 = get_size_by_fd(file_descript2);
-
-		file_buffer1 = mmap(0, file_size1, PROT_READ, MAP_SHARED, file_descript1, 0);
-		MD5((unsigned char*) file_buffer1, file_size1, result1);
-		file_buffer2 = mmap(0, file_size2, PROT_READ, MAP_SHARED, file_descript2, 0);
-		MD5((unsigned char*) file_buffer2, file_size2, result2);
-
-		close(file_descript1);
-		close(file_descript2);
-
-		return compareMd5Sum(result1,result2);
-	}
-
 

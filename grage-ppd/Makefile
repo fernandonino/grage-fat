@@ -61,6 +61,8 @@ objdir:
 	gcc $(BUILD_INCLUDES) $(BUILD_SOURCE) -w -g -c -lm
 	mv *.o build/obj
 
+
+
 ##
 ## Generacion de los reportes
 ##
