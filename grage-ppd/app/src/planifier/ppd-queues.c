@@ -8,8 +8,10 @@
 #include "linux-commons.h"
 #include "linux-commons-queue.h"
 #include "ppd-queues.h"
+#include "ppd-planifier.h"
 #include "grage-commons.h"
-
+#include "ppd-persistance.h"
+#include "ppd-state.h"
 	NipcMessage ppd_queues_buildNipcMessageFromJob(Job * theJob);
 
 
@@ -22,9 +24,16 @@
 
 	void ppd_queues_initialize(){
 
-		readingQueue = commons_queue_buildQueue((Boolean (*)(void *, void *))ppd_queues_isTheSameJob);
-		writingQueue = commons_queue_buildQueue((Boolean (*)(void *, void *))ppd_queues_isTheSameJob);
+		if(commons_string_equals(getPpdAlgoritmo() , "scan")){
+			readingQueue = commons_queue_buildQueueWithSortingCriteria(
+					(Boolean (*)(void *, void *))ppd_queues_isTheSameJob ,
+					(Boolean (*)(void *, void *))ppd_alg_planif_strategy_scan);
 
+		}else if(commons_string_equals(getPpdAlgoritmo() , "sstf")){
+			readingQueue = commons_queue_buildQueueWithSortingCriteria(
+					(Boolean (*)(void *, void *))ppd_queues_isTheSameJob ,
+					(Boolean (*)(void *, void *))ppd_alg_planif_strategy_sstf);
+		}
 	}
 
 
@@ -69,9 +78,9 @@
 		NipcMessage mes = ppd_queues_buildNipcMessageFromJob(theJob);
 
 		if ( theJob->operationId ==  NIPC_OPERATION_ID_PUT_SECTORS ){
-			ppd_persistence_readSector(currentSector , ppd_state_getDiskStartAddress() );
+			ppd_persistence_readSector(&currentSector , ppd_state_getDiskStartAddress() );
 		} else if ( theJob->operationId ==  NIPC_OPERATION_ID_GET_SECTORS ) {
-			ppd_persistence_writeSector( currentSector , ppd_state_getDiskStartAddress() );
+			ppd_persistence_writeSector( &currentSector , ppd_state_getDiskStartAddress() );
 		} else {
 			//No es ni lectura ni escritura
 			nipc_mbuilder_addResponseCode(mes, 1 );

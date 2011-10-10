@@ -10,6 +10,7 @@
 #include <linux-commons-logging.h>
 #include "ppd-configuration.h"
 #include "ppd-queues.h"
+#include "ppd-planifier.h"
 #include "ppd-persistance.h"
 #include "ppd-state.h"
 
@@ -43,6 +44,7 @@
 			ppd_connections_waitForPfsConnections();
 		}
 	}
+
 
 
 	void ppd_launcher_doLaunch(){

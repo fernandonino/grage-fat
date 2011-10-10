@@ -6,9 +6,8 @@
  */
 
 #include <pthread.h>
+#include "linux-commons.h"
 
-#ifndef PPD_PLANIFIER_H_
-#define PPD_PLANIFIER_H_
 
 	pthread_t ppd_planifier_worker_getReadingThread();
 	pthread_t ppd_planifier_worker_getWritingThread();
@@ -17,5 +16,8 @@
 	void ppd_planifier_worker_doJobs();
 
 
+	Boolean ppd_alg_planif_strategy_scan(Object , Object);
+	Boolean ppd_alg_planif_strategy_sstf(Object , Object);
 
-#endif /* PPD_PLANIFIER_H_ */
+
+
