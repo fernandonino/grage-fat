@@ -6,19 +6,23 @@
  */
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <linux-commons-logging.h>
+#include <stdio.h>
 #include "praid-configuration.h"
+#include "linux-commons.h"
+#include "praid-entrypoint.h"
 
 	void praid_launcher_initialize(){
 		log_create("praid","../logs/praid.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 		praid_configuration_setup();
+
+		praid_state_initializeStorages();
+
 	}
 
 
 	void praid_launcher_doLaunch(){
-
-		//lanzar el thread que atiende peticiones
+		praid_entry_startEntrypointListening();
 	}
 
 	void praid_launcher_exit() {
@@ -26,13 +30,6 @@
 	}
 
 	int main(int argc, char *args[]){
-
-		/*
-		 * Parametro de la aplicacion - path al archivo de conf
-		 */
-		if(argc > 0){
-			praid_configuration_setConfigurationFile(args[0]);
-		}
 
 		praid_launcher_initialize();
 

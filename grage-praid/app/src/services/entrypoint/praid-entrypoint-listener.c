@@ -9,25 +9,53 @@
 
 #include "linux-commons-socket.h"
 
-	void startEntrypointListening(){
+#include "praid-configuration.h"
 
-		char * port;
+#include "nipc-messaging.h"
 
-		ServerSocket * serverSocket = commons_socket_openServerConnection(port);
+#include "praid-state.h"
+
+	pthread_t entrypointListenerThread;
+
+
+
+	void praid_entry_startEntrypointListening(){
+
+		ServerSocket * serverSocket = commons_socket_openServerConnection(praid_configuration_getDevicePort());
 
 		while (TRUE){
 
-			// recibir mensaje en serverSocket->listenSocket
+			ListenSocket listenSocket = commons_socket_acceptConnection(serverSocket);
 
-			// si es un handshake del pfs guardar el estado
+			RuntimeErrorValidator * validator = commons_errors_buildSuccessValidator();
 
-			// si es un handshake del ppd agregar a la lista de ppds conectados uno nuevo con el estado
-			// y sincronizarlo
+			NipcMessage handshake = nipc_receiveHandshake(listenSocket , validator);
+			nipc_sendHandshake(listenSocket , validator);
 
-			// si es una respuesta de un ppd enviarla a travez del endpoint al pfs
+			if(commons_errors_hasError(validator)){
+				printf("ha ocurrido un error en el handshake");
+				return;
+			}
 
-			// si es una peticion del pfs derivarla al entrypoint correspondiente
+			if(handshake.header.processHandshakeId == NIPC_PROCESS_ID_PFS){
+
+				praid_pfs_launchNewSlaveThread(listenSocket);
+
+			}else if(handshake.header.processHandshakeId == NIPC_PROCESS_ID_PPD){
+
+				PPDConnectionStorage * storage = praid_state_buildPPDConnectionStorage(listenSocket);
+
+				praid_state_addPpdStorage(storage);
+
+				praid_ppd_thread_launchNewSlaveThread(storage);
+			}
+
+			//liberar la memoria del validator
 		}
+	}
 
 
+
+	void praid_entrypoint_listener_launch(){
+		pthread_create(&entrypointListenerThread , NULL , (void * (*)(void *))praid_entry_startEntrypointListening , NULL);
 	}

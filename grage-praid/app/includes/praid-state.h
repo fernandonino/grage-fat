@@ -35,4 +35,18 @@
 	} PPDConnectionStorage;
 
 
+
+	List praid_state_getPpdStorages();
+
+	Boolean praid_state_storage_eq(PPDConnectionStorage * s1 , PPDConnectionStorage * s2);
+
+	void praid_state_initializeStorages();
+
+	void praid_state_addPpdStorage(PPDConnectionStorage * aState);
+
+	PPDConnectionStorage * praid_state_buildPPDConnectionStorage(ListenSocket aSocket);
+
+
+	PPDConnectionStorage * praid_balancer_selectStorage();
+
 #endif /* PRAID_STATE_H_ */

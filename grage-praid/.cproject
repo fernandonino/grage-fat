@@ -45,6 +45,8 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.419536535" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
 								<option id="gnu.c.link.option.libs.1868104247" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="grage-linux-testing-integration"/>
+									<listOptionValue builtIn="false" value="grage-nipc"/>
+									<listOptionValue builtIn="false" value="pthread"/>
 									<listOptionValue builtIn="false" value="grage-linux-testing-unit"/>
 									<listOptionValue builtIn="false" value="m"/>
 									<listOptionValue builtIn="false" value="cunit"/>

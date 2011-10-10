@@ -9,16 +9,16 @@
 
 #include "praid-configuration.h"
 
-	char * deviceAddress = NULL;
+	char * devicePort = NULL;
 	char * consoleStatus = NULL;
 
 
 	char * praid_configuration_getDevicePort(void){
-		return deviceAddress;
+		return devicePort;
 	}
 
 	void praid_configuration_setDevicePort(char * devAddress){
-		deviceAddress = devAddress;
+		devicePort = devAddress;
 	}
 
 	char * praid_configuration_getConsoleStatus(void){
@@ -52,6 +52,12 @@
 
 	void praid_configuration_setup(){
 		File * file = commons_file_openFile(configurationFile);
+
+		if(file == NULL){
+			printf("Ha ocurrido un error buscando el archivo de configuracion\n");
+			exit(1);
+		}
+
 		commons_file_loadConfiguration(file , praid_configuration_processEntries);
 		commons_file_closeFile(file);
 	}
