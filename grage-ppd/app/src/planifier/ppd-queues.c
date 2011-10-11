@@ -12,6 +12,8 @@
 #include "grage-commons.h"
 #include "ppd-persistance.h"
 #include "ppd-state.h"
+
+
 	NipcMessage ppd_queues_buildNipcMessageFromJob(Job * theJob);
 
 
@@ -69,25 +71,12 @@
 
 
 	NipcMessage  ppd_queues_pickForRead(){
-		Job * theJob = commons_queue_get(readingQueue);
+			Job * theJob = commons_queue_get(readingQueue);
 
-		DiskSector currentSector;
-		currentSector.sectorNumber = theJob->sectorId;
-		memcpy( currentSector.sectorContent , theJob->sectorContent , sizeof(currentSector.sectorContent) );
+			NipcMessage mes = ppd_queues_buildNipcMessageFromJob(theJob);
 
-		NipcMessage mes = ppd_queues_buildNipcMessageFromJob(theJob);
-
-		if ( theJob->operationId ==  NIPC_OPERATION_ID_PUT_SECTORS ){
-			ppd_persistence_readSector(&currentSector , ppd_state_getDiskStartAddress() );
-		} else if ( theJob->operationId ==  NIPC_OPERATION_ID_GET_SECTORS ) {
-			ppd_persistence_writeSector( &currentSector , ppd_state_getDiskStartAddress() );
-		} else {
-			//No es ni lectura ni escritura
-			nipc_mbuilder_addResponseCode(mes, 1 );
-		}
-
-		commons_misc_doFreeNull((void**)theJob);
-		return mes;
+			commons_misc_doFreeNull((void**)theJob);
+			return mes;
 	}
 
 
