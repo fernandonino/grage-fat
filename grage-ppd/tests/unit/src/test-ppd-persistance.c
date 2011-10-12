@@ -72,7 +72,7 @@
 	void test_ppd_persistance_readAndWriteSector(void){
 
 		DiskSector testSector;
-		testSector.sectorNumber = 0;
+		testSector.sectorNumber = 6;
 
 		char * oneFile =  ppd_persistance_mapDisk("../resources/face-01.png");
 		CU_ASSERT_PTR_NOT_NULL(oneFile);
