@@ -5,6 +5,7 @@
  *      Author: gonzalo
  */
 #include <string.h>
+#include <stdlib.h>
 #include "linux-commons-file.h"
 
 #include "praid-configuration.h"
@@ -55,7 +56,7 @@
 
 		if(file == NULL){
 			printf("Ha ocurrido un error buscando el archivo de configuracion\n");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 
 		commons_file_loadConfiguration(file , praid_configuration_processEntries);
