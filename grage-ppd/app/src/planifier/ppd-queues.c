@@ -72,7 +72,6 @@
 
 	NipcMessage  ppd_queues_pickForRead(){
 			Job * theJob = commons_queue_get(readingQueue);
-
 			NipcMessage mes = ppd_queues_buildNipcMessageFromJob(theJob);
 
 			commons_misc_doFreeNull((void**)theJob);

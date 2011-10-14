@@ -13,7 +13,7 @@
 #include "ppd-planifier.h"
 #include "ppd-persistance.h"
 #include "ppd-state.h"
-#include "ppd-console.h"
+#include "ppd-launchConsole.h"
 
 	extern pthread_t entrypointThread;
 	extern pthread_t readingJobThread;
@@ -22,8 +22,9 @@
 
 	void ppd_launcher_initialize(char * disk){
 		log_create("ppd","../logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
+		ppd_launchConsole_initialize();
+		ppd_launchConsole_startUNIX();
 		ppd_configuration_setup();
-		ppd_console_initialize();
 		ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(disk) );
 	}
 
@@ -50,7 +51,7 @@
 
 	void ppd_launcher_doLaunch(){
 		ppd_queues_initialize();
- 		ppd_planifier_worker_doJobs();
+		ppd_planifier_worker_doJobs();
  		ppd_launcher_launchConnections();
 		ppd_entrypoint_launch();
 		ppd_launcher_joinAllThread();

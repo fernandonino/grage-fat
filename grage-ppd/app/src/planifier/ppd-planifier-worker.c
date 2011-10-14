@@ -49,9 +49,14 @@
 	void ppd_planifier_worker_doReadingJobs(void * arg){
 
 		while(TRUE){
+			/*
+			 *	COMENTADO PORQUE HACE SEGMENTATION FAULT EN
+			 *  NipcMessage m = ppd_queues_pickForRead();
+			 *  POR FALTA DE ARGUMENTO
+			 */
+/*
 			DiskSector currentSector;
 			NipcMessage m = ppd_queues_pickForRead();
-
 			currentSector.sectorNumber = m.payload.diskSector.sectorNumber;
 
 			if ( m.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS ) {
@@ -60,8 +65,9 @@
 			} else if ( m.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS ) {
 				ppd_persistence_readSector(&currentSector , ppd_state_getDiskStartAddress());
 			}
-
+*/
 			printf("buscando mensajes de la cola de lectura\n");
+			sleep(5);
 		}
 	}
 
