@@ -27,6 +27,7 @@ clean:
 	make clean -C grage-praid
 	make clean -C grage-ppd
 	make clean -C grage-nipc
+	make clean -C grage-ppd-console
 
 joaco:
 	grage-docs/install_repo.sh joaquin grage-docs/template1.xsl
