@@ -26,7 +26,7 @@
 
 	void ppd_queues_initialize(){
 
-		if(commons_string_equals(getPpdAlgoritmo() , "scan")){
+		if(commons_string_equals(getPpdAlgoritmo() , "look")){
 			readingQueue = commons_queue_buildQueueWithSortingCriteria(
 					(Boolean (*)(void *, void *))ppd_queues_isTheSameJob ,
 					(Boolean (*)(void *, void *))ppd_alg_planif_strategy_scan);

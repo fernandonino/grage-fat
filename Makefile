@@ -29,8 +29,8 @@ clean:
 	make clean -C grage-nipc
 	make clean -C grage-ppd-console
 
-joaco:
-	grage-docs/install_repo.sh joaquin grage-docs/template1.xsl
+seba:
+	docs/install_repo.sh seba docs/template1.xsl
 	make clean install -C grage-linux-testing-unit	
 	make clean install -C grage-linux-testing-integration
 	make clean install -C grage-commons

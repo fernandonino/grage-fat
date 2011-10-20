@@ -43,7 +43,7 @@
 		CU_ASSERT_STRING_EQUAL(value,"connect");
 
 		value = getPpdAlgoritmo();
-		CU_ASSERT_STRING_EQUAL(value , "scan");
+		CU_ASSERT_STRING_EQUAL(value , "look");
 
 		value =  ppd_conf_getPpdPort();
 		CU_ASSERT_STRING_EQUAL(value , "666");
