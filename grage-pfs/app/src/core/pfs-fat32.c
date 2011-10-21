@@ -92,8 +92,10 @@ uint64_t pfs_fat_getFirstSectorOfCluster(BPB * unaBpb , uint32_t cluster){
 }
 
 uint32_t pfs_fat_getFirstClusterFromDirEntry(DirEntry * D) {
-	uint32_t val = 0;
+	if ( D == NULL )
+		return EXIT_FAILURE;
 
+	uint32_t val = 0;
 	char *dst = (char *) &val;
 	char *src = (char *) &(D->DIR_FstClusLO);
 
@@ -107,3 +109,20 @@ uint32_t pfs_fat_getFirstClusterFromDirEntry(DirEntry * D) {
 	return val;
 }
 
+uint32_t pfs_fat_setFirstClusterForDirEntry(DirEntry * D , uint32_t cluster) {
+	if ( cluster == 0 || cluster == 1 )
+		return EXIT_FAILURE;
+
+	uint32_t val = 0;
+	char *src = (char *) &cluster;
+	char *dst = (char *) &(D->DIR_FstClusLO);	
+
+	dst[0] = src[0];
+	dst[1] = src[1];
+
+	dst = (char *) &(D->DIR_FstClusHI);
+	dst[0] = src[2];
+	dst[1] = src[3];	
+
+	return EXIT_SUCCESS;
+}

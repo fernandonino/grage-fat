@@ -101,10 +101,10 @@ typedef struct {
 #define	 FAT32_EOC_VALUE	0x0FFFFFF8
 #define  FAT32_BAD_VALUE	0x0FFFFFF7
 
-#define  FAT32_ISEOC(EntryValue)  (((EntryValue) & 0x0FFFFFFF) >= 0x0FFFFFF8)
-#define  FAT32_ISFREE(EntryValue) (((EntryValue) & 0x0FFFFFFF) == 0x00000000)
-#define  FAT32_ISBAD(EntryValue)  (EntryValue == 0x0FFFFFF7)
-#define  FAT32_LEGALCLUS(EntryValue)  (!( (FAT32_ISEOC(EntryValue)) || (FAT32_ISFREE(EntryValue)) || (FAT32_ISBAD(EntryValue))))
+#define  FAT32_ISEOC(EntryValue)	(((EntryValue) & 0x0FFFFFFF) >= 0x0FFFFFF8)
+#define  FAT32_ISFREE(EntryValue)	(((EntryValue) & 0x0FFFFFFF) == 0x00000000)
+#define  FAT32_ISBAD(EntryValue)  	(EntryValue == 0x0FFFFFF7)
+#define  FAT32_LEGALCLUS(EntryValue)	(!( (FAT32_ISEOC(EntryValue)) || (FAT32_ISFREE(EntryValue)) || (FAT32_ISBAD(EntryValue))))
 
 
 // Directory valores y macros
@@ -114,7 +114,7 @@ typedef struct {
 
 #define LDIR_ISFREE(D) 			(((D) == FREEENT) || ((D) == ENDOFDIR))
 #define LDIR_ISLAST(D) 			(D == ENDOFDIR)
-#define LDIR_ISLASTLONG(Ord)	(Ord == LASTLONG)
+#define LDIR_ISLASTLONG(Ord)		(Ord == LASTLONG)
 
 
 //TODO Averiguar si hacen falta
@@ -167,6 +167,9 @@ typedef struct {
 
 	/* Ubica el siguente cluster en funcion del DirEntry*/
 	uint32_t pfs_fat_getFirstClusterFromDirEntry(DirEntry *);
+
+	/* Setea los campos HI y LO de DirEntry para un cluster dado */
+	uint32_t pfs_fat_setFirstClusterForDirEntry(DirEntry * , uint32_t);
 
 	/////////////////////////////////////////////
 
