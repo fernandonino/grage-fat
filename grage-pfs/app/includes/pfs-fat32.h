@@ -127,46 +127,46 @@ typedef struct {
 #define FILE_SEC(dir) ((((BYTE *) &((dir)->DIR_WrtTime))[0] & 0x1f) * 2)
 
 	/* determina si el volumen es FAT32 */
-	Boolean isValidVolume(BPB *);
+	Boolean pfs_fat_isValidVolume(BPB *);
 
 	/* determina si es el ultimo cluster en FAT */
-	Boolean fat_isClusterEnd(uint32_t value);
+	Boolean pfs_fat_isClusterEnd(uint32_t value);
 
 	/* determina si es un cluster vacio */
-	Boolean fat_isClusterFree(uint32_t value);
+	Boolean pfs_fat_isClusterFree(uint32_t value);
 
 	/* determina si es un cluster invalido */
-	Boolean fat_isClusterBad(uint32_t value);
+	Boolean pfs_fat_isClusterBad(uint32_t value);
 
 	//TODO revisar esta funcion pq el EOCluster puede contener datos.
-	Boolean fat_isLegalCluster(uint32_t value);
+	Boolean pfs_fat_isLegalCluster(uint32_t value);
 
 
 	///////////// File Allocation Table functions /////////////
 
 	/* En base a un numero de cluster devuelve el sector en que esta su fat */
-	uint32_t getFatEntrySector(BPB * , uint32_t);
+	uint32_t pfs_fat_getFatEntrySector(BPB * , uint32_t);
 
 	/* En base a un numero de cluster devuelve el offset dentro del sector de la fat */
-	uint32_t getFatEntrySectorOffset(BPB * , uint32_t);
+	uint32_t pfs_fat_getFatEntrySectorOffset(BPB * , uint32_t);
 
-	uint32_t getFatEntry(uint32_t , uint32_t);
+	uint32_t pfs_fat_getFatEntry(uint32_t , uint32_t);
 
 	///////////////////////////////////////////////////////////
 
 
 	/* devuelve el sector donde comienan los datos en base a la info de fat */
 	/* Generlamente, es el primer sector del cluster 2 */
-	uint32_t getFirstDataSector(BPB *);
+	uint32_t pfs_fat_getFirstDataSector(BPB *);
 
 
 	///////////// Cluster functions /////////////
 
 	/* Dado un clustner n, devuelve el primer sector de ese cluster */
-	uint64_t getFirstSectorOfCluster(BPB * , uint32_t);
+	uint64_t pfs_fat_getFirstSectorOfCluster(BPB * , uint32_t);
 
 	/* Ubica el siguente cluster en funcion del DirEntry*/
-	uint32_t getFirstClusterFromDirEntry(DirEntry *);
+	uint32_t pfs_fat_getFirstClusterFromDirEntry(DirEntry *);
 
 	/////////////////////////////////////////////
 
