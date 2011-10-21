@@ -16,7 +16,7 @@
 	void ppd_planifier_worker_doJobs();
 
 
-	Boolean ppd_alg_planif_strategy_scan(Object , Object);
+	Boolean ppd_alg_planif_strategy_look(Object , Object);
 	Boolean ppd_alg_planif_strategy_sstf(Object , Object);
 
 

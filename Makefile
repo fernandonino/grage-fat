@@ -40,6 +40,16 @@ seba:
 	make clean build -C grage-ppd
 	make clean build -C grage-praid
 
+joaco:
+	grage-docs/install_repo.sh joaquin template1.xsl
+	make clean install -C grage-linux-testing-unit	
+	make clean install -C grage-linux-testing-integration
+	make clean install -C grage-commons
+	make clean install -C grage-nipc	
+	make clean install -C grage-ppd-console	
+	make clean build -C grage-pfs
+	make clean build -C grage-ppd
+	make clean build -C grage-praid
 
 
 
