@@ -2,32 +2,40 @@
  * praid-ppd-thread.c
  *
  *  Created on: 06/10/2011
- *      Author: utn_so
+ *      Author: gonzalo
  */
+
 #include <unistd.h>
 #include <pthread.h>
+
 #include "linux-commons.h"
-#include "nipc-messaging.h"
 #include "linux-commons-errors.h"
+
+#include "nipc-messaging.h"
+
 #include "praid-state.h"
 #include "praid-queue.h"
+#include "praid-endpoint.h"
+
 
 	void praid_ppd_thread_run(PPDConnectionStorage * );
 
 
 
-	pthread_t ppdSlaveThread;
-
-
 
 	void praid_ppd_thread_launchNewSlaveThread(PPDConnectionStorage * aStorage){
-		pthread_create(&ppdSlaveThread , NULL , (void * (*)(void *)) praid_ppd_thread_run , aStorage);
+
+		puts("Lanzando hilo entrypoint PPD");
+		pthread_create(&aStorage->storageThread , NULL , (void * (*)(void *)) praid_ppd_thread_run , aStorage);
 	}
 
 
 	void praid_ppd_thread_run(PPDConnectionStorage * aStorage){
 
-		//1) realizar la sincronizacion
+		//TODO:
+		//TODO: realizar la sincronizacion
+
+		puts("Ejecutando Hilo de proceso PPD");
 
 		while(TRUE){
 
@@ -39,12 +47,12 @@
 
 			NipcMessage message = praid_storage_queue_get(aStorage->pendingJobs);
 
-			nipc_messaging_send(aStorage->connection , message);
+			praid_endpoint_ppd_sendMessage(aStorage->connection , message);
 
 			if(message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 				NipcMessage response = nipc_messaging_receive(aStorage->connection);
 
-				//enviamos al pfs por el endpoint la respuesta
+				praid_endpoint_pfs_responseGetSectors(response.payload.pfsSocket , response);
 			}
 
 			aStorage->availability.inUse = FALSE;

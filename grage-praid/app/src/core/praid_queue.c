@@ -4,10 +4,12 @@
  *  Created on: 10/10/2011
  *      Author: gonzalo
  */
+#include <stdlib.h>
 
-#include "praid-queue.h"
 #include "linux-commons.h"
 #include "linux-commons-queue.h"
+
+#include "praid-queue.h"
 
 
 	void praid_storage_queue_put(Queue aQueue , NipcMessage aMessage){
@@ -17,7 +19,9 @@
 
 	NipcMessage praid_storage_queue_get(Queue aQueue){
 		Job * theJob = commons_queue_get(aQueue);
-		return praid_jobs_buildNipcMessageFromJob(theJob);
+		NipcMessage theMessage = praid_jobs_buildNipcMessageFromJob(theJob);
+		free(theJob);
+		return theMessage;
 	}
 
 	/*
@@ -57,6 +61,5 @@
 				theJob->sectorContent , theJob->payloadLength);
 		mes.header.messageType = theJob->messageType;
 		mes.header.operationId = theJob->operationId;
-
 		return mes;
 	}

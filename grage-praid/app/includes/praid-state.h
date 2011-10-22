@@ -2,7 +2,7 @@
  * praid-state.h
  *
  *  Created on: 06/10/2011
- *      Author: utn_so
+ *      Author: gonzalo
  */
 
 
@@ -23,17 +23,13 @@
 	} PPDAvailability;
 
 
-
 	typedef struct {
 
 		PPDAvailability availability;
-
 		Queue pendingJobs;
-
 		ListenSocket connection;
-
+		pthread_t storageThread;
 	} PPDConnectionStorage;
-
 
 
 	List praid_state_getPpdStorages();

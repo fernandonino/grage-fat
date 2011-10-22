@@ -55,10 +55,12 @@
 		File * file = commons_file_openFile(configurationFile);
 
 		if(file == NULL){
-			printf("Ha ocurrido un error buscando el archivo de configuracion\n");
+			puts("Ha ocurrido un error buscando el archivo de configuracion");
 			exit(EXIT_FAILURE);
 		}
 
 		commons_file_loadConfiguration(file , praid_configuration_processEntries);
 		commons_file_closeFile(file);
+
+		puts("Se ha cargado la configuracion");
 	}

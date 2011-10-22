@@ -2,9 +2,9 @@
  * praid-queue.c
  *
  *  Created on: 06/10/2011
- *      Author: utn_so
+ *      Author: gonzalo
  */
-
+#include <stdlib.h>
 
 #include "praid-state.h"
 #include "linux-commons-list.h"
@@ -29,8 +29,7 @@
 
 			if(! storage->availability.inUse ){
 
-				//liberar memoria Iterador
-
+				free(storages);
 				commons_misc_unlockThreadMutex(&loadBalancingMutex);
 
 				return storage;
@@ -45,7 +44,7 @@
 			}
 		}
 
-		//liberar memoria del iterador
+		free(storages);
 		commons_misc_unlockThreadMutex(&loadBalancingMutex);
 
 		return selected;

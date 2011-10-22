@@ -6,18 +6,21 @@
  */
 
 #include <stdlib.h>
-#include <linux-commons-logging.h>
 #include <stdio.h>
-#include "praid-configuration.h"
+
+#include "linux-commons-logging.h"
 #include "linux-commons.h"
+
+#include "praid-configuration.h"
 #include "praid-entrypoint.h"
+#include "praid-state.h"
+
 
 	void praid_launcher_initialize(){
 		log_create("praid","../logs/praid.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 		praid_configuration_setup();
 
 		praid_state_initializeStorages();
-
 	}
 
 
