@@ -72,8 +72,10 @@ uint32_t pfs_fat_getFatEntrySectorOffset(BPB * unaBpb , uint32_t cluster){
 	return fatEntryOffset;
 }
 
-uint32_t pfs_fat_getFatEntry(uint32_t sector , uint32_t offset){
-	uint32_t fatEntry = sector * 512 + offset;
+/* en base al contenido del sector y un offset, lee devuelve la entrada en la FAT */
+uint32_t pfs_fat_getFatEntry(char * sectorContent , uint32_t offset){
+	uint32_t fatEntry;
+	memcpy(&fatEntry , sectorContent , sizeof(uint32_t));
 	return fatEntry;
 }
 
@@ -86,7 +88,7 @@ uint32_t pfs_fat_getFirstDataSector( BPB * unaBpb){
 }
 
 /* Dado un clustner n, devuelve el primer sector de ese cluster */
-uint64_t pfs_fat_getFirstSectorOfCluster(BPB * unaBpb , uint32_t cluster){
+uint32_t pfs_fat_getFirstSectorOfCluster(BPB * unaBpb , uint32_t cluster){
 	uint64_t firstSectorOfCluster = ((cluster - 2) * unaBpb->BPB_SecPerClus) + pfs_fat_getFirstDataSector(unaBpb);
 	return firstSectorOfCluster;
 }
@@ -126,3 +128,23 @@ uint32_t pfs_fat_setFirstClusterForDirEntry(DirEntry * D , uint32_t cluster) {
 
 	return EXIT_SUCCESS;
 }
+
+BPB pfs_fat_readBPB(char * sectorContent){
+	BPB bpb;
+	memcpy(&bpb , sectorContent , sizeof(BPB));
+	return bpb;
+}
+
+DirEntry pfs_fat_readDirEntry(char * sectorContent){
+	DirEntry shortDirEntry;
+	memcpy(&shortDirEntry , sectorContent , sizeof(DirEntry));
+	return shortDirEntry;
+}
+
+LDirEntry pfs_fat_readLDirEntry(char * sectorContent){
+	LDirEntry longDirEntry;
+	memcpy(&longDirEntry , sectorContent , sizeof(DirEntry));
+	return longDirEntry;
+}
+
+

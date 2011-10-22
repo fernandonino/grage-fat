@@ -9,6 +9,7 @@
 #include "grage-commons.h"
 #include "linux-commons.h"
 #include "linux-commons-socket.h"
+#include "linux-commons-strings.h"
 
 	Boolean connectionStatusActive;
 

@@ -114,7 +114,7 @@ typedef struct {
 
 #define LDIR_ISFREE(D) 			(((D) == FREEENT) || ((D) == ENDOFDIR))
 #define LDIR_ISLAST(D) 			(D == ENDOFDIR)
-#define LDIR_ISLASTLONG(Ord)		(Ord == LASTLONG)
+#define LDIR_ISLASTLONG(Ord)	(Ord == LASTLONG)
 
 
 //TODO Averiguar si hacen falta
@@ -163,7 +163,7 @@ typedef struct {
 	///////////// Cluster functions /////////////
 
 	/* Dado un clustner n, devuelve el primer sector de ese cluster */
-	uint64_t pfs_fat_getFirstSectorOfCluster(BPB * , uint32_t);
+	uint32_t pfs_fat_getFirstSectorOfCluster(BPB * , uint32_t);
 
 	/* Ubica el siguente cluster en funcion del DirEntry*/
 	uint32_t pfs_fat_getFirstClusterFromDirEntry(DirEntry *);
@@ -172,5 +172,10 @@ typedef struct {
 	uint32_t pfs_fat_setFirstClusterForDirEntry(DirEntry * , uint32_t);
 
 	/////////////////////////////////////////////
+
+	BPB pfs_fat_readBPB(char *);
+	DirEntry pfs_fat_readDirEntry(char *);
+	LDirEntry pfs_fat_readLDirEntry(char *);
+
 
 #endif /* PFS_FAT32_H_ */
