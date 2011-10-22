@@ -8,7 +8,9 @@
 #ifndef PFS_FAT32_H_
 #define PFS_FAT32_H_
 
-#include <grage-commons.h>
+#include <string.h>
+#include "grage-commons.h"
+
 
 typedef struct {
 	uint8_t BS_jmpBoot[3];
@@ -150,7 +152,7 @@ typedef struct {
 	/* En base a un numero de cluster devuelve el offset dentro del sector de la fat */
 	uint32_t pfs_fat_getFatEntrySectorOffset(BPB * , uint32_t);
 
-	uint32_t pfs_fat_getFatEntry(uint32_t , uint32_t);
+	uint32_t pfs_fat_getFatEntry(char * , uint32_t);
 
 	///////////////////////////////////////////////////////////
 
