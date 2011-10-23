@@ -5,11 +5,15 @@
  *      Author: gonzalo
  */
 #include <stdlib.h>
+#include "grage-commons.h"
+
 #include "linux-commons.h"
 #include "linux-commons-queue.h"
+#include "linux-commons-strings.h"
+
+#include "ppd-configuration.h"
 #include "ppd-queues.h"
 #include "ppd-planifier.h"
-#include "grage-commons.h"
 #include "ppd-persistance.h"
 #include "ppd-state.h"
 
@@ -17,24 +21,15 @@
 	NipcMessage ppd_queues_buildNipcMessageFromJob(Job * theJob);
 
 
-	Queue readingQueue;
-	Queue writingQueue;
-
-	uint32_t readingJobId;
-	uint32_t writingJobId;
+	Queue jobsQueue;
+	uint32_t jobId;
 
 
 	void ppd_queues_initialize(){
-
 		if(commons_string_equals(getPpdAlgoritmo() , "look")){
-			readingQueue = commons_queue_buildQueueWithSortingCriteria(
+			jobsQueue = commons_queue_buildQueueWithSortingCriteria(
 					(Boolean (*)(void *, void *))ppd_queues_isTheSameJob ,
 					(Boolean (*)(void *, void *))ppd_alg_planif_strategy_look);
-
-		}else if(commons_string_equals(getPpdAlgoritmo() , "sstf")){
-			readingQueue = commons_queue_buildQueueWithSortingCriteria(
-					(Boolean (*)(void *, void *))ppd_queues_isTheSameJob ,
-					(Boolean (*)(void *, void *))ppd_alg_planif_strategy_sstf);
 		}
 	}
 
@@ -70,40 +65,19 @@
 
 
 
-	NipcMessage  ppd_queues_pickForRead(){
-			Job * theJob = commons_queue_get(readingQueue);
-			NipcMessage mes = ppd_queues_buildNipcMessageFromJob(theJob);
-
-			commons_misc_doFreeNull((void**)theJob);
-			return mes;
-	}
-
-
-	NipcMessage ppd_queues_pickForWrite(){
-		Job * theJob = commons_queue_get(writingQueue);
-
+	NipcMessage  ppd_queues_pickFromQueue(){
+		Job * theJob = commons_queue_get(jobsQueue);
 		NipcMessage mes = ppd_queues_buildNipcMessageFromJob(theJob);
-
 		commons_misc_doFreeNull((void**)theJob);
 		return mes;
 	}
 
 
-	void ppd_queues_putForRead(NipcMessage mes){
+	void ppd_queues_putInQueue(NipcMessage mes){
 		Job * theJob = ppd_queues_buildJob(mes);
-		theJob->jobId = readingJobId++;
-		commons_queue_put(readingQueue , theJob);
+		theJob->jobId = jobId++;
+		commons_queue_put(jobsQueue , theJob);
 	}
-
-
-	void ppd_queues_putForWrite(NipcMessage mes){
-		Job * theJob = ppd_queues_buildJob(mes);
-		theJob->jobId = writingJobId++;
-		commons_queue_put(writingQueue , theJob);
-	}
-
-
-
 
 	NipcMessage ppd_queues_buildNipcMessageFromJob(Job * theJob){
 		NipcMessage mes;
@@ -117,3 +91,4 @@
 
 		return mes;
 	}
+

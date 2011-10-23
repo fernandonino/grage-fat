@@ -18,45 +18,26 @@
 #include "ppd-state.h"
 
 
-	void ppd_planifier_worker_doWritingJobs(void * arg);
-	void ppd_planifier_worker_doReadingJobs(void * arg);
+	void ppd_planifier_worker_doJob(void * arg);
 
 
-
-
-	pthread_t readingJobThread;
-	pthread_t writingJobThread;
+	pthread_t jobsThread;
 
 
 	void ppd_planifier_worker_doJobs(){
 
 		printf("lanzando workers\n");
-
-		pthread_create(&writingJobThread , NULL , (void * (*)(void *)) ppd_planifier_worker_doWritingJobs , NULL);
-		pthread_create(&readingJobThread , NULL , (void * (*)(void *)) ppd_planifier_worker_doReadingJobs , NULL);
+		pthread_create(&jobsThread , NULL , (void * (*)(void *)) ppd_planifier_worker_doJob , NULL);
 	}
 
-	void ppd_planifier_worker_doWritingJobs(void * arg){
+
+	void ppd_planifier_worker_doJob(void * arg){
 
 		while(TRUE){
-			//NipcMessage m = ppd_queues_pickForWrite();
 
-			printf("buscando mensajes de la cola de escritura\n");
-			sleep(5);
-		}
-	}
-
-	void ppd_planifier_worker_doReadingJobs(void * arg){
-
-		while(TRUE){
-			/*
-			 *	COMENTADO PORQUE HACE SEGMENTATION FAULT EN
-			 *  NipcMessage m = ppd_queues_pickForRead();
-			 *  POR FALTA DE ARGUMENTO
-			 */
-/*
 			DiskSector currentSector;
-			NipcMessage m = ppd_queues_pickForRead();
+			NipcMessage m = ppd_queues_pickFromQueue();
+
 			currentSector.sectorNumber = m.payload.diskSector.sectorNumber;
 
 			if ( m.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS ) {
@@ -65,7 +46,7 @@
 			} else if ( m.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS ) {
 				ppd_persistence_readSector(&currentSector , ppd_state_getDiskStartAddress());
 			}
-*/
+
 			printf("buscando mensajes de la cola de lectura\n");
 			sleep(5);
 		}

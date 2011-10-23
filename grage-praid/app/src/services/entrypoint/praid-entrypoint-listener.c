@@ -25,7 +25,6 @@
 		puts("Queda en escucha");
 		ServerSocket * serverSocket = commons_socket_openServerConnection(praid_configuration_getDevicePort());
 
-
 		while (TRUE){
 
 			ListenSocket listenSocket = commons_socket_acceptConnection(serverSocket);

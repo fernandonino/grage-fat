@@ -8,16 +8,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <linux-commons-logging.h>
+#include <linux-commons-strings.h>
+
 #include "ppd-configuration.h"
 #include "ppd-queues.h"
 #include "ppd-planifier.h"
 #include "ppd-persistance.h"
 #include "ppd-state.h"
 #include "ppd-launchConsole.h"
+#include "ppd-connection.h"
+#include "ppd-entrypoint.h"
+
 
 	extern pthread_t entrypointThread;
-	extern pthread_t readingJobThread;
-	extern pthread_t writingJobThread;
+	extern pthread_t jobsThread;
+	extern pthread_t jobsThread;
 
 
 	void ppd_launcher_initialize(char * disk){
@@ -34,8 +39,8 @@
 		printf("joineando hilos\n");
 
 		pthread_join(entrypointThread , NULL);
-		pthread_join(readingJobThread , NULL);
-		pthread_join(writingJobThread , NULL);
+		pthread_join(jobsThread , NULL);
+		pthread_join(jobsThread , NULL);
 	}
 
 	void ppd_launcher_launchConnections(){

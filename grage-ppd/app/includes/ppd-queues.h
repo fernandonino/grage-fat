@@ -25,11 +25,11 @@
 
 	Job * ppd_queues_buildJob(NipcMessage mes);
 	Boolean ppd_queues_isTheSameJob(Job * j1 , Job * j2);
-	NipcMessage  ppd_queues_pickForRead();
-	NipcMessage ppd_queues_pickForWrite();
-	void ppd_queues_putForRead(NipcMessage mes);
-	void ppd_queues_putForWrite(NipcMessage mes);
+	void ppd_queues_initialize();
 
+
+	NipcMessage  ppd_queues_pickFromQueue();
+	void ppd_queues_putInQueue(NipcMessage mes);
 
 
 #endif /* PPD_PLANIFIER_H_ */

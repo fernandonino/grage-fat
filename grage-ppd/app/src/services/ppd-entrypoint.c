@@ -5,7 +5,7 @@
  *      Author: gonzalo
  */
 
-
+#include <unistd.h>
 #include <pthread.h>
 
 #include "grage-commons.h"
@@ -13,7 +13,7 @@
 #include "linux-commons-socket.h"
 
 #include "nipc-messaging.h"
-
+#include "ppd-queues.h"
 
 	void ppd_entrypoint_executePutSector(NipcMessage message);
 	void ppd_entrypoint_executeGetSector(NipcMessage message);
@@ -30,11 +30,11 @@
 	}
 
 	void ppd_entrypoint_executePutSector(NipcMessage message){
-		ppd_queues_putForWrite(message);
+		ppd_queues_putInQueue(message);
 	}
 
 	void ppd_entrypoint_executeGetSector(NipcMessage message){
-		ppd_queues_putForRead(message);
+		ppd_queues_putInQueue(message);
 	}
 
 	void ppd_entrypoint_doLunch(){

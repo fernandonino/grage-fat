@@ -19,7 +19,6 @@
 void ppd_launchConsole_startUNIX(){
 
 	int s, len, newfd, t;
-	char buffer[400];
 	struct sockaddr_un local, remote;
 
 	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
