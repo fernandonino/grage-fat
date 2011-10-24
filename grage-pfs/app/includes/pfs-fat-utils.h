@@ -7,11 +7,20 @@
 
 #ifndef PFS_FAT_UTILS_H_
 #define PFS_FAT_UTILS_H_
-
+typedef struct {
+	uint8_t estado;
+	uint32_t contenido;
+}CacheRecord;
 typedef struct Node {
     uint32_t Cluster;
     struct Node * Next;
 } rsvCluster;
+
+void pfs_fat_utils_cache_initialize();
+void pfs_fat_utils_cache_put(uint32_t contenido);
+uint32_t pfs_fat_utils_cache_get(uint32_t contenidoBuscado);
+uint32_t pfs_fat_utils_cache_tiene_contenido(uint32_t contenidoBuscado);
+void pfs_fat_utils_cache_registrar_acceso();
 
 //Ejemplifico abajo de cada una, como invocar a cada funcion
 void pfs_fat_utils_CreateList(rsvCluster **);

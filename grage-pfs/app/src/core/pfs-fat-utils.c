@@ -10,6 +10,73 @@
 #include <string.h>
 #include "pfs-fat-utils.h"
 
+CacheRecord Cache[319]; // 319 registros ya que hay 1 byte de estado por cada uno, de esta forma tiene 1MB de contenido.
+void pfs_fat_utils_cache_initialize()
+{
+	int i;
+	for (i=0;i<320;i++)
+	{
+		Cache[i].contenido=-1;
+	}
+}
+void pfs_fat_utils_cache_registrar_acceso()
+{
+	int i;
+	for(i=0;i<320;i++)
+	{
+		if (Cache[i].contenido!=-1) Cache[i].estado++;
+	}
+}
+uint32_t pfs_fat_utils_cache_tiene_contenido(uint32_t contenidoBuscado)
+{
+	int i;
+	for(i=0;i<320;i++)
+	{
+		if (Cache[i].contenido==contenidoBuscado) return i;
+	}
+	return -1;
+}
+uint32_t pfs_fat_utils_cache_get(uint32_t contenidoBuscado){
+	uint32_t posicion;
+
+	posicion=pfs_fat_utils_cache_tiene_contenido(contenidoBuscado);
+	if (posicion!=-1)
+	{
+		pfs_fat_utils_cache_registrar_acceso();
+		Cache[posicion].estado=0;
+
+		return Cache[posicion].contenido;
+	}
+	pfs_fat_utils_cache_registrar_acceso();
+	return -1;
+}
+
+void pfs_fat_utils_cache_put(uint32_t contenido)
+{
+	int aux,i,variable_LRU;
+	variable_LRU = -1;
+	if (pfs_fat_utils_cache_tiene_contenido(contenido)==-1){
+		for(i=0;i<320;i++)
+		{
+			if (Cache[i].contenido==-1)
+			{
+				aux=i;
+				break;
+			}
+			else
+			{
+				if (variable_LRU<Cache[i].estado)
+				{
+					aux=i;
+					variable_LRU=Cache[i].estado;
+				}
+			}
+		}
+
+		pfs_fat_utils_cache_registrar_acceso();
+		Cache[aux].contenido=contenido;
+	}
+}
 /************************ Función pfs_fat_utils_CreateList() ***************************/
 /*
    Propósito..: Inicializa la lista
@@ -112,6 +179,7 @@ uint32_t pfs_fat_utils_GetNextCluster(rsvCluster ** FirstCluster){
    Invocacion: 	pfs_fat_utils_FreeList(&firstNode);
 */
 /********************************************************************/
+
 void pfs_fat_utils_FreeList(rsvCluster **FirstCluster)
 {
    rsvCluster *currentNode,*nextNode;

@@ -29,45 +29,6 @@
 			free(Cache[i].cluster);
 		}
 	}
-
-
-	Cluster * pfs_cache_get(int clusterID){
-		int posicionCluster_Cache;
-		Cluster * cluster = NULL;
-		posicionCluster_Cache=pfs_cache_tiene_cluster(clusterID);
-		if (posicionCluster_Cache!=-1)
-		{
-			cluster = Cache[posicionCluster_Cache].cluster;
-			return cluster;
-		}
-		return cluster;
-	}
-
-
-	void pfs_cache_put(Cluster * cluster)
-	{
-		int aux,i,variable_LRU;
-		variable_LRU = -1;
-		for(i=0;i<8;i++)
-		{
-			if (Cache[i].cluster->clusterNumber==-1)
-			{
-				aux=i;
-				break;
-			}
-			else
-			{
-				if (variable_LRU<Cache[i].estado)
-				{
-					aux=i;
-					variable_LRU=Cache[i].estado;
-				}
-			}
-		}
-		Cache[aux].cluster=cluster;
-	}
-
-
 	void pfs_cache_registrar_acceso()
 	{
 		int i;
@@ -86,6 +47,49 @@
 			if (Cache[i].cluster->clusterNumber==clusterID) return i;
 		}
 		return -1;
+	}
+
+	Cluster * pfs_cache_get(int clusterID){
+		int posicionCluster_Cache;
+		Cluster * cluster = NULL;
+		posicionCluster_Cache=pfs_cache_tiene_cluster(clusterID);
+		if (posicionCluster_Cache!=-1)
+		{
+			cluster = Cache[posicionCluster_Cache].cluster;
+			pfs_cache_registrar_acceso();
+			Cache[posicionCluster_Cache].estado=0;
+			return cluster;
+		}
+		pfs_cache_registrar_acceso();
+		return cluster;
+	}
+
+
+	void pfs_cache_put(Cluster * cluster)
+	{
+		int aux,i,variable_LRU;
+		variable_LRU = -1;
+			if (pfs_cache_tiene_cluster(cluster)==-1){
+			for(i=0;i<8;i++)
+			{
+				if (Cache[i].cluster->clusterNumber==-1)
+				{
+					aux=i;
+					break;
+				}
+				else
+				{
+					if (variable_LRU<Cache[i].estado)
+					{
+						aux=i;
+						variable_LRU=Cache[i].estado;
+					}
+				}
+			}
+
+			pfs_cache_registrar_acceso();
+			Cache[aux].cluster=cluster;
+		}
 	}
 
 
