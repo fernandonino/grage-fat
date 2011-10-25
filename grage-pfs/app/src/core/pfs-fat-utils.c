@@ -10,11 +10,11 @@
 #include <string.h>
 #include "pfs-fat-utils.h"
 
-CacheRecord Cache[319]; // 319 registros ya que hay 1 byte de estado por cada uno, de esta forma tiene 1MB de contenido.
+CacheRecord Cache[255]; // 319 registros ya que hay 1 byte de estado por cada uno, de esta forma tiene 1MB de contenido.
 void pfs_fat_utils_cache_initialize()
 {
 	int i;
-	for (i=0;i<320;i++)
+	for (i=0;i<256;i++)
 	{
 		Cache[i].contenido=-1;
 	}
@@ -22,7 +22,7 @@ void pfs_fat_utils_cache_initialize()
 void pfs_fat_utils_cache_registrar_acceso()
 {
 	int i;
-	for(i=0;i<320;i++)
+	for(i=0;i<256;i++)
 	{
 		if (Cache[i].contenido!=-1) Cache[i].estado++;
 	}
@@ -30,7 +30,7 @@ void pfs_fat_utils_cache_registrar_acceso()
 uint32_t pfs_fat_utils_cache_tiene_contenido(uint32_t contenidoBuscado)
 {
 	int i;
-	for(i=0;i<320;i++)
+	for(i=0;i<256;i++)
 	{
 		if (Cache[i].contenido==contenidoBuscado) return i;
 	}
@@ -56,7 +56,7 @@ void pfs_fat_utils_cache_put(uint32_t contenido)
 	int aux,i,variable_LRU;
 	variable_LRU = -1;
 	if (pfs_fat_utils_cache_tiene_contenido(contenido)==-1){
-		for(i=0;i<320;i++)
+		for(i=0;i<256;i++)
 		{
 			if (Cache[i].contenido==-1)
 			{
