@@ -95,6 +95,10 @@
 			perror("fstat - error al obtener atributos del disco");
 		}
 
+		// Agregar msync !!!
+		// Debe ejectutarse antes del mumap para plasmar en disco los
+		// cambios hechos en memoria
+
 		if( munmap(mapping , filestat.st_size) ){
 			perror("Error en unmapping.");
 		}
