@@ -31,7 +31,8 @@
 
 		NipcStream payloadStream = nipc_stream_serializeNipcPayload(aMessage.payload);
 
-		memcpy(&stream.data + stream.offset , payloadStream.data , stream.offset += payloadStream.offset);
+		char * buffer = stream.data ;
+		memcpy( buffer + stream.offset , payloadStream.data , stream.offset += payloadStream.offset);
 
 		return stream;
 	}
@@ -40,7 +41,7 @@
 	NipcMessage nipc_stream_deserializeNipcMessageStream(NipcStream aStream){
 		NipcMessage m = nipc_mbuilder_buildNipcMessage();
 
-		uint32 offset;
+		uint32 offset = 0;
 
 		memcpy(&m.header, aStream.data , offset += sizeof(m.header));
 		memcpy(&m.payload , aStream.data + offset , sizeof(m.payload));
@@ -51,7 +52,7 @@
 
 	NipcStream nipc_stream_serializeNipcPayload(NipcPayload aPayload){
 		NipcStream stream = nipc_stream_buildNipcStream();
-		memcpy(&stream.data , &aPayload.diskSector , stream.offset += sizeof(aPayload.diskSector));
+		memcpy(stream.data , &aPayload.diskSector , stream.offset += sizeof(aPayload.diskSector));
 		return stream;
 	}
 

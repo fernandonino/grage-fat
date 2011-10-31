@@ -51,7 +51,7 @@
 
 		uint8_t processHandshakeId;
 
-	} NipcHeader;
+	} __attribute__((packed)) NipcHeader;
 
 
 	typedef struct {
@@ -59,7 +59,7 @@
 		DiskSector diskSector;
 		uint32_t pfsSocket;
 
-	} NipcPayload;
+	} __attribute__((packed)) NipcPayload;
 
 
 	typedef struct {
@@ -67,7 +67,7 @@
 		NipcHeader header;
 		NipcPayload payload;
 
-	} NipcMessage;
+	} __attribute__((packed)) NipcMessage;
 
 
 
@@ -87,7 +87,7 @@
 	NipcMessage nipc_mbuilder_addDiskSector(NipcMessage aMessage , DiskSector aSector);
 	NipcMessage nipc_mbuilder_addDiskSectorId(NipcMessage aMessage , uint32_t sectorId);
 	NipcMessage nipc_mbuilder_addDiskSectorContent(NipcMessage aMessage , char * aContent , uint16_t aLength);
-
+	NipcMessage nipc_mbuilder_addProcessId(NipcMessage , uint8_t);
 
 	NipcStream nipc_stream_buildNipcStream();
 
@@ -98,7 +98,7 @@
 	NipcPayload nipc_stream_deserializeNipcPayloadStream(NipcStream aStream );
 
 
-	void nipc_sendHandshake(ListenSocket lSocket , RuntimeErrorValidator * validator);
+	void nipc_sendHandshake(ListenSocket lSocket , uint8_t processId , RuntimeErrorValidator * validator);
 	NipcMessage nipc_receiveHandshake(ListenSocket lSocket , RuntimeErrorValidator * validator);
 	void nipc_sendPutSectorRequest(ListenSocket l , DiskSector diskSector , RuntimeErrorValidator * validator);
 	void nipc_sendGetSectorRequest(ListenSocket l , uint32_t sector , RuntimeErrorValidator * validator);

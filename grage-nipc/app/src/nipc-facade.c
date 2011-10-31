@@ -8,19 +8,21 @@
 #include "nipc-messaging.h"
 #include "linux-commons-errors.h"
 
-	void nipc_sendHandshake(ListenSocket lSocket , RuntimeErrorValidator * validator){
+	void nipc_sendHandshake(ListenSocket lSocket , uint8_t processId , RuntimeErrorValidator * validator){
 		NipcMessage message;
 
 		message = nipc_mbuilder_addMessageType(message , NIPC_MESSAGE_TYPE_HANDSHAKE);
+		message = nipc_mbuilder_addProcessId(message , processId);
 
 		nipc_messaging_send(lSocket , message);
 
-		message = nipc_messaging_receive(lSocket);
+/*		message = nipc_messaging_receive(lSocket);
 
 		if(message.header.responseCode == NIPC_RESPONSE_CODE_ERROR){
 			commons_errors_setError(validator , "Ha ocurrido un error en el handshake");
 			return;
 		}
+		*/
 	}
 
 	NipcMessage nipc_receiveHandshake(ListenSocket lSocket , RuntimeErrorValidator * validator){

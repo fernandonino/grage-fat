@@ -60,5 +60,9 @@
 		return aMessage;
 	}
 
+	NipcMessage nipc_mbuilder_addProcessId(NipcMessage message , uint8_t processId){
+		message.header.processHandshakeId = processId;
+		return message;
+	}
 
 
