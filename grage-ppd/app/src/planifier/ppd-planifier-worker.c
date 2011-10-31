@@ -16,6 +16,7 @@
 #include "ppd-queues.h"
 #include "ppd-persistance.h"
 #include "ppd-state.h"
+#include "ppd-entrypoint.h"
 
 
 	void ppd_planifier_worker_doJob(void * arg);
@@ -41,14 +42,24 @@
 			currentSector.sectorNumber = m.payload.diskSector.sectorNumber;
 
 			if ( m.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS ) {
+
+				uint8_t delay = atoi( getPpdWriteDelay() );
+				if (delay != 0)
+					sleep(delay);
+
 				memcpy(currentSector.sectorContent , m.payload.diskSector.sectorContent , sizeof(currentSector.sectorContent));
 				ppd_persistence_writeSector( &currentSector , ppd_state_getDiskStartAddress() );
-			} else if ( m.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS ) {
-				ppd_persistence_readSector(&currentSector , ppd_state_getDiskStartAddress());
-			}
 
-			printf("buscando mensajes de la cola de lectura\n");
-			sleep(5);
+			} else if ( m.header.operationId == NIPC_OPERATION_ID_GET_SECTORS ) {
+
+				uint8_t delay = atoi( getPpdReadDelay() );
+				if (delay != 0)
+					sleep(delay);
+
+				ppd_persistence_readSector(&currentSector , ppd_state_getDiskStartAddress());
+
+				ppd_endpoint_responseGetSector(m);
+			}
 		}
 	}
 

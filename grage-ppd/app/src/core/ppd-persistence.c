@@ -24,10 +24,6 @@
 	void ppd_persistence_writeSector(DiskSector * aSector , char * dest){
 
 		/*
-		uint8_t delay = atoi( getPpdWriteDelay() );
-		if (delay != 0)
-			sleep(delay);
-
 		uint32_t offset = aSector->sectorNumber * SECTOR_SIZE;
 
 		char * validator = memcpy(dest + offset , aSector->sectorContent , SECTOR_SIZE );
@@ -35,7 +31,6 @@
                 perror("Error en memcpy");
         }
         */
-
 
 		puts("Escribiendo sector");
 		printf("SectorId: %i , Contenido: %s\n" , aSector->sectorNumber , aSector->sectorContent);
@@ -45,25 +40,19 @@
 
 	void ppd_persistence_readSector(DiskSector * aSector , char * source){
 
+
 		/*
-		uint8_t delay = atoi( getPpdReadDelay() );
-		if (delay != 0)
-			sleep(delay);
-
 		uint32_t offset = aSector->sectorNumber * SECTOR_SIZE;
-
 		char * validator = memcpy(aSector->sectorContent , source + offset , SECTOR_SIZE );
         if (validator == NULL){
                 perror("Error en memcpy");
         }
-
 */
 
-
+		strcpy(aSector->sectorContent , "hola mundo - Get Sectores response");
 
 		puts("Leyendo sector");
 		printf("SectorId: %i\n" , aSector->sectorNumber );
-
 
 	}
 
