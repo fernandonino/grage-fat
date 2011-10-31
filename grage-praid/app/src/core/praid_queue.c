@@ -46,7 +46,7 @@
 		theJob->operationId = mes.header.operationId;
 		memcpy(theJob->sectorContent ,
 				mes.payload.diskSector.sectorContent ,
-				mes.header.payloadLength);
+				sizeof(mes.payload.diskSector.sectorContent));
 
 		return theJob;
 	}
@@ -58,7 +58,7 @@
 		mes.payload.pfsSocket = theJob->pfsSocket;
 		mes.payload.diskSector.sectorNumber = theJob->sectorId;
 		memcpy(mes.payload.diskSector.sectorContent ,
-				theJob->sectorContent , theJob->payloadLength);
+				theJob->sectorContent , sizeof(mes.payload.diskSector.sectorContent));
 		mes.header.messageType = theJob->messageType;
 		mes.header.operationId = theJob->operationId;
 		return mes;

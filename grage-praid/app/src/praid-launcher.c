@@ -17,7 +17,14 @@
 
 
 	void praid_launcher_initialize(){
-		log_create("praid","../logs/praid.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
+
+		int status = log_create("praid","/opt/grage-repository/logs/praid.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
+
+		if(status == 0)
+			puts("Log inicializado con exito");
+		else
+			puts("Falló la inicialización del log");
+
 		praid_configuration_setup();
 
 		praid_state_initializeStorages();

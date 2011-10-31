@@ -26,8 +26,13 @@
 
 
 	void praid_pfs_launchNewSlaveThread(ListenSocket ls){
+
+
+		ListenSocket * theSocket = malloc(sizeof(ListenSocket));
+		*theSocket = ls;
+
 		puts("Lanzando hilo entrypoint PFS");
-		pthread_create(&pfsSlaveThread , NULL , (void * (*)(void *))praid_pfs_entrypoint_receiveInvocation , &ls);
+		pthread_create(&pfsSlaveThread , NULL , (void * (*)(void *))praid_pfs_entrypoint_receiveInvocation , theSocket);
 	}
 
 	void praid_pfs_entrypoint_receiveInvocation(ListenSocket * ls){
@@ -41,6 +46,8 @@
 		}else if (message.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
 			praid_pfs_entrypoint_executeGetSector(message);
 		}
+
+		close(*ls);
 	}
 
 
@@ -55,9 +62,7 @@
 			praid_storage_queue_put(storage->pendingJobs , message);
 		}
 
-		//liberar la memoria del iterador
 		free(storages);
-
 	}
 
 

@@ -38,7 +38,7 @@
 
 				printf("tipo de proceso conectado: %i\n" , handshake.header.processHandshakeId);
 
-				nipc_sendHandshake(listenSocket , validator);
+				nipc_sendHandshake(listenSocket ,  handshake.header.processHandshakeId, validator);
 
 				if(commons_errors_hasError(validator)){
 					puts("ha ocurrido un error en el handshake");
