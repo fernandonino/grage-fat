@@ -42,15 +42,14 @@
 		while(TRUE){
 
 			printf("esperando peticiones de PRAID/PFS\n");
-			sleep(5);
 
-/*			NipcMessage m = nipc_messaging_receive(ppd_state_getActiveSocket());
+			NipcMessage m = nipc_messaging_receive(ppd_state_getActiveSocket());
 
 			if(m.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 				ppd_entrypoint_executeGetSector(m);
 			}else if (m.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
 				ppd_entrypoint_executePutSector(m);
 			}
-*/
+
 		}
 	}

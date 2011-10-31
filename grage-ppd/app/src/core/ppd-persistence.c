@@ -23,6 +23,7 @@
 	// Funciones (read+write)sector candidatas para RuntimeValidator
 	void ppd_persistence_writeSector(DiskSector * aSector , char * dest){
 
+		/*
 		uint8_t delay = atoi( getPpdWriteDelay() );
 		if (delay != 0)
 			sleep(delay);
@@ -33,11 +34,18 @@
         if (validator == NULL){
                 perror("Error en memcpy");
         }
+        */
+
+
+		puts("Escribiendo sector");
+		printf("SectorId: %i , Contenido: %s\n" , aSector->sectorNumber , aSector->sectorContent);
+
 
 	}
 
 	void ppd_persistence_readSector(DiskSector * aSector , char * source){
 
+		/*
 		uint8_t delay = atoi( getPpdReadDelay() );
 		if (delay != 0)
 			sleep(delay);
@@ -48,6 +56,14 @@
         if (validator == NULL){
                 perror("Error en memcpy");
         }
+
+*/
+
+
+
+		puts("Leyendo sector");
+		printf("SectorId: %i\n" , aSector->sectorNumber );
+
 
 	}
 

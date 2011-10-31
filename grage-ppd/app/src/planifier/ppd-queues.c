@@ -45,7 +45,7 @@
 		theJob->operationId = mes.header.operationId;
 		memcpy(theJob->sectorContent ,
 				mes.payload.diskSector.sectorContent ,
-				mes.header.payloadLength);
+				sizeof(theJob->sectorContent));
 
 		return theJob;
 	}
@@ -67,6 +67,12 @@
 
 	NipcMessage  ppd_queues_pickFromQueue(){
 		Job * theJob = commons_queue_get(jobsQueue);
+
+		while(theJob == NULL){
+			sleep(5);
+			theJob = commons_queue_get(jobsQueue);
+		}
+
 		NipcMessage mes = ppd_queues_buildNipcMessageFromJob(theJob);
 		commons_misc_doFreeNull((void**)theJob);
 		return mes;
@@ -85,7 +91,7 @@
 		mes.payload.pfsSocket = theJob->pfsSocket;
 		mes.payload.diskSector.sectorNumber = theJob->sectorId;
 		memcpy(mes.payload.diskSector.sectorContent ,
-				theJob->sectorContent , theJob->payloadLength);
+				theJob->sectorContent , sizeof(theJob->sectorContent));
 		mes.header.messageType = theJob->messageType;
 		mes.header.operationId = theJob->operationId;
 

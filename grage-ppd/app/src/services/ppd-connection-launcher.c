@@ -21,20 +21,25 @@
 
 	void ppd_connections_connectToPraid(){
 
-/*
 		ListenSocket praidSocket = commons_socket_openClientConnection(
 				ppd_conf_getPraidAddress() ,
 				ppd_conf_getPraidPort());
 
-		ppd_state_setPraidSocket(praidSocket);
+		if(praidSocket > 0){
+			puts("Se ha logrado conectar con el PRAID");
 
-		ppd_connections_handshake();
-*/
+			puts("Salvando el estado de la coneccion");
+			ppd_state_setPraidSocket(praidSocket);
 
-		printf("conectandonos a PRAID\n");
-		printf("realizando handshake\n");
-		printf("salvando el estado de la coneccion\n");
+			puts("Realizando handshake");
+			ppd_connections_handshake();
 
+
+		}else{
+			puts("Fallo la coneccion con el proceso PRAID");
+			puts("Finalizando");
+			exit(1);
+		}
 	}
 
 	void ppd_connections_waitForPfsConnections(){
@@ -53,16 +58,17 @@
 	void ppd_connections_handshake(){
 
 		RuntimeErrorValidator * validator = commons_errors_buildSuccessValidator();
+		NipcMessage message;
 
 		if(commons_string_equals( ppd_conf_getPpdMode() ,
 				PPD_CONFIGURATION_MODE_CONNECT)){
 
-			nipc_sendHandshake(ppd_state_getPraidSocket(), validator );
-			nipc_receiveHandshake(ppd_state_getPraidSocket() , validator);
+			nipc_sendHandshake(ppd_state_getPraidSocket(), NIPC_PROCESS_ID_PPD ,  validator );
+			message = nipc_receiveHandshake(ppd_state_getPraidSocket() , validator);
 
 		}else{
 			ServerSocket * s = ppd_state_getPfsConnection();
-			nipc_receiveHandshake(s->listenSocket , validator);
+			message = nipc_receiveHandshake(s->listenSocket , validator);
 		}
 
 		if(commons_errors_hasError(validator)){

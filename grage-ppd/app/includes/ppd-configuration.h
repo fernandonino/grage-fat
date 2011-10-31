@@ -12,7 +12,7 @@
 #define PPD_CONFIGURATION_MODE_CONNECT		"connect"
 #define PPD_CONFIGURATION_MODE_LISTEN		"listen"
 
-#define PPD_DEFAULT_CONFIGURATION_FILE		"../conf/grage-ppd.properties"
+#define PPD_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/grage-ppd.properties"
 #define PPD_CONFIGURATION_MODE				"ppd.configuration.mode"
 #define PPD_CONFIGURATION_ALGORITMO			"ppd.configuration.algoritmo"
 #define PPD_CONFIGURATION_LISTEN_PORT		"ppd.configuration.listen.port"
@@ -27,6 +27,9 @@
 #define PPD_CONFIGURATION_SALTO_PISTA		"ppd.configuration.salto.pista"
 #define PPD_CONFIGURATION_WRITE_DELAY		"ppd.configuration.write.delay"
 #define PPD_CONFIGURATION_READ_DELAY		"ppd.configuration.read.delay"
+
+#define PPD_CONFIGURATION_PRAID_PORT		"ppd.configuration.praid.port"
+#define PPD_CONFIGURATION_PRAID_HOST		"ppd.configuration.praid.host"
 
 	void ppd_configuration_setup();
 	void ppd_configuration_setConfigurationFile(char * s);

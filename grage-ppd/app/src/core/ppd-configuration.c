@@ -134,7 +134,7 @@
 
 
 	void ppd_configuration_processEntries(char * key , char * value , void * object){
-		log_debug_t("Seteando [%s]=[%s]", key, value);
+		//log_debug_t("Seteando [%s]=[%s]", key, value);
 
 		/**
 		 * aca va el procesamiento de los keys y values.
@@ -180,6 +180,12 @@
 		}
 		if(commons_string_equals(key,PPD_CONFIGURATION_WRITE_DELAY)){
 			setPddWriteDelay(value);
+		}
+		if(commons_string_equals(key , PPD_CONFIGURATION_PRAID_PORT)){
+			ppd_conf_setPraidPort(value);
+		}
+		if(commons_string_equals(key , PPD_CONFIGURATION_PRAID_HOST)){
+			ppd_conf_setPraidAddress(value);
 		}
 
 	}
