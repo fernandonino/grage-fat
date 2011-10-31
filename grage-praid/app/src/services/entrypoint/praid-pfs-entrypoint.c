@@ -7,6 +7,7 @@
 
 #include <pthread.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "linux-commons.h"
 #include "linux-commons-list.h"
@@ -43,7 +44,7 @@
 
 		if(message.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
 			praid_pfs_entrypoint_executePutSector(message);
-		}else if (message.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
+		}else if (message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 			praid_pfs_entrypoint_executeGetSector(message);
 		}
 
