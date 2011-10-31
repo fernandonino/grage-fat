@@ -38,4 +38,6 @@
 	int commons_socket_sendBytes(ListenSocket ls , void * bytesToSend , int bytesCount);
 	int commons_socket_receiveBytes(ListenSocket ls , void * buffer , int bytesCount);
 
+	Boolean commons_socket_setSocketTimeOut(ListenSocket listenSocket , __time_t seconds , __suseconds_t microseconds);
+
 #endif /* LINUX_COMMONS_SOCKET_H_ */

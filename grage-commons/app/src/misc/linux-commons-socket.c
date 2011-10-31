@@ -122,3 +122,16 @@
 	}
 
 
+	/*
+	 * SI logra setear el timeout sin que ocurra ningun error devuelve TRUE
+	 * De lo contrario devuevle FALSE
+	 */
+	Boolean commons_socket_setSocketTimeOut(ListenSocket listenSocket , __time_t seconds , __suseconds_t microseconds){
+
+		struct timeval timeValue;
+
+		timeValue.tv_sec = seconds;
+		timeValue.tv_usec = microseconds;
+
+		return (0 == setsockopt( listenSocket , SOL_SOCKET , SO_RCVTIMEO , (const void * ) &timeValue , sizeof(struct timeval)));
+	}
