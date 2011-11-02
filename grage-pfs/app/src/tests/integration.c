@@ -1,50 +1,32 @@
 /*
- * integ-pfs-example.c
+ * integration.c
  *
- *  Created on: 28/08/2011
+ *  Created on: 02/11/2011
  *      Author: gonzalo
  */
 
+
+#include <time.h>
+#include <sys/timeb.h>
+#include <sys/time.h>
 #include <stdlib.h>
 #include <stdio.h>
-
-
+#include <unistd.h>
+#include <linux-commons-logging.h>
+#include <linux-commons-socket.h>
 #include <nipc-messaging.h>
+#include <linux-commons.h>
+
+#include "pfs-configuration.h"
+#include "pfs-console.h"
+#include "pfs-fat-utils.h"
 
 
 
-#define PRAID_OR_PPD_HOST 			"localhost"
-#define PRAID_OR_PPD_PORT 			"10000"
-
-
-	void integ_pfs_integrateFlowPut();
-	void integ_pfs_integrateFlowGet();
-	void launchThreadTestsPut();
-	void launchThreadTestsGet();
-	void pfs_test_villa_21_put();
-	void pfs_test_villa_21_get();
-
-
-
-
-
-	/*
-	 * *********** Inicializacion de la Suite **************
-	 */
-
-	void integ_pfs_example_runSuite(){
-
-		puts("lanzando suites");
-		integ_pfs_integrateFlowPut();
-		integ_pfs_integrateFlowGet();
-	}
-
-
-
-	/*
-	 * *********** Metodos de tests de integracion **************
-	 */
-
+void pfs_test_villa_21_get();
+void pfs_test_villa_21_put();
+void launchThreadTestsPut();
+void launchThreadTestsGet();
 
 	void integ_pfs_integrateFlowPut(){
 		launchThreadTestsPut();
@@ -64,6 +46,11 @@
 		pthread_t th6;
 		pthread_t th7;
 		pthread_t th8;
+		pthread_t th9;
+		pthread_t th10;
+		pthread_t th11;
+		pthread_t th12;
+		pthread_t th13;
 
 		pthread_create(&th1 , NULL , pfs_test_villa_21_get , NULL);
 		pthread_create(&th2 , NULL , pfs_test_villa_21_get , NULL);
@@ -73,6 +60,11 @@
 		pthread_create(&th6 , NULL , pfs_test_villa_21_get , NULL);
 		pthread_create(&th7 , NULL , pfs_test_villa_21_get , NULL);
 		pthread_create(&th8 , NULL , pfs_test_villa_21_get , NULL);
+		pthread_create(&th9 , NULL , pfs_test_villa_21_get , NULL);
+		pthread_create(&th10 , NULL , pfs_test_villa_21_get , NULL);
+		pthread_create(&th11 , NULL , pfs_test_villa_21_get , NULL);
+		pthread_create(&th12 , NULL , pfs_test_villa_21_get , NULL);
+		pthread_create(&th13 , NULL , pfs_test_villa_21_get , NULL);
 
 		pthread_join(th1 ,NULL);
 		pthread_join(th2 ,NULL);
@@ -82,6 +74,11 @@
 		pthread_join(th6 ,NULL);
 		pthread_join(th7 ,NULL);
 		pthread_join(th8 ,NULL);
+		pthread_join(th9 ,NULL);
+		pthread_join(th10 ,NULL);
+		pthread_join(th11 ,NULL);
+		pthread_join(th12 ,NULL);
+		pthread_join(th13 ,NULL);
 
 	}
 
@@ -116,8 +113,8 @@
 
 
 	void pfs_test_villa_21_get() {
-		char * host = PRAID_OR_PPD_HOST;
-		char * port = PRAID_OR_PPD_PORT;
+		char * host = pfs_configuration_getDeviceAddress();
+		char * port = pfs_configuration_getDevicePort();
 		ListenSocket lsocket = commons_socket_openClientConnection(host, port);
 
 		RuntimeErrorValidator * validator = commons_errors_buildSuccessValidator();
@@ -152,8 +149,8 @@
 
 
 	void pfs_test_villa_21_put() {
-		char * host = PRAID_OR_PPD_HOST;
-		char * port = PRAID_OR_PPD_PORT;
+		char * host = pfs_configuration_getDeviceAddress();
+			char * port = pfs_configuration_getDevicePort();
 		ListenSocket lsocket = commons_socket_openClientConnection(host, port);
 
 		RuntimeErrorValidator * validator = commons_errors_buildSuccessValidator();
@@ -181,3 +178,5 @@
 		nipc_messaging_send(lsocket, message);
 
 	}
+
+

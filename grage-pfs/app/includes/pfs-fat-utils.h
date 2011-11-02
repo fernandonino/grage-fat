@@ -10,7 +10,7 @@
 typedef struct {
 	uint8_t estado;
 	uint32_t contenido;
-}CacheRecord;
+}FatCacheRecord;
 typedef struct Node {
     uint32_t Cluster;
     struct Node * Next;

@@ -10,7 +10,7 @@
 #include <string.h>
 #include "pfs-fat-utils.h"
 
-CacheRecord Cache[255]; // 319 registros ya que hay 1 byte de estado por cada uno, de esta forma tiene 1MB de contenido.
+FatCacheRecord Cache[255]; // 319 registros ya que hay 1 byte de estado por cada uno, de esta forma tiene 1MB de contenido.
 void pfs_fat_utils_cache_initialize()
 {
 	int i;

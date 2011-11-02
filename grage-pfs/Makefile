@@ -4,7 +4,7 @@
 
 ## Parametros a customizar para cada aplicacion
 GRAGE_PROJECT_NAME=grage-pfs
-BUILD_SOURCE=app/src/core/*
+BUILD_SOURCE=app/src/core/* app/src/tests/*
 BUILD_SOURCE_CONSOLE=app/src/console/*
 BUILD_SOURCE_SERVICES=app/src/services/*
 
@@ -29,7 +29,7 @@ GRAGE_REPOSITORY=/opt/grage-repository
 BUILD_DIR=build
 BUILD_TARGET = build/bin/$(GRAGE_PROJECT_NAME)
 BUILD_INCLUDES = -I./app/includes -I$(GRAGE_REPOSITORY_INCLUDES) 
-BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-commons -lm -lpthread `pkg-config fuse --cflags --libs` -DFUSE_USE_VERSION=22
+BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-commons -lm -lpthread  -lgrage-nipc `pkg-config fuse --cflags --libs` -DFUSE_USE_VERSION=22
 BUILD_LIB_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-commons -lgrage-ppd -lgrage-praid \
 		-lm -lpthread `pkg-config fuse --cflags --libs` -DFUSE_USE_VERSION=22
 
