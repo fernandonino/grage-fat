@@ -87,3 +87,25 @@
 
 
 
+	Time commons_misc_getTimeDiff( Time *end_time, Time *start_time) {
+		Time temp_diff;
+
+		temp_diff.tv_sec = end_time->tv_sec - start_time->tv_sec;
+		temp_diff.tv_usec = end_time->tv_usec - start_time->tv_usec;
+
+		/* Using while instead of if below makes the code slightly more robust. */
+
+		while (temp_diff.tv_usec < 0) {
+			temp_diff.tv_usec += 1000000;
+			temp_diff.tv_sec -= 1;
+		}
+
+		return temp_diff;
+	}
+
+
+	Time commons_misc_getCurrentTime(){
+		Time time;
+		gettimeofday(&time, NULL);
+		return time;
+	}

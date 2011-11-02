@@ -38,6 +38,7 @@
 	typedef uint32_t uint32;
 	typedef int32_t int32;
 
+	typedef struct timeval Time;
 
 	/*
 	 * Miscelaneas
@@ -50,6 +51,9 @@
 	int commons_misc_digitsCount(int i);
 
 	void commons_misc_doFreeNull(void **pointer);
+
+	Time commons_misc_getTimeDiff( Time * end_time, Time * start_time);
+	Time commons_misc_getCurrentTime();
 #endif
 
 
