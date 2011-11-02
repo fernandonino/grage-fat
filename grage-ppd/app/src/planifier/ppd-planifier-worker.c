@@ -49,23 +49,19 @@
 
 		while(TRUE){
 
-			DiskSector currentSector;
 			NipcMessage m = ppd_queues_pickFromQueue();
-
-			currentSector.sectorNumber = m.payload.diskSector.sectorNumber;
 
 			if ( m.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS ) {
 
 				ppd_planifier_worker_applyDelayForWrite();
 
-				memcpy(currentSector.sectorContent , m.payload.diskSector.sectorContent , sizeof(currentSector.sectorContent));
-				ppd_persistence_writeSector( &currentSector , ppd_state_getDiskStartAddress() );
+				ppd_persistence_writeSector( &m.payload.diskSector , ppd_state_getDiskStartAddress() );
 
 			} else if ( m.header.operationId == NIPC_OPERATION_ID_GET_SECTORS ) {
 
 				ppd_planifier_worker_applyDelayForRead();
 
-				ppd_persistence_readSector(&currentSector , ppd_state_getDiskStartAddress());
+				ppd_persistence_readSector(&m.payload.diskSector, ppd_state_getDiskStartAddress());
 
 				m = nipc_mbuilder_addResponseCode(m , NIPC_RESPONSE_CODE_SUCCESS);
 
