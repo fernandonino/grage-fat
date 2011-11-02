@@ -18,7 +18,7 @@
 		uint32 sectorNumber;
 		char sectorContent[SECTOR_SIZE];
 
-	}DiskSector;
+	} __attribute__((packed)) DiskSector;
 
 
 	typedef struct {
