@@ -69,7 +69,6 @@
 		Job * theJob = commons_queue_get(jobsQueue);
 
 		while(theJob == NULL){
-			sleep(5);
 			theJob = commons_queue_get(jobsQueue);
 		}
 

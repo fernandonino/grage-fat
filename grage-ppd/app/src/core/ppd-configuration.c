@@ -59,7 +59,7 @@
 	void ppd_conf_setPpdPort(char * p){
 		ppdPort = p;
 	}
-	void setPpdIdDisk(char * p){
+	void ppd_conf_setPpdIdDisk(char * p){
 		ppdIdDisk = p;
 	}
 	void setPpdDiskCilinder(char * p){
@@ -101,7 +101,7 @@
 	char * ppd_conf_getPpdPort(){
 		return ppdPort;
 	}
-	char * getPpdIdDisk(){
+	char * ppd_conf_getPpdIdDisk(){
 		return ppdIdDisk;
 	}
 	char * getPpdDiskCilinder(){
@@ -152,7 +152,7 @@
 			 ppd_conf_setPpdPort(value);
 		}
 		if(commons_string_equals(key,PPD_CONFIGURATION_ID_DISK)){
-			setPpdIdDisk(value);
+			ppd_conf_setPpdIdDisk(value);
 		}
 		if(commons_string_equals(key,PPD_CONFIGURATION_CILINDER)){
 			setPpdDiskCilinder(value);

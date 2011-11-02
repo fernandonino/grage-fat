@@ -12,7 +12,8 @@
 #define PPD_CONFIGURATION_MODE_CONNECT		"connect"
 #define PPD_CONFIGURATION_MODE_LISTEN		"listen"
 
-#define PPD_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/grage-ppd.properties"
+#define PPD_DEFAULT_CONFIGURATION_FILE		"../conf/grage-ppd.properties"
+//#define PPD_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/grage-ppd.properties"
 #define PPD_CONFIGURATION_MODE				"ppd.configuration.mode"
 #define PPD_CONFIGURATION_ALGORITMO			"ppd.configuration.algoritmo"
 #define PPD_CONFIGURATION_LISTEN_PORT		"ppd.configuration.listen.port"
@@ -46,7 +47,7 @@
 
 	void setPpdAlgoritmo(char * p);
 	void ppd_conf_setPpdPort(char * p);
-	void setPpdIdDisk(char * p);
+	void ppd_conf_setPpdIdDisk(char * p);
 	void setPpdDiskCilinder(char * p);
 	void setPpdDiskHead(char * p);
 	void setPpdDiskSector(char * p);
@@ -59,7 +60,7 @@
 
 	char * getPpdAlgoritmo();
 	char * ppd_conf_getPpdPort();
-	char * getPpdIdDisk();
+	char * ppd_conf_getPpdIdDisk();
 	char * getPpdDiskCilinder();
 	char * getPpdDiskHead();
 	char * getPpdDiskSector();

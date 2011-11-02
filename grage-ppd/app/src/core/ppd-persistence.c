@@ -49,7 +49,8 @@
         }
 */
 
-		strcpy(aSector->sectorContent , "hola mundo - Get Sectores response");
+		char * message = commons_string_concat("hola mundo - Get Sectores response from PPD: " , ppd_conf_getPpdIdDisk());
+		strcpy(aSector->sectorContent , message);
 
 		puts("Leyendo sector");
 		printf("SectorId: %i\n" , aSector->sectorNumber );
