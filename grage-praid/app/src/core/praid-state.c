@@ -5,6 +5,7 @@
  *      Author: gonzalo
  */
 
+#include <unistd.h>
 
 #include "linux-commons-socket.h"
 #include "linux-commons-queue.h"
@@ -13,6 +14,8 @@
 #include "praid-queue.h"
 
 	List ppdStorages;
+
+	uint8_t availablePpdId = 0;
 
 
 	List praid_state_getPpdStorages(){
@@ -37,6 +40,11 @@
 
 		PPDConnectionStorage * storage = (PPDConnectionStorage * ) malloc(sizeof(PPDConnectionStorage));
 
+		//esto se podria sincronizar para asegurar q nunca habra bajo ninguna
+		//circunstancia dos storages con el mismo id, pero igual es improbable y no tengo
+		//ganas de hacerlo, asi q si se detecta un caso lo hago jeje.
+		storage->ppdId = availablePpdId++;
+
 		storage->pendingJobs = commons_queue_buildQueue((Boolean (*)(void *, void *)) praid_jobs_eq);
 		storage->connection = aSocket;
 
@@ -52,7 +60,7 @@
 			close(s->connection);
 		}
 
-		commons_list_removeNode(ppdStorages , storage , removingStorage);
+		commons_list_removeNode(ppdStorages , storage , (void (*)(Object)) removingStorage);
 	}
 
 

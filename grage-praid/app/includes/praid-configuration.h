@@ -9,9 +9,11 @@
 #define PRAID_CONFIGURATION_H_
 
 #define PRAID_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/grage-praid.properties"
-#define PRAIND_DEFAULT_LOG_FILE "../logs/grage-praid.log"
-#define PRAID_DEVICE_PORT	"praid.device.port"
-#define PRAID_CONSOLE_STATUS "praid.console.status"
+#define PRAIND_DEFAULT_LOG_FILE 				"../logs/grage-praid.log"
+#define PRAID_DEVICE_PORT						"praid.device.port"
+#define PRAID_CONSOLE_STATUS 					"praid.console.status"
+#define PRAID_PPD_SOCKET_TIMEOUT				3
+
 
 	char * praid_configuration_getDevicePort(void);
 	char * praid_configuration_getConsoleStatus(void);

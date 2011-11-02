@@ -25,10 +25,17 @@
 
 	typedef struct {
 
+		uint8_t ppdId;
+
 		PPDAvailability availability;
 		Queue pendingJobs;
 		ListenSocket connection;
-		pthread_t storageThread;
+
+		Boolean connected;
+
+		pthread_t storageThreadListener;
+		pthread_t storageThreadSender;
+
 	} PPDConnectionStorage;
 
 
