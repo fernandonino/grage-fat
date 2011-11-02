@@ -18,9 +18,8 @@
 	NipcMessage nipc_messaging_receive(ListenSocket aSocket){
 
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();
+
 		commons_socket_receiveBytes(aSocket , &message , sizeof(NipcMessage));
 
 		return message;
 	}
-
-

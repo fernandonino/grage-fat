@@ -34,7 +34,7 @@
 #define NIPC_PROCESS_ID_PFS						4
 #define NIPC_PROCESS_ID_PPD						3
 
-
+#define NIPC_FIELD_BLANK						11
 
 
 	typedef struct {
@@ -80,8 +80,6 @@
 	void nipc_messaging_send(ListenSocket aSocket , NipcMessage aMessage);
 	NipcMessage nipc_messaging_receive(ListenSocket aSocket);
 
-
-
 	NipcMessage nipc_mbuilder_buildNipcMessage();
 	NipcMessage nipc_mbuilder_buildNipcMessageFromHeader(NipcHeader header);
 	NipcMessage nipc_mbuilder_buildNipcMessageFromHeaderAndPayload(NipcHeader header , NipcPayload payload);
@@ -93,6 +91,8 @@
 	NipcMessage nipc_mbuilder_addDiskSectorId(NipcMessage aMessage , uint32_t sectorId);
 	NipcMessage nipc_mbuilder_addDiskSectorContent(NipcMessage aMessage , char * aContent , uint16_t aLength);
 	NipcMessage nipc_mbuilder_addProcessId(NipcMessage , uint8_t);
+
+	Boolean nipc_mbuilder_isBlanckMessage(NipcMessage message);
 
 	NipcStream nipc_stream_buildNipcStream();
 

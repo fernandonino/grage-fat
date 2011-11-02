@@ -9,11 +9,11 @@
 
 	NipcMessage nipc_mbuilder_buildNipcMessage(){
 		NipcMessage builder ;
-		builder = nipc_mbuilder_addResponseCode(builder , NIPC_RESPONSE_CODE_NO_CODE);
-		builder = nipc_mbuilder_addMessageType(builder , NIPC_MESSAGE_TYPE_HANDSHAKE);
-		builder = nipc_mbuilder_addPayloadLength(builder , 0);
-		builder = nipc_mbuilder_addProcessId(builder , 0);
-		builder = nipc_mbuilder_addOperationId(builder , NIPC_OPERATION_ID_DISCONNECT);
+		builder = nipc_mbuilder_addResponseCode(builder , NIPC_FIELD_BLANK);
+		builder = nipc_mbuilder_addMessageType(builder , NIPC_FIELD_BLANK);
+		builder = nipc_mbuilder_addPayloadLength(builder , NIPC_FIELD_BLANK);
+		builder = nipc_mbuilder_addProcessId(builder , NIPC_FIELD_BLANK);
+		builder = nipc_mbuilder_addOperationId(builder , NIPC_FIELD_BLANK);
 		return builder;
 	}
 
@@ -70,4 +70,11 @@
 		return message;
 	}
 
+	Boolean nipc_mbuilder_isBlanckMessage(NipcMessage message){
+
+		return (message.header.messageType == NIPC_FIELD_BLANK
+				&& message.header.operationId == NIPC_FIELD_BLANK
+				&& message.header.processHandshakeId == NIPC_FIELD_BLANK
+				&& message.header.responseCode == NIPC_FIELD_BLANK);
+	}
 
