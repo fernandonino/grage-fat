@@ -9,6 +9,11 @@
 
 	NipcMessage nipc_mbuilder_buildNipcMessage(){
 		NipcMessage builder ;
+		builder = nipc_mbuilder_addResponseCode(builder , NIPC_RESPONSE_CODE_NO_CODE);
+		builder = nipc_mbuilder_addMessageType(builder , NIPC_MESSAGE_TYPE_HANDSHAKE);
+		builder = nipc_mbuilder_addPayloadLength(builder , 0);
+		builder = nipc_mbuilder_addProcessId(builder , 0);
+		builder = nipc_mbuilder_addOperationId(builder , NIPC_OPERATION_ID_DISCONNECT);
 		return builder;
 	}
 
