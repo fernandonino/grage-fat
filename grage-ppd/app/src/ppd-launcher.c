@@ -26,17 +26,11 @@
 	void ppd_launcher_exit();
 
 
-
 	extern pthread_t entrypointThread;
 	extern pthread_t jobsThread;
 	extern pthread_t jobsThread;
 
-
-
 	char * diskPath;
-
-
-
 
 
 
@@ -53,9 +47,6 @@
 		ppd_configuration_setup();
 		//ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(disk) );
 
-		signal(SIGINT , ppd_launcher_exit);
-		signal(SIGKILL , ppd_launcher_exit);
-		signal(SIGQUIT , ppd_launcher_exit);
 	}
 
 
@@ -90,20 +81,9 @@
 
 
 	void ppd_launcher_exit(){
-
 		puts("finalizando todo");
 		//ppd_persistance_unmapDisk( disk , ppd_state_getDiskStartAddress() );
 		log_destroy();
-
-
-		puts("Enviando mensaje de finalizacion");
-		NipcMessage finishingMessage = nipc_mbuilder_buildNipcMessage();
-		finishingMessage = nipc_mbuilder_addOperationId(finishingMessage , NIPC_OPERATION_ID_DISCONNECT);
-		nipc_messaging_send(ppd_state_getActiveSocket() , finishingMessage);
-		close(ppd_state_getActiveSocket());
-
-		puts("EXIT");
-		exit(0);
 	}
 
 

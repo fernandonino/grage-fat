@@ -46,7 +46,10 @@
 
 			NipcMessage m = nipc_messaging_receive(ppd_state_getActiveSocket());
 
-			if(m.header.operationId == NIPC_OPERATION_ID_DISCONNECT)
+			/*
+			 * Si se desconecta el PRAID
+			 */
+			if(m.header.operationId == NIPC_FIELD_BLANK)
 				break;
 
 			if(m.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
