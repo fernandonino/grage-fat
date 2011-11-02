@@ -13,8 +13,11 @@
 #include "praid-state.h"
 #include "praid-queue.h"
 
-	List ppdStorages;
 
+	ThreadMutex buildingStoragesMutex = PTHREAD_MUTEX_INITIALIZER;
+
+
+	List ppdStorages;
 	uint8_t availablePpdId = 0;
 
 
@@ -40,17 +43,36 @@
 
 		PPDConnectionStorage * storage = (PPDConnectionStorage * ) malloc(sizeof(PPDConnectionStorage));
 
-		//esto se podria sincronizar para asegurar q nunca habra bajo ninguna
-		//circunstancia dos storages con el mismo id, pero igual es improbable y no tengo
-		//ganas de hacerlo, asi q si se detecta un caso lo hago jeje.
-		storage->ppdId = availablePpdId++;
+		commons_misc_lockThreadMutex(&buildingStoragesMutex);
+		storage->id = availablePpdId++;
+		commons_misc_unlockThreadMutex(&buildingStoragesMutex);
 
+		storage->pendingResponses = 0;
 		storage->pendingJobs = commons_queue_buildQueue((Boolean (*)(void *, void *)) praid_jobs_eq);
+
 		storage->connection = aSocket;
+		storage->connected = TRUE;
 
 		return storage;
 	}
 
+
+	void praid_state_storage_incrementPendingResponses(PPDConnectionStorage * storage){
+		storage->pendingResponses += 1;
+	}
+
+	void praid_state_storage_decrementPendingResponses(PPDConnectionStorage * storage){
+		storage->pendingResponses -= 1;
+	}
+
+
+	void praid_state_storage_setDisconnected(PPDConnectionStorage * storage){
+		storage->connected = FALSE;
+	}
+
+	Boolean praid_state_storage_isConnected(PPDConnectionStorage * s){
+		return s->connected;
+	}
 
 	void praid_state_removePddStorage(PPDConnectionStorage * storage){
 

@@ -4,7 +4,7 @@
  *  Created on: 06/10/2011
  *      Author: gonzalo
  */
-
+#include <unistd.h>
 #include "nipc-messaging.h"
 
 	void praid_endpoint_pfs_responseGetSectors(ListenSocket ls , NipcMessage m){

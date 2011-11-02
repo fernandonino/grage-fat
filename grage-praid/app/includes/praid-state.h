@@ -15,22 +15,15 @@
 #define PRAID_STATE_H_
 
 
-	typedef struct {
-
-		Boolean inUse;
-		uint32 accessCount;
-
-	} PPDAvailability;
-
 
 	typedef struct {
 
-		uint8_t ppdId;
+		uint8_t id;
 
-		PPDAvailability availability;
 		Queue pendingJobs;
-		ListenSocket connection;
+		uint16_t pendingResponses;
 
+		ListenSocket connection;
 		Boolean connected;
 
 		pthread_t storageThreadListener;
@@ -44,15 +37,19 @@
 	Boolean praid_state_storage_eq(PPDConnectionStorage * s1 , PPDConnectionStorage * s2);
 
 	void praid_state_initializeStorages();
-
 	void praid_state_addPpdStorage(PPDConnectionStorage * aState);
 
 	PPDConnectionStorage * praid_state_buildPPDConnectionStorage(ListenSocket aSocket);
-
-
 	PPDConnectionStorage * praid_balancer_selectStorage();
 
-
 	void praid_state_removePddStorage(PPDConnectionStorage * storage);
+
+
+	void praid_state_storage_incrementPendingResponses(PPDConnectionStorage * storage);
+	void praid_state_storage_decrementPendingResponses(PPDConnectionStorage * storage);
+	void praid_state_storage_setDisconnected(PPDConnectionStorage * storage);
+	Boolean praid_state_storage_isConnected(PPDConnectionStorage * s);
+
+
 
 #endif /* PRAID_STATE_H_ */

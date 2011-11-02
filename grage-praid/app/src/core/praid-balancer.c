@@ -20,27 +20,20 @@
 
 		Iterator * storages = commons_iterator_buildIterator(praid_state_getPpdStorages());
 
-		uint32_t minimumAccessCount = 0;
+		uint32_t minimumPendingResponsesCount = 0;
 		PPDConnectionStorage * selected = NULL;
 
 		while( commons_iterator_hasMoreElements( storages ) ){
 
 			PPDConnectionStorage * storage = commons_iterator_next(storages);
 
-			if(! storage->availability.inUse ){
+			if( selected == NULL || (storage->pendingResponses < minimumPendingResponsesCount) ){
 
-				free(storages);
-				commons_misc_unlockThreadMutex(&loadBalancingMutex);
+				minimumPendingResponsesCount = storage->pendingResponses;
+				selected = storage;
 
-				return storage;
-			}else{
-				if(minimumAccessCount == 0 && selected == NULL){
-					minimumAccessCount = storage->availability.accessCount;
-					selected = storage;
-				}else if(storage->availability.accessCount < minimumAccessCount){
-					minimumAccessCount = storage->availability.accessCount;
-					selected = storage;
-				}
+				if(selected->pendingResponses == 0)
+					break;
 			}
 		}
 

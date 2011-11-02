@@ -20,7 +20,6 @@
 
 
 
-	void praid_ppd_thread_run(PPDConnectionStorage * );
 	void praid_ppd_thread_listener(PPDConnectionStorage * );
 	void praid_ppd_thread_sender(PPDConnectionStorage * );
 
@@ -30,9 +29,7 @@
 	void praid_ppd_thread_launchNewSlaveThread(PPDConnectionStorage * aStorage){
 
 		puts("Lanzando hilo entrypoint PPD");
-		//pthread_create(&aStorage->storageThread , NULL , (void * (*)(void *)) praid_ppd_thread_run , aStorage);
 
-		aStorage->connected = TRUE;
 		pthread_create(&aStorage->storageThreadListener , NULL , (void * (*)(void *)) praid_ppd_thread_listener , aStorage);
 		pthread_create(&aStorage->storageThreadSender , NULL , (void * (*)(void *)) praid_ppd_thread_sender , aStorage);
 	}
@@ -43,95 +40,56 @@
 
 		puts("Ejecutando Hilo Listener de proceso PPD");
 
-		while(storage->connected){
+		while(praid_state_storage_isConnected(storage)){
+
 			NipcMessage message = nipc_messaging_receive(storage->connection);
 
-
 			if( nipc_mbuilder_isBlanckMessage(message) ){
-				storage->connected = FALSE;
+
+				praid_state_storage_setDisconnected(storage);
+
 				break;
 			}else{
+
+				praid_state_storage_decrementPendingResponses(storage);
+
 				praid_endpoint_pfs_responseAndClose(message.payload.pfsSocket , message);
 			}
 
 		}
 
-		printf("Eliminando PPD con Id %i tras desconexion\n" , storage->ppdId);
+		printf("Eliminando PPD con Id %i tras desconexion\n" , storage->id);
 		praid_state_removePddStorage(storage);
 	}
 
+
 	void praid_ppd_thread_sender(PPDConnectionStorage * aStorage){
-		puts("Ejecutando Hilo Sender de proceso PPD");
 
-		while(aStorage->connected){
+		puts("Ejecutando Hilo Sender de process PPD");
 
-			while( commons_queue_isEmpty(aStorage->pendingJobs))
-				sleep(2);
+		while(praid_state_storage_isConnected(aStorage)){
 
-			aStorage->availability.inUse = TRUE;
-			aStorage->availability.accessCount++;
+			while( commons_queue_isEmpty(aStorage->pendingJobs));
 
 			NipcMessage message = praid_storage_queue_get(aStorage->pendingJobs);
 
 			praid_endpoint_ppd_sendMessage(aStorage->connection , message);
 
-			aStorage->availability.inUse = FALSE;
-		}
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	void praid_ppd_thread_run(PPDConnectionStorage * aStorage){
-
-		puts("Ejecutando Hilo de proceso PPD");
-
-		while(TRUE){
-
-			if(commons_queue_isEmpty(aStorage->pendingJobs)){
-				NipcMessage message = nipc_messaging_receiveCheckingTimeout(aStorage->connection);
-
-				/*
-				 * Si termina el time-out...
-				 */
-				if(message.header.operationId == NIPC_FIELD_BLANK)
-					continue;
-				/*
-				 * Si se desconecto el PPD...
-				 */
-				else if(message.header.operationId == NIPC_OPERATION_ID_DISCONNECT)
-					break;
-				/*
-				 * Si el PPD respondio...
-				 */
-				else
-					praid_endpoint_pfs_responseAndClose(message.payload.pfsSocket , message);
-
-			}else{
-
-				//esto hay q sincronizarlo
-				aStorage->availability.inUse = TRUE;
-				aStorage->availability.accessCount++;
-
-				NipcMessage message = praid_storage_queue_get(aStorage->pendingJobs);
-
-				praid_endpoint_ppd_sendMessage(aStorage->connection , message);
-
-				aStorage->availability.inUse = FALSE;
+			if(message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
+				praid_state_storage_incrementPendingResponses(aStorage);
 			}
 		}
-
-		puts("Eliminando PPD tras desconexion");
-		praid_state_removePddStorage(aStorage);
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
