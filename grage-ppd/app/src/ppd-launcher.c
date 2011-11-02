@@ -7,8 +7,11 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h>
 #include <linux-commons-logging.h>
 #include <linux-commons-strings.h>
+#include <nipc-messaging.h>
+#include <unistd.h>
 
 #include "ppd-configuration.h"
 #include "ppd-queues.h"
@@ -20,12 +23,24 @@
 #include "ppd-entrypoint.h"
 
 
+	void ppd_launcher_exit();
+
+
+
 	extern pthread_t entrypointThread;
 	extern pthread_t jobsThread;
 	extern pthread_t jobsThread;
 
 
-	void ppd_launcher_initialize(char * disk){
+
+	char * diskPath;
+
+
+
+
+
+
+	void ppd_launcher_initialize(){
 		int status = log_create("ppd","/opt/grage-repository/logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 
 		if(status == 0)
@@ -37,6 +52,10 @@
 		//ppd_launchConsole_startUNIX();
 		ppd_configuration_setup();
 		//ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(disk) );
+
+		signal(SIGINT , ppd_launcher_exit);
+		signal(SIGKILL , ppd_launcher_exit);
+		signal(SIGQUIT , ppd_launcher_exit);
 	}
 
 
@@ -69,20 +88,32 @@
 	}
 
 
-	void ppd_launcher_exit(char * disk){
+
+	void ppd_launcher_exit(){
+
+		puts("finalizando todo");
 		//ppd_persistance_unmapDisk( disk , ppd_state_getDiskStartAddress() );
 		log_destroy();
+
+
+		puts("Enviando mensaje de finalizacion");
+		NipcMessage finishingMessage = nipc_mbuilder_buildNipcMessage();
+		finishingMessage = nipc_mbuilder_addOperationId(finishingMessage , NIPC_OPERATION_ID_DISCONNECT);
+		nipc_messaging_send(ppd_state_getActiveSocket() , finishingMessage);
+		close(ppd_state_getActiveSocket());
+
+		puts("EXIT");
+		exit(0);
 	}
 
 
 	int main(int argc, char *argv[]){
 
-		ppd_launcher_initialize(argv[1]);
+		diskPath = argv[1];
+		ppd_launcher_initialize();
 		ppd_launcher_doLaunch();
 
-		//TODO: esta funcion hay q colgarla del evento del CTRL+C
-		//TODO: para ser ejecutada ahi.
-		ppd_launcher_exit(argv[1]);
+		ppd_launcher_exit();
 
 		return EXIT_SUCCESS;
 	}

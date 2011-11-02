@@ -14,6 +14,7 @@
 
 #include "nipc-messaging.h"
 #include "ppd-queues.h"
+#include "ppd-state.h"
 
 	void ppd_entrypoint_executePutSector(NipcMessage message);
 	void ppd_entrypoint_executeGetSector(NipcMessage message);
@@ -45,11 +46,18 @@
 
 			NipcMessage m = nipc_messaging_receive(ppd_state_getActiveSocket());
 
+			if(m.header.operationId == NIPC_OPERATION_ID_DISCONNECT)
+				break;
+
 			if(m.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 				ppd_entrypoint_executeGetSector(m);
 			}else if (m.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
 				ppd_entrypoint_executePutSector(m);
 			}
-
 		}
+
+		puts("finalizando la aplicacion por desconexion del PRAID");
+		close(ppd_state_getActiveSocket());
+		exit(1);
+
 	}
