@@ -4,7 +4,7 @@
  *  Created on: 06/10/2011
  *      Author: gonzalo
  */
-
+#include <errno.h>
 #include <unistd.h>
 #include <pthread.h>
 
@@ -24,7 +24,6 @@
 
 
 	void praid_ppd_thread_launchNewSlaveThread(PPDConnectionStorage * aStorage){
-
 
 		if (! commons_socket_setSocketTimeOut(aStorage->connection , 2 , 0) ){
 			puts("No se pudo setear el timeout para el socket");
@@ -48,10 +47,14 @@
 				if(message.header.responseCode == NIPC_RESPONSE_CODE_NO_CODE)
 					continue;
 
-				praid_endpoint_pfs_responseGetSectors(message.payload.pfsSocket , message);
+				if(message.header.operationId == NIPC_OPERATION_ID_DISCONNECT)
+					break;
+
+				praid_endpoint_pfs_responseAndClose(message.payload.pfsSocket , message);
 
 			}else{
 
+				//me parece q estoy hay q sincronizarlo
 				aStorage->availability.inUse = TRUE;
 				aStorage->availability.accessCount++;
 
@@ -59,13 +62,9 @@
 
 				praid_endpoint_ppd_sendMessage(aStorage->connection , message);
 
-				if(message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
-					NipcMessage response = nipc_messaging_receive(aStorage->connection);
-
-					praid_endpoint_pfs_responseGetSectors(response.payload.pfsSocket , response);
-				}
-
 				aStorage->availability.inUse = FALSE;
 			}
 		}
+
+		praid_state_removePddStorage(aStorage);
 	}

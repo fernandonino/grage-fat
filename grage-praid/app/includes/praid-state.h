@@ -45,4 +45,7 @@
 
 	PPDConnectionStorage * praid_balancer_selectStorage();
 
+
+	void praid_state_removePddStorage(PPDConnectionStorage * storage);
+
 #endif /* PRAID_STATE_H_ */

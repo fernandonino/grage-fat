@@ -44,5 +44,17 @@
 	}
 
 
+	void praid_state_removePddStorage(PPDConnectionStorage * storage){
+
+		void removingStorage(PPDConnectionStorage * s){
+			//remover la cola del storage
+			free(s);
+			close(s->connection);
+		}
+
+		commons_list_removeNode(ppdStorages , storage , removingStorage);
+	}
+
+
 
 

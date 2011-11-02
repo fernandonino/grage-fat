@@ -28,7 +28,6 @@
 
 	void praid_pfs_launchNewSlaveThread(ListenSocket ls){
 
-
 		ListenSocket * theSocket = malloc(sizeof(ListenSocket));
 		*theSocket = ls;
 
@@ -41,14 +40,13 @@
 		puts("Ejecutando hilo entrypoint PFS");
 
 		NipcMessage message = nipc_messaging_receive(*ls);
+		message.payload.pfsSocket = *ls;
 
 		if(message.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
 			praid_pfs_entrypoint_executePutSector(message);
 		}else if (message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 			praid_pfs_entrypoint_executeGetSector(message);
 		}
-
-		close(*ls);
 	}
 
 
