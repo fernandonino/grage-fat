@@ -4,7 +4,7 @@
  *  Created on: 15/09/2011
  *      Author: Fernando
  */
-/*
+
 #include <time.h>
 #include <sys/timeb.h>
 #include <stdlib.h>
@@ -130,4 +130,4 @@
 
 		commons_file_closeFile(cache_dump);
 	}
-*/
+

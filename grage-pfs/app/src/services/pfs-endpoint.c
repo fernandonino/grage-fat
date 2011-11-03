@@ -10,12 +10,29 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "grage-commons.h"
 #include "pfs-endpoint.h"
 
 	void pfs_endpoint_callPutSectors(){
 
 	}
 
-	void pfs_endpoint_callGetSectors(uint32_t sectorNumber){
+	DiskSector pfs_endpoint_callGetSectors(uint32_t sectorNumber){
+		DiskSector s;
+		s.sectorNumber = sectorNumber;
 
+		return s;
 	}
+
+	Cluster pfs_endpoint_getCluster(uint32_t s){
+		uint8_t i;
+		Cluster cluster;
+
+		for( i = 0 ; i < 8 ; i++){
+			cluster.sectors[i] = pfs_endpoint_callGetSectors(s + i);
+		}
+
+		return cluster;
+	}
+
+

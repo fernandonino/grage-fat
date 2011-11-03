@@ -45,5 +45,6 @@
 	int8_t pfs_fat_getNameLength(LDirEntry *);
 	void pfs_fat_extractName( LDirEntry * , uint16_t * , int8_t );
 	char * pfs_fat_get_fileName(LDirEntry *);
+	void pfs_fat_toDirent(struct dirent * , DirEntry , LDirEntry );
 
 #endif /* PFS_FAT_UTILS_H_ */

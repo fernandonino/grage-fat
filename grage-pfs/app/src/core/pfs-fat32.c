@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "grage-commons.h"
 #include "pfs-fat32.h"
 #include "pfs-fat-utils.h"
 
@@ -190,31 +191,52 @@
 		return EXIT_SUCCESS;
 	}
 
-	int8_t pfs_fat_readdir(char * path , struct dirent * direntry , FatFile * file){
+	int8_t pfs_fat_readdir(char * path , struct dirent * direntry , FatFile * file , Cluster * c){
 		LDirEntry lfnentry;
 		DirEntry  sfnentry;
-		uint32_t cluster = pfs_fat_getFirstClusterFromDirEntry(&file->firstEntry);
-		uint32_t sector = pfs_fat_getFirstSectorOfCluster(bpb,cluster);
-		char buffer[512];
+		Cluster cluster;
+		uint8_t lfncount = 0;
+		uint8_t i;
 
-		//chequear si esta el sector en cache, y usarlo si esta
-		// si no, traerlo:
-		//char * buffer = pfs_endpoint_callGetSectors(sector);
+		if( file->dirEntryOffset >= 4096 ){
+			//f->nextCluster = algunCluster; --->> Hacer logica para buscar el siguiente cluster y almacenarlo
+		}
 
-		//trabajar con el LDirEntry
-		memcpy(&lfnentry,buffer,sizeof(LDirEntry));
-		if( ! LDIR_ISLASTLONG(lfnentry.LDIR_Ord) )
-			return EXIT_FAILURE;
+		lfnentry.LDIR_Ord = 0x00; // Fuerzo la entrada al ciclo
+		while ( LDIR_ISFREE(lfnentry.LDIR_Ord) ) {
+			i = file->dirEntryOffset % 8;
+			memcpy(&lfnentry , c->sectors[i].sectorContent + file->dirEntryOffset , sizeof(LDirEntry));
+			file->dirEntryOffset += 32;
 
-		//convertir el nombre
-		char * name = pfs_fat_get_fileName(&lfnentry);
-		strcpy(direntry->d_name , name );
-		free(name);
+			if( file->dirEntryOffset >= 4096 ){
+				//f->nextCluster = algunCluster; --->> Hacer logica para buscar el siguiente cluster y almacenarlo
+			} else
+				return -1;
+		}
 
-		memcpy(&sfnentry, buffer + 32, sizeof(sfnentry));
-		file->dirEntryOffset += 64; //Se leyeron un LDirEntry y un DirEntry
+		if( LDIR_ISLASTLONG(lfnentry.LDIR_Ord) ){
+			lfncount++;
+			i = file->dirEntryOffset % 8;
+			memcpy(&sfnentry , c->sectors[i].sectorContent + file->dirEntryOffset , sizeof(DirEntry));
+			file->dirEntryOffset += 32;
 
-		return EXIT_SUCCESS;
+			pfs_fat_toDirent(direntry , sfnentry , lfnentry);
+			return EXIT_SUCCESS;
+
+		} else if ( lfncount == 0 ){ //La entrada es solo DirEntry ( . o ..)
+			i = file->dirEntryOffset % 8;
+			memcpy(&sfnentry , c->sectors[i].sectorContent + file->dirEntryOffset - 32 , sizeof(DirEntry));
+
+			pfs_fat_toDirent(direntry , sfnentry , lfnentry);
+			return EXIT_SUCCESS;
+
+		}
+
+		return EXIT_FAILURE;
+	}
+
+	pfs_fat_scanDirEntries(){
+
 	}
 
 

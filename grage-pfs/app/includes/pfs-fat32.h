@@ -80,8 +80,8 @@ typedef struct {
 typedef struct {
 	uint32_t cluster; //Cluster donde se encuentran los (L)DirEntries del archivo/directorio
 	uint32_t clusterOffset; //Sector del cluster (del 1 al 8)
-	DirEntry firstEntry;
-	LDirEntry lastEntry;
+	DirEntry shortEntry;
+	LDirEntry longEntry;
 	uint32_t dirEntryOffset;
 }__attribute__ ((packed)) FatFile;
 

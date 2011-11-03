@@ -251,4 +251,30 @@ char *  pfs_fat_get_fileName(LDirEntry * l){
 	return utf8name;
 }
 
+void pfs_fat_toDirent(struct dirent * de , DirEntry direntry , LDirEntry ldirentry){
+
+	if (ldirentry.LDIR_Attr == ATTR_LONG_NAME ){
+		uint8_t length = pfs_fat_getNameLength(&ldirentry);
+
+		uint16_t utf16name[13];
+		pfs_fat_extractName(&ldirentry,utf16name,length);
+
+		char * utf8name = (char *)calloc(length,sizeof(char));
+
+		size_t utf8length = 0;
+		unicode_utf16_to_utf8_inbuffer(utf16name , length - 1 , utf8name , &utf8length);
+		strcpy(de->d_name,utf8name);
+		free(utf8name);
+	} else {
+		strncpy(de->d_name , direntry.DIR_Name , 11);
+	}
+
+	de->d_ino = pfs_fat_getFirstClusterFromDirEntry(&direntry);
+
+	if ( direntry.DIR_Attr == ATTR_DIRECTORY )
+		de->d_type = DT_DIR;
+	else
+		de->d_type = DT_REG;
+}
+
 

@@ -38,6 +38,7 @@
 	}
 
 	int pfs_fuse_open(const char *path, struct fuse_file_info *fi){
+		//pfs_fat_open(void);
 		return EXIT_SUCCESS;
 	}
 
