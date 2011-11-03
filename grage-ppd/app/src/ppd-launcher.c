@@ -35,8 +35,8 @@
 
 
 	void ppd_launcher_initialize(){
-		int status = log_create("ppd","../logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
-		//int status = log_create("ppd","/opt/grage-repository/logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
+		//int status = log_create("ppd","../logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
+		int status = log_create("ppd","/opt/grage-repository/logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 
 		if(status == 0)
 			puts("Log creado con exito");
