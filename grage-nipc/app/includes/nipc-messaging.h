@@ -95,7 +95,7 @@
 	Boolean nipc_mbuilder_isBlanckMessage(NipcMessage message);
 
 	void nipc_sendHandshake(ListenSocket lSocket , uint8_t processId , RuntimeErrorValidator * validator);
-	void nipc_sendPpdHandshake(ListenSocket lSocket , uint8_t processId , uint32_t sectorsCount , RuntimeErrorValidator * validator);
+	void nipc_sendPpdHandshake(ListenSocket lSocket , uint8_t ppdId , uint32_t sectorsCount , RuntimeErrorValidator * validator);
 	NipcMessage nipc_receiveHandshake(ListenSocket lSocket , RuntimeErrorValidator * validator);
 
 #endif /* NIPC_PROTOCOL_H_ */

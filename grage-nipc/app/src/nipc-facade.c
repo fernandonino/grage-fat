@@ -24,14 +24,15 @@
 
 
 	void nipc_sendPpdHandshake(ListenSocket lSocket ,
-			uint8_t processId ,
+			uint8_t ppdId ,
 			uint32_t sectorsCount ,
 			RuntimeErrorValidator * validator){
 
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();
 
 		message = nipc_mbuilder_addMessageType(message , NIPC_MESSAGE_TYPE_HANDSHAKE);
-		message = nipc_mbuilder_addProcessId(message , processId);
+		message = nipc_mbuilder_addProcessId(message , NIPC_PROCESS_ID_PPD);
+		message = nipc_mbuilder_addOperationId(message , ppdId);
 		message = nipc_mbuilder_addResponseCode(message , sectorsCount);
 
 		nipc_messaging_send(lSocket , message);
