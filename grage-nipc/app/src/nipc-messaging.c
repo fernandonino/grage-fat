@@ -13,8 +13,6 @@
 		commons_socket_sendBytes(aSocket , &aMessage , sizeof(NipcMessage));
 	}
 
-
-
 	NipcMessage nipc_messaging_receive(ListenSocket aSocket){
 
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();

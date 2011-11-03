@@ -35,7 +35,7 @@
 		return aMessage;
 	}
 
-	NipcMessage nipc_mbuilder_addResponseCode(NipcMessage aMessage , uint8_t aCode){
+	NipcMessage nipc_mbuilder_addResponseCode(NipcMessage aMessage , uint32_t aCode){
 		aMessage.header.responseCode = aCode;
 		return aMessage;
 	}

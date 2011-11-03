@@ -52,7 +52,7 @@
 		uint16_t payloadLength;
 
 		uint8_t operationId;
-		uint8_t responseCode;
+		uint32_t responseCode;
 
 		uint8_t processHandshakeId;
 
@@ -84,7 +84,7 @@
 	NipcMessage nipc_mbuilder_buildNipcMessageFromHeader(NipcHeader header);
 	NipcMessage nipc_mbuilder_buildNipcMessageFromHeaderAndPayload(NipcHeader header , NipcPayload payload);
 	NipcMessage nipc_mbuilder_addMessageType(NipcMessage aMessage , uint8_t aType);
-	NipcMessage nipc_mbuilder_addResponseCode(NipcMessage aMessage , uint8_t aCode);
+	NipcMessage nipc_mbuilder_addResponseCode(NipcMessage aMessage , uint32_t aCode);
 	NipcMessage nipc_mbuilder_addPayloadLength(NipcMessage , uint16_t lenth);
 	NipcMessage nipc_mbuilder_addOperationId(NipcMessage , uint8_t);
 	NipcMessage nipc_mbuilder_addDiskSector(NipcMessage aMessage , DiskSector aSector);
@@ -94,20 +94,8 @@
 
 	Boolean nipc_mbuilder_isBlanckMessage(NipcMessage message);
 
-	NipcStream nipc_stream_buildNipcStream();
-
-
-	NipcMessage nipc_stream_deserializeNipcMessageStream(NipcStream aStream);
-	NipcStream nipc_stream_serializeNipcPayload(NipcPayload aPayload);
-	NipcStream nipc_stream_serializeNipcMessage(NipcMessage aMessage);
-	NipcPayload nipc_stream_deserializeNipcPayloadStream(NipcStream aStream );
-
-
 	void nipc_sendHandshake(ListenSocket lSocket , uint8_t processId , RuntimeErrorValidator * validator);
+	void nipc_sendPpdHandshake(ListenSocket lSocket , uint8_t processId , uint32_t sectorsCount , RuntimeErrorValidator * validator);
 	NipcMessage nipc_receiveHandshake(ListenSocket lSocket , RuntimeErrorValidator * validator);
-	void nipc_sendPutSectorRequest(ListenSocket l , DiskSector diskSector , RuntimeErrorValidator * validator);
-	void nipc_sendGetSectorRequest(ListenSocket l , uint32_t sector , RuntimeErrorValidator * validator);
-	void nipc_sendGetSectorResponse(ListenSocket l , DiskSector diskSector, uint32_t sector , RuntimeErrorValidator * validator);
-
 
 #endif /* NIPC_PROTOCOL_H_ */
