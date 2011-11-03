@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <linux-commons-logging.h>
 #include <linux-commons-socket.h>
-#include <nipc-messaging.h>
+#include "nipc-messaging.h"
 #include <linux-commons.h>
 
 #include "pfs-configuration.h"

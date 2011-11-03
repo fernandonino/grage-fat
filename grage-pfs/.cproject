@@ -41,6 +41,9 @@
 							<tool command="gcc -l pthread -l fuse" id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.718400862" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
 								<option id="gnu.c.link.option.libs.200474727" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="cunit"/>
+									<listOptionValue builtIn="false" value="icui18n"/>
+									<listOptionValue builtIn="false" value="icuuc"/>
+									<listOptionValue builtIn="false" value="icudata"/>
 									<listOptionValue builtIn="false" value="grage-nipc"/>
 									<listOptionValue builtIn="false" value="m"/>
 									<listOptionValue builtIn="false" value="grage-commons"/>

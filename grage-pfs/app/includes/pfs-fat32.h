@@ -78,6 +78,15 @@ typedef struct {
 	uint16_t LDIR_Name3[2];
 } __attribute__ ((packed)) LDirEntry;
 
+typedef struct{
+	uint32_t cluster; //Cluster donde se encuentran los (L)DirEntries del archivo/directorio
+	uint32_t clusterOffset; //Sector del cluster (del 1 al 8)
+	DirEntry firstEntry;
+	LDirEntry lastEntry;
+	uint32_t dirEntryOffset;
+} __attribute__ ((packed)) FatFile;
+
+
 typedef struct {
 	BPB boot;
 	FSInfo infoSec;
@@ -117,16 +126,8 @@ typedef struct {
 #define LDIR_ISFREE(D) 			(((D) == FREEENT) || ((D) == ENDOFDIR))
 #define LDIR_ISLAST(D) 			(D == ENDOFDIR)
 #define LDIR_ISLASTLONG(Ord)	(Ord == LASTLONG)
+#define LFN_ISNULL(character)	(character == 0x00)
 
-
-//TODO Averiguar si hacen falta
-#define FILE_YEAR(dir) (( ((BYTE *) &((dir)->DIR_WrtDate))[1] >> 1) + 1980)
-#define FILE_MONTH(dir) ((((((BYTE *) &((dir)->DIR_WrtDate))[1]&0x1) << 3) + (((BYTE *) &((dir)->DIR_WrtDate))[0] >> 5)))
-#define FILE_DAY(dir) (((BYTE *) &((dir)->DIR_WrtDate))[0] & 0x1f)
-
-#define FILE_HOUR(dir) (((BYTE *) &((dir)->DIR_WrtTime))[1] >> 3)
-#define FILE_MINUTE(dir) ((((((BYTE *) &((dir)->DIR_WrtTime))[1]&0x7) << 3) + (((BYTE *) &((dir)->DIR_WrtTime))[0] >> 5)))
-#define FILE_SEC(dir) ((((BYTE *) &((dir)->DIR_WrtTime))[0] & 0x1f) * 2)
 
 	/* determina si el volumen es FAT32 */
 	Boolean pfs_fat_isValidVolume(BPB *);
@@ -178,6 +179,8 @@ typedef struct {
 	BPB pfs_fat_readBPB(char *);
 	DirEntry pfs_fat_readDirEntry(char *);
 	LDirEntry pfs_fat_readLDirEntry(char *);
+	uint32_t pfs_fat_getFreeCluster(BPB * , FSInfo * );
+	uint32_t pfs_fat_getTotalClusters(BPB *);
 
 
 #endif /* PFS_FAT32_H_ */

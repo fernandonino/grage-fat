@@ -9,8 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "pfs-fat-utils.h"
+#include "utils.h"
 
-FatCacheRecord Cache[255]; // 319 registros ya que hay 1 byte de estado por cada uno, de esta forma tiene 1MB de contenido.
+CacheRecord Cache[255]; // 319 registros ya que hay 1 byte de estado por cada uno, de esta forma tiene 1MB de contenido.
 void pfs_fat_utils_cache_initialize()
 {
 	int i;
@@ -193,3 +194,61 @@ void pfs_fat_utils_FreeList(rsvCluster **FirstCluster)
    }
    *FirstCluster = NULL;
 }
+
+
+/***************************************************
+
+  Funciones auxiliares para trabajar con los datos
+  de FAT32.
+
+***************************************************/
+
+
+uint32_t pfs_fat_fetchChar(LDirEntry *D, int8_t n) {
+    int i = (n % 13);
+
+    if ( i <= 4  ) return D->LDIR_Name1[i];
+    if ( i <= 10 ) return D->LDIR_Name2[i-5];
+    return D->LDIR_Name3[i-11];
+}
+
+int8_t pfs_fat_getNameLength(LDirEntry * ldirentry){
+	uint8_t i;
+	uint16_t character;
+
+    for ( i=0 ; i<13 ; i++) {
+    	character = pfs_fat_fetchChar(ldirentry , i);
+		if ( LFN_ISNULL(character) )
+			return (i + 1);
+    }
+
+    return (i + 1);
+}
+
+void pfs_fat_extractName( LDirEntry * d, uint16_t * dest, int8_t length) {
+	int8_t i;
+
+	for (i=0; i < (length - 1); i++) {
+    	dest[i] = pfs_fat_fetchChar(d , i);
+    }
+
+    dest[length - 1] = 0x00;
+
+    return;
+}
+
+char *  pfs_get_fileName(LDirEntry * l){
+	uint8_t nameLength = pfs_fat_getNameLength(l);
+
+	uint16_t utf16name[13];
+	pfs_fat_extractName(l , utf16name , nameLength);
+
+	char * utf8name = (char *)calloc(nameLength,sizeof(char));
+	size_t utf8length = 0;
+
+	unicode_utf16_to_utf8_inbuffer(utf16name , nameLength - 1 , utf8name , &utf8length);
+
+	return utf8name;
+}
+
+

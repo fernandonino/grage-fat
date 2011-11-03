@@ -10,10 +10,14 @@
 #include <stdio.h>
 
 #include "pfs-fat32.h"
+#include "pfs-fat-utils.h"
+
+
+BPB * bpb;
 
 Boolean pfs_fat_isValidVolume( BPB * unaBpb ){
 
-	uint32_t RootDirSectors , FATSz , TotSec , DataSec , CountofClusters;
+	uint32_t RootDirSectors , FATSz , TotSec , CountofClusters;
 	RootDirSectors = 0;
 
 	if ( unaBpb->BPB_FATSz16 != 0 )
@@ -26,8 +30,7 @@ Boolean pfs_fat_isValidVolume( BPB * unaBpb ){
 	else
 		TotSec = unaBpb->BPB_TotSec32;
 
-	DataSec = TotSec - (unaBpb->BPB_ResvdSecCnt + (unaBpb->BPB_NumFATs * FATSz) + RootDirSectors);
-	CountofClusters = DataSec / unaBpb->BPB_SecPerClus;
+	CountofClusters = pfs_fat_getTotalClusters(unaBpb);
 
 	//TODO Convertir los printf a entradas de log
 	if ( CountofClusters < 65525 ) {
@@ -72,7 +75,7 @@ uint32_t pfs_fat_getFatEntrySectorOffset(BPB * unaBpb , uint32_t cluster){
 	return fatEntryOffset;
 }
 
-/* en base al contenido del sector y un offset, lee devuelve la entrada en la FAT */
+/* en base al contenido del sector y un offset, lee y devuelve la entrada en la FAT */
 uint32_t pfs_fat_getFatEntry(char * sectorContent , uint32_t offset){
 	uint32_t fatEntry;
 	memcpy(&fatEntry , sectorContent , sizeof(uint32_t));
@@ -147,4 +150,70 @@ LDirEntry pfs_fat_readLDirEntry(char * sectorContent){
 	return longDirEntry;
 }
 
+/* REVISAR ESTA FUNCION URGENTEMENTE */
+uint32_t pfs_fat_getFreeCluster(BPB * bpb , FSInfo * fs){
+	uint32_t currentCluster = fs->FSI_Nxt_Free;
+	uint32_t freeCluster = fs->FSI_Nxt_Free;
+	uint32_t totalClusters = pfs_fat_getTotalClusters(bpb);
 
+	for( ; currentCluster < totalClusters ; currentCluster++){
+
+		uint32_t sector = pfs_fat_getFatEntrySector(bpb , currentCluster);
+		uint32_t offset = pfs_fat_getFatEntrySectorOffset(bpb , currentCluster);
+
+		//pedirle al PPD el sector "uint32_t sector"
+		char * sectorContent;
+
+		uint32_t fatEntry = pfs_fat_getFatEntry(sectorContent , offset);
+
+		if( pfs_fat_isClusterFree(fatEntry) ){
+			fs->FSI_Nxt_Free = currentCluster;
+			break;
+		}
+	}
+	return freeCluster;
+}
+
+uint32_t pfs_fat_getTotalClusters(BPB * bpb){
+	uint32_t DataSec = bpb->BPB_TotSec32 - (bpb->BPB_ResvdSecCnt + (bpb->BPB_NumFATs * bpb->BPB_FATSz32));
+	uint32_t clusterCount = DataSec / bpb->BPB_SecPerClus;
+	return clusterCount;
+}
+
+
+int8_t pfs_fat_open(){
+
+	return EXIT_SUCCESS;
+}
+
+int8_t pfs_fat_findDirectory(path){
+
+	return EXIT_SUCCESS;
+}
+
+int8_t pfs_fat_readdir(char * path , struct dirent * direntry , FatFile * file){
+	LDirEntry lfnentry;
+	DirEntry  sfnentry;
+	uint32_t cluster = pfs_fat_getFirstClusterFromDirEntry(&file->firstEntry);
+	uint32_t sector = pfs_fat_getFirstSectorOfCluster(bpb,cluster);
+	char buffer[512];
+
+	//chequear si esta el sector en cache, y usarlo si esta
+	// si no, traerlo:
+	//char * buffer = pfs_endpoint_callGetSectors(sector);
+
+	//trabajar con el LDirEntry
+	memcpy(&lfnentry,buffer,sizeof(LDirEntry));
+	if( ! LDIR_ISLASTLONG(lfnentry.LDIR_Ord) )
+		return EXIT_FAILURE;
+
+	//convertir el nombre
+	char * name = pfs_get_fileName(&lfnentry);
+	strcpy(direntry->d_name , name );
+	free(name);
+
+	memcpy(&sfnentry, buffer + 32, sizeof(sfnentry));
+	file->dirEntryOffset += 64; //Se leyeron un LDirEntry y un DirEntry
+
+	return EXIT_SUCCESS;
+}
