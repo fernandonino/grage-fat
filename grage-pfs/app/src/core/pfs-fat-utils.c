@@ -237,7 +237,7 @@ void pfs_fat_extractName( LDirEntry * d, uint16_t * dest, int8_t length) {
     return;
 }
 
-char *  pfs_get_fileName(LDirEntry * l){
+char *  pfs_fat_get_fileName(LDirEntry * l){
 	uint8_t nameLength = pfs_fat_getNameLength(l);
 
 	uint16_t utf16name[13];

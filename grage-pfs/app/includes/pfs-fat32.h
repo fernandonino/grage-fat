@@ -11,7 +11,6 @@
 #include <string.h>
 #include "grage-commons.h"
 
-
 typedef struct {
 	uint8_t BS_jmpBoot[3];
 	uint8_t BS_OEMName[8];
@@ -65,7 +64,7 @@ typedef struct {
 	uint16_t DIR_WrtDate;
 	uint16_t DIR_FstClusLO;
 	uint32_t DIR_FileSize;
-} __attribute__ ((packed)) DirEntry;
+}__attribute__ ((packed)) DirEntry;
 
 typedef struct {
 	uint8_t LDIR_Ord;
@@ -76,26 +75,25 @@ typedef struct {
 	uint16_t LDIR_Name2[6];
 	uint16_t LDIR_FstClusLO;
 	uint16_t LDIR_Name3[2];
-} __attribute__ ((packed)) LDirEntry;
+}__attribute__ ((packed)) LDirEntry;
 
-typedef struct{
+typedef struct {
 	uint32_t cluster; //Cluster donde se encuentran los (L)DirEntries del archivo/directorio
 	uint32_t clusterOffset; //Sector del cluster (del 1 al 8)
 	DirEntry firstEntry;
 	LDirEntry lastEntry;
 	uint32_t dirEntryOffset;
-} __attribute__ ((packed)) FatFile;
-
+}__attribute__ ((packed)) FatFile;
 
 typedef struct {
 	BPB boot;
 	FSInfo infoSec;
 	uint32_t cc_total; /*cantidad de total clusters*/
 	uint32_t cs_reserved; /* Cantidad de sectores reservados reserved + (fatsize * cantfats)*/
-	//lista sectores libres
-	//TODO integrar funcion de listas para los sectores libres
-	//arbol de directorios
-	//TODO implementar arbol binario n-ario
+//lista sectores libres
+//TODO integrar funcion de listas para los sectores libres
+//arbol de directorios
+//TODO implementar arbol binario n-ario
 } FatData;
 
 /* File attributes */
@@ -107,7 +105,6 @@ typedef struct {
 #define ATTR_ARCHIVE 		0x20
 #define ATTR_LONG_NAME 		( ATTR_READ_ONLY | ATTR_HIDDEN | ATTR_SYSTEM | ATTR_VOLUME_ID )
 
-
 /* FAT32 valores y macros */
 #define	 FAT32_EOC_VALUE	0x0FFFFFF8
 #define  FAT32_BAD_VALUE	0x0FFFFFF7
@@ -116,7 +113,6 @@ typedef struct {
 #define  FAT32_ISFREE(EntryValue)	(((EntryValue) & 0x0FFFFFFF) == 0x00000000)
 #define  FAT32_ISBAD(EntryValue)  	(EntryValue == 0x0FFFFFF7)
 #define  FAT32_LEGALCLUS(EntryValue)	(!( (FAT32_ISEOC(EntryValue)) || (FAT32_ISFREE(EntryValue)) || (FAT32_ISBAD(EntryValue))))
-
 
 // Directory valores y macros
 #define FREEENT  0xE5
@@ -128,59 +124,54 @@ typedef struct {
 #define LDIR_ISLASTLONG(Ord)	(Ord == LASTLONG)
 #define LFN_ISNULL(character)	(character == 0x00)
 
+/* determina si el volumen es FAT32 */
+Boolean pfs_fat_isValidVolume(BPB);
 
-	/* determina si el volumen es FAT32 */
-	Boolean pfs_fat_isValidVolume(BPB *);
+/* determina si es el ultimo cluster en FAT */
+Boolean pfs_fat_isClusterEnd(uint32_t value);
 
-	/* determina si es el ultimo cluster en FAT */
-	Boolean pfs_fat_isClusterEnd(uint32_t value);
+/* determina si es un cluster vacio */
+Boolean pfs_fat_isClusterFree(uint32_t value);
 
-	/* determina si es un cluster vacio */
-	Boolean pfs_fat_isClusterFree(uint32_t value);
+/* determina si es un cluster invalido */
+Boolean pfs_fat_isClusterBad(uint32_t value);
 
-	/* determina si es un cluster invalido */
-	Boolean pfs_fat_isClusterBad(uint32_t value);
+//TODO revisar esta funcion pq el EOCluster puede contener datos.
+Boolean pfs_fat_isLegalCluster(uint32_t value);
 
-	//TODO revisar esta funcion pq el EOCluster puede contener datos.
-	Boolean pfs_fat_isLegalCluster(uint32_t value);
+///////////// File Allocation Table functions /////////////
 
+/* En base a un numero de cluster devuelve el sector en que esta su fat */
+uint32_t pfs_fat_getFatEntrySector(BPB, uint32_t);
 
-	///////////// File Allocation Table functions /////////////
+/* En base a un numero de cluster devuelve el offset dentro del sector de la fat */
+uint32_t pfs_fat_getFatEntrySectorOffset(BPB, uint32_t);
 
-	/* En base a un numero de cluster devuelve el sector en que esta su fat */
-	uint32_t pfs_fat_getFatEntrySector(BPB * , uint32_t);
+uint32_t pfs_fat_getFatEntry(char *, uint32_t);
 
-	/* En base a un numero de cluster devuelve el offset dentro del sector de la fat */
-	uint32_t pfs_fat_getFatEntrySectorOffset(BPB * , uint32_t);
+///////////////////////////////////////////////////////////
 
-	uint32_t pfs_fat_getFatEntry(char * , uint32_t);
+/* devuelve el sector donde comienan los datos en base a la info de fat */
+/* Generlamente, es el primer sector del cluster 2 */
+uint32_t pfs_fat_getFirstDataSector(BPB);
 
-	///////////////////////////////////////////////////////////
+///////////// Cluster functions /////////////
 
+/* Dado un clustner n, devuelve el primer sector de ese cluster */
+uint32_t pfs_fat_getFirstSectorOfCluster(BPB , uint32_t);
 
-	/* devuelve el sector donde comienan los datos en base a la info de fat */
-	/* Generlamente, es el primer sector del cluster 2 */
-	uint32_t pfs_fat_getFirstDataSector(BPB *);
+/* Ubica el siguente cluster en funcion del DirEntry*/
+uint32_t pfs_fat_getFirstClusterFromDirEntry(DirEntry *);
 
+/* Setea los campos HI y LO de DirEntry para un cluster dado */
+uint32_t pfs_fat_setFirstClusterForDirEntry(DirEntry *, uint32_t);
 
-	///////////// Cluster functions /////////////
+/////////////////////////////////////////////
 
-	/* Dado un clustner n, devuelve el primer sector de ese cluster */
-	uint32_t pfs_fat_getFirstSectorOfCluster(BPB * , uint32_t);
-
-	/* Ubica el siguente cluster en funcion del DirEntry*/
-	uint32_t pfs_fat_getFirstClusterFromDirEntry(DirEntry *);
-
-	/* Setea los campos HI y LO de DirEntry para un cluster dado */
-	uint32_t pfs_fat_setFirstClusterForDirEntry(DirEntry * , uint32_t);
-
-	/////////////////////////////////////////////
-
-	BPB pfs_fat_readBPB(char *);
-	DirEntry pfs_fat_readDirEntry(char *);
-	LDirEntry pfs_fat_readLDirEntry(char *);
-	uint32_t pfs_fat_getFreeCluster(BPB * , FSInfo * );
-	uint32_t pfs_fat_getTotalClusters(BPB *);
-
+BPB pfs_fat_readBPB(char *);
+DirEntry pfs_fat_readDirEntry(char *);
+LDirEntry pfs_fat_readLDirEntry(char *);
+//uint32_t pfs_fat_getFreeCluster(BPB *, FSInfo *);
+uint32_t pfs_fat_getTotalClusters(BPB);
 
 #endif /* PFS_FAT32_H_ */

@@ -4,7 +4,7 @@
  *  Created on: 15/09/2011
  *      Author: Fernando
  */
-
+/*
 #include <time.h>
 #include <sys/timeb.h>
 #include <stdlib.h>
@@ -110,7 +110,8 @@
 		sprintf(linea,"Tamaño de Bloque de Cache: %s b",pfs_configuration_getCacheSize());
 		commons_file_insertLine(linea,cache_dump);
 		i=0;
-		/*if (pfs_configuration_getCacheSize()!=NULL)*/	i=atoi( pfs_configuration_getCacheSize() );
+		//if (pfs_configuration_getCacheSize()!=NULL)
+		i=atoi( pfs_configuration_getCacheSize() );
 		printf("tamanio de cache: %d\n",i);
 
 		sprintf(linea,"Cantidad de bloques de Cache: %d",i);
@@ -129,3 +130,4 @@
 
 		commons_file_closeFile(cache_dump);
 	}
+*/
