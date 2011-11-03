@@ -194,7 +194,7 @@
 	int8_t pfs_fat_readdir(char * path , struct dirent * direntry , FatFile * file , Cluster * c){
 		LDirEntry lfnentry;
 		DirEntry  sfnentry;
-		Cluster cluster;
+		//Cluster cluster;
 		uint8_t lfncount = 0;
 		uint8_t i;
 		uint16_t offset = 0;
