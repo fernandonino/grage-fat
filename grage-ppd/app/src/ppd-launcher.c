@@ -43,11 +43,11 @@
 		else
 			puts("Fallo la creacion del log");
 
-		//ppd_launchConsole_initialize();
-		//ppd_launchConsole_startUNIX();
 		ppd_configuration_setup();
+		ppd_launchConsole_initialize();
+		ppd_launchConsole_startUNIX();
 
-		ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(ppd_conf_getDiskPath()) );
+		//ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(ppd_conf_getDiskPath()) );
 	}
 
 
@@ -83,7 +83,7 @@
 
 	void ppd_launcher_exit(){
 		puts("finalizando todo");
-		ppd_persistance_unmapDisk( ppd_conf_getDiskPath() , ppd_state_getDiskStartAddress() );
+		//ppd_persistance_unmapDisk( ppd_conf_getDiskPath() , ppd_state_getDiskStartAddress() );
 		log_destroy();
 	}
 
