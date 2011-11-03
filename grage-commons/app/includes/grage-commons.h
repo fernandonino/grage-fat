@@ -13,6 +13,17 @@
 
 #define SECTOR_SIZE	512
 
+
+	typedef struct {
+		uint32 pista;
+		uint32 sectorNumber;
+	}__attribute__((packed)) PistaSector;
+	typedef struct {
+		uint32 menssageID;
+		PistaSector pistaSector;
+		uint32 timeInMiliseconds;
+	}__attribute__((packed)) MessageConsolePPD;
+
 	typedef struct {
 
 		uint32 sectorNumber;
