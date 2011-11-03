@@ -197,6 +197,7 @@
 		Cluster cluster;
 		uint8_t lfncount = 0;
 		uint8_t i;
+		uint16_t offset = 0;
 
 		if( file->dirEntryOffset >= 4096 ){
 			//f->nextCluster = algunCluster; --->> Hacer logica para buscar el siguiente cluster y almacenarlo
@@ -204,8 +205,9 @@
 
 		lfnentry.LDIR_Ord = 0x00; // Fuerzo la entrada al ciclo
 		while ( LDIR_ISFREE(lfnentry.LDIR_Ord) ) {
-			i = file->dirEntryOffset % 8;
-			memcpy(&lfnentry , c->sectors[i].sectorContent + file->dirEntryOffset , sizeof(LDirEntry));
+			i = file->dirEntryOffset / 512;
+			offset = file->dirEntryOffset % 512;
+			memcpy(&lfnentry , c->sectors[i].sectorContent + offset , sizeof(LDirEntry));
 			file->dirEntryOffset += 32;
 
 			if( file->dirEntryOffset >= 4096 ){
@@ -216,16 +218,16 @@
 
 		if( LDIR_ISLASTLONG(lfnentry.LDIR_Ord) ){
 			lfncount++;
-			i = file->dirEntryOffset % 8;
-			memcpy(&sfnentry , c->sectors[i].sectorContent + file->dirEntryOffset , sizeof(DirEntry));
+			i = file->dirEntryOffset / 512;
+			offset = file->dirEntryOffset % 512;
+			memcpy(&sfnentry , c->sectors[i].sectorContent + offset , sizeof(DirEntry));
 			file->dirEntryOffset += 32;
 
 			pfs_fat_toDirent(direntry , sfnentry , lfnentry);
 			return EXIT_SUCCESS;
 
 		} else if ( lfncount == 0 ){ //La entrada es solo DirEntry ( . o ..)
-			i = file->dirEntryOffset % 8;
-			memcpy(&sfnentry , c->sectors[i].sectorContent + file->dirEntryOffset - 32 , sizeof(DirEntry));
+			memcpy(&sfnentry , c->sectors[0].sectorContent + file->dirEntryOffset - 32 , sizeof(DirEntry));
 
 			pfs_fat_toDirent(direntry , sfnentry , lfnentry);
 			return EXIT_SUCCESS;
@@ -235,9 +237,7 @@
 		return EXIT_FAILURE;
 	}
 
-	pfs_fat_scanDirEntries(){
 
-	}
 
 
 
