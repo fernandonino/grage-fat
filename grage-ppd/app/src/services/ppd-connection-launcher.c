@@ -63,7 +63,10 @@
 		if(commons_string_equals( ppd_conf_getPpdMode() ,
 				PPD_CONFIGURATION_MODE_CONNECT)){
 
-			nipc_sendHandshake(ppd_state_getPraidSocket(), NIPC_PROCESS_ID_PPD ,  validator );
+			uint8_t ppdId = atoi(ppd_conf_getPpdIdDisk());
+
+			nipc_sendPpdHandshake(ppd_state_getPraidSocket(), ppdId ,
+					ppd_utils_getSectorsCount() , validator );
 			message = nipc_receiveHandshake(ppd_state_getPraidSocket() , validator);
 
 		}else{

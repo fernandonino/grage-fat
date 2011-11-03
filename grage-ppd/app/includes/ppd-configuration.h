@@ -31,6 +31,7 @@
 
 #define PPD_CONFIGURATION_PRAID_PORT		"ppd.configuration.praid.port"
 #define PPD_CONFIGURATION_PRAID_HOST		"ppd.configuration.praid.host"
+#define PPD_CONFIGURATION_DISK_PATH			"ppd.configuration.disk.volume.path"
 
 	void ppd_configuration_setup();
 	void ppd_configuration_setConfigurationFile(char * s);
@@ -58,6 +59,8 @@
 	void setPpdWriteDelay(char *);
 	void setPpdReadDelay(char *);
 
+	void ppd_conf_setDiskPath(char * path);
+
 	char * getPpdAlgoritmo();
 	char * ppd_conf_getPpdPort();
 	char * ppd_conf_getPpdIdDisk();
@@ -70,6 +73,8 @@
 	char * getPpdSaltoPistaMs();
 	char * getPpdReadDelay();
 	char * getPpdWriteDelay();
+
+	char * ppd_conf_getDiskPath();
 
 #endif /* PFS_CONFIGURATION_H_ */
 

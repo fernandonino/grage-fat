@@ -36,7 +36,7 @@
 
 	void ppd_launcher_initialize(){
 		int status = log_create("ppd","../logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
-//		int status = log_create("ppd","/opt/grage-repository/logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
+		//int status = log_create("ppd","/opt/grage-repository/logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 
 		if(status == 0)
 			puts("Log creado con exito");
@@ -46,8 +46,8 @@
 		//ppd_launchConsole_initialize();
 		//ppd_launchConsole_startUNIX();
 		ppd_configuration_setup();
-		//ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(disk) );
 
+		ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(ppd_conf_getDiskPath()) );
 	}
 
 
@@ -83,14 +83,13 @@
 
 	void ppd_launcher_exit(){
 		puts("finalizando todo");
-		//ppd_persistance_unmapDisk( disk , ppd_state_getDiskStartAddress() );
+		ppd_persistance_unmapDisk( ppd_conf_getDiskPath() , ppd_state_getDiskStartAddress() );
 		log_destroy();
 	}
 
 
-	int main(int argc, char *argv[]){
+	int main(){
 
-		diskPath = argv[1];
 		ppd_launcher_initialize();
 		ppd_launcher_doLaunch();
 

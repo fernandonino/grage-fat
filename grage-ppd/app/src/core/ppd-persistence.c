@@ -23,38 +23,39 @@
 	// Funciones (read+write)sector candidatas para RuntimeValidator
 	void ppd_persistence_writeSector(DiskSector * aSector , char * dest){
 
-		/*
+        /*
 		uint32_t offset = aSector->sectorNumber * SECTOR_SIZE;
 
 		char * validator = memcpy(dest + offset , aSector->sectorContent , SECTOR_SIZE );
         if (validator == NULL){
-                perror("Error en memcpy");
+        	perror("Error en memcpy");
         }
+
+        msync(dest , SECTOR_SIZE , MS_SYNC );
+
         */
 
 		puts("Escribiendo sector");
 		printf("SectorId: %i , Contenido: %s\n" , aSector->sectorNumber , aSector->sectorContent);
-
-
 	}
 
 	void ppd_persistence_readSector(DiskSector * aSector , char * source){
 
-
-		/*
+        /*
 		uint32_t offset = aSector->sectorNumber * SECTOR_SIZE;
 		char * validator = memcpy(aSector->sectorContent , source + offset , SECTOR_SIZE );
         if (validator == NULL){
-                perror("Error en memcpy");
+        	perror("Error en memcpy");
         }
-*/
 
+        msync(source , SECTOR_SIZE , MS_SYNC );
+
+		 */
 		char * message = commons_string_concat("hola mundo - Get Sectores response from PPD: " , ppd_conf_getPpdIdDisk());
 		strcpy(aSector->sectorContent , message);
 
 		puts("Leyendo sector");
 		printf("SectorId: %i\n" , aSector->sectorNumber );
-
 	}
 
 
@@ -101,9 +102,7 @@
 			perror("fstat - error al obtener atributos del disco");
 		}
 
-		// Agregar msync !!!
-		// Debe ejectutarse antes del mumap para plasmar en disco los
-		// cambios hechos en memoria
+		msync(mapping , filestat.st_size , MS_SYNC );
 
 		if( munmap(mapping , filestat.st_size) ){
 			perror("Error en unmapping.");

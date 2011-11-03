@@ -28,6 +28,7 @@
 
 	char * praidAddress;
 	char * praidPort;
+	char * diskPath;
 
 
 
@@ -92,6 +93,12 @@
 	void setPpdLoggingLevel(char * v){
 	}
 
+	void ppd_conf_setDiskPath(char * path){
+		diskPath = path;
+	}
+
+
+
 	char * ppd_conf_getPpdMode(){
 		return ppdMode;
 	}
@@ -130,6 +137,10 @@
 	}
 	char * getPpdReadDelay(){
 		return ppdReadDelay;
+	}
+
+	char * ppd_conf_getDiskPath(){
+		return diskPath;
 	}
 
 
@@ -187,7 +198,9 @@
 		if(commons_string_equals(key , PPD_CONFIGURATION_PRAID_HOST)){
 			ppd_conf_setPraidAddress(value);
 		}
-
+		if(commons_string_equals(key , PPD_CONFIGURATION_DISK_PATH)){
+			ppd_conf_setDiskPath(value);
+		}
 	}
 
 	/*
