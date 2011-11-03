@@ -13,7 +13,7 @@
 #include <sys/un.h>
 #include "linux-commons.h"
 #include "ppd-configuration.h"
-
+#include "ppd-console-entreypoint.h"
 #define SOCK_PATH "/opt/.echo_socket"
 
 void ppd_launchConsole_startUNIX(){
@@ -71,7 +71,7 @@ uint32 ppd_launchConsole_initialize(){
 			uint32 code = execv("/opt/grage-repository/lib/grage-ppd-console", args);
 			if(code == -1){
 				puts("No se pudo levantar la consola");
-			}
+			}else{ ppd_console_entrypoint_setearPosicionCabezal(0,0); }
 		}
 	}
 	return 0;

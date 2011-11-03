@@ -48,7 +48,7 @@
 		value =  ppd_conf_getPpdPort();
 		CU_ASSERT_STRING_EQUAL(value , "666");
 
-		value = getPpdIdDisk();
+		value = ppd_conf_getPpdIdDisk();
 		CU_ASSERT_STRING_EQUAL(value , "7");
 
 		value = getPpdDiskCilinder();
