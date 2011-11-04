@@ -17,6 +17,7 @@
 #include "praid-queue.h"
 #include "praid-endpoint.h"
 #include "praid-configuration.h"
+#include "praid-sync.h"
 
 
 
@@ -25,10 +26,12 @@
 
 
 
-
 	void praid_ppd_thread_launchNewSlaveThread(PPDConnectionStorage * aStorage){
 
 		puts("Lanzando hilo entrypoint PPD");
+
+		if(praid_ppd_sync_isValidReplication())
+			praid_ppd_sync_synchronize(aStorage);
 
 		pthread_create(&aStorage->storageThreadListener , NULL , (void * (*)(void *)) praid_ppd_thread_listener , aStorage);
 		pthread_create(&aStorage->storageThreadSender , NULL , (void * (*)(void *)) praid_ppd_thread_sender , aStorage);
@@ -80,9 +83,6 @@
 			}
 		}
 	}
-
-
-
 
 
 

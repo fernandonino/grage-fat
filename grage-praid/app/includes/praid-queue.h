@@ -33,4 +33,5 @@
 	Job * praid_jobs_buildJob(NipcMessage mes);
 	NipcMessage praid_jobs_buildNipcMessageFromJob(Job * theJob);
 
+
 #endif /* PRAID_QUEUE_H_ */

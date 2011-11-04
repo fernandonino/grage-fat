@@ -51,7 +51,11 @@
 
 				}else if(handshake.header.processHandshakeId == NIPC_PROCESS_ID_PPD){
 
-					PPDConnectionStorage * storage = praid_state_buildPPDConnectionStorage(listenSocket);
+					uint8_t ppdId = handshake.header.operationId;
+
+					PPDConnectionStorage * storage = praid_state_buildPPDConnectionStorageFromId(listenSocket , ppdId);
+
+					storage->sectorsCount = handshake.header.responseCode;
 
 					praid_state_addPpdStorage(storage);
 

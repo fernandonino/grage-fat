@@ -29,6 +29,8 @@
 		pthread_t storageThreadListener;
 		pthread_t storageThreadSender;
 
+		uint32_t sectorsCount;
+
 	} PPDConnectionStorage;
 
 
@@ -40,6 +42,7 @@
 	void praid_state_addPpdStorage(PPDConnectionStorage * aState);
 
 	PPDConnectionStorage * praid_state_buildPPDConnectionStorage(ListenSocket aSocket);
+	PPDConnectionStorage * praid_state_buildPPDConnectionStorageFromId(ListenSocket ls , uint8_t ppdId);
 	PPDConnectionStorage * praid_balancer_selectStorage();
 
 	void praid_state_removePddStorage(PPDConnectionStorage * storage);

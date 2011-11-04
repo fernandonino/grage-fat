@@ -56,6 +56,12 @@
 		return storage;
 	}
 
+	PPDConnectionStorage * praid_state_buildPPDConnectionStorageFromId(ListenSocket ls , uint8_t ppdId){
+		PPDConnectionStorage * storage = praid_state_buildPPDConnectionStorage(ls);
+		storage->id = ppdId;
+		return storage;
+	}
+
 
 	void praid_state_storage_incrementPendingResponses(PPDConnectionStorage * storage){
 		storage->pendingResponses += 1;
