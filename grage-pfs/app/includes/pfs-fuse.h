@@ -5,6 +5,8 @@
  *      Author: Fernando
  */
 
+#include <fuse.h>
+
 #ifndef PFS_FUSE_H_
 #define PFS_FUSE_H_
 
@@ -22,12 +24,14 @@
 	int pfs_fuse_truncate(const char *path, off_t newsize);
 	int pfs_fuse_unlink(const char * path);
 	int pfs_fuse_mkdir(const char *path, mode_t mode);
+
 	int pfs_fuse_readdir(const char * path , void *buf, fuse_fill_dir_t filler,
 			off_t offset, struct fuse_file_info *fi);
+
 	int pfs_fuse_rmdir(const char * path);
 	int pfs_fuse_getattr(const char *path, struct stat *statbuf);
 	int pfs_fuse_rename(const char * path, const char * newpath);
 
-	int pfs_fuse_startFuse(int , char ** , struct fuse_operations *);
+	void pfs_fuse_launchFuse(int argc , char * argv[] );
 
 #endif /* PFS_FUSE_H_ */

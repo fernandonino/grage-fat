@@ -2,7 +2,7 @@
  * pfs-configuration.c
  *
  *  Created on: 05/09/2011
- *      Author: gonzalo
+ *      Author: gonzalo-joaco
  */
 
 #include <string.h>

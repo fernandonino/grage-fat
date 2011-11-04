@@ -5,9 +5,23 @@
  *      Author: Fernando
  */
 
+#include <linux-commons-socket.h>
+
+#include "pfs-fat32.h"
+
 #ifndef PFS_STATE_H_
 #define PFS_STATE_H_
 
-	void pfs_state_getFat32Format(void);
+
+	void pfs_state_setDataSocket(ListenSocket);
+	ListenSocket pfs_state_getDataSocket();
+
+	void pfs_state_setBiosParameterBlock(BPB bpb);
+	BPB pfs_state_getBiosParameterBlock();
+
+
+	void pfs_state_setVolume(Volume * v);
+	Volume * pfs_state_getVolume();
+
 
 #endif /* PFS_STATE_H_ */

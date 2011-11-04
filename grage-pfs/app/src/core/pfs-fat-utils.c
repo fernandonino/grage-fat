@@ -1,280 +1,73 @@
 /*
  * pfs-fat-utils.c
  *
- *  Created on: 24/10/2011
- *      Author: joaquin
+ *  Created on: 04/11/2011
+ *      Author: gonzalo-joaco
  */
-#include <stdio.h>
-#include <stdint.h>
+
 #include <stdlib.h>
-#include <string.h>
-#include "pfs-fat-utils.h"
-#include "utils.h"
+#include "pfs-fat32.h"
 
-CacheRecord Cache[255]; // 319 registros ya que hay 1 byte de estado por cada uno, de esta forma tiene 1MB de contenido.
-void pfs_fat_utils_cache_initialize()
-{
-	int i;
-	for (i=0;i<256;i++)
-	{
-		Cache[i].contenido=-1;
-	}
-}
-void pfs_fat_utils_cache_registrar_acceso()
-{
-	int i;
-	for(i=0;i<256;i++)
-	{
-		if (Cache[i].contenido!=-1) Cache[i].estado++;
-	}
-}
-uint32_t pfs_fat_utils_cache_tiene_contenido(uint32_t contenidoBuscado)
-{
-	int i;
-	for(i=0;i<256;i++)
-	{
-		if (Cache[i].contenido==contenidoBuscado) return i;
-	}
-	return -1;
-}
-uint32_t pfs_fat_utils_cache_get(uint32_t contenidoBuscado){
-	uint32_t posicion;
 
-	posicion=pfs_fat_utils_cache_tiene_contenido(contenidoBuscado);
-	if (posicion!=-1)
-	{
-		pfs_fat_utils_cache_registrar_acceso();
-		Cache[posicion].estado=0;
+	Volume * pfs_fat_utils_loadVolume( BPB * b ){
 
-		return Cache[posicion].contenido;
-	}
-	pfs_fat_utils_cache_registrar_acceso();
-	return -1;
-}
+		Volume * v = (Volume*) malloc(sizeof(Volume));
 
-void pfs_fat_utils_cache_put(uint32_t contenido)
-{
-	int aux,i,variable_LRU;
-	variable_LRU = -1;
-	if (pfs_fat_utils_cache_tiene_contenido(contenido)==-1){
-		for(i=0;i<256;i++)
-		{
-			if (Cache[i].contenido==-1)
-			{
-				aux=i;
-				break;
-			}
-			else
-			{
-				if (variable_LRU<Cache[i].estado)
-				{
-					aux=i;
-					variable_LRU=Cache[i].estado;
-				}
-			}
+		v->bps = b->BPB_BytsPerSec;
+		v->spc = b->BPB_SecPerClus;
+		v->bpc = v->bps * v->spc;
+		v->rsv = b->BPB_ResvdSecCnt;
+
+		v->fatQty = b->BPB_NumFATs;
+		v->fatSize = b->BPB_FATSz32;
+		v->fatStartSector = v->rsv;
+
+		v->root = b->BPB_RootClus;
+		v->sectors = b->BPB_TotSec32;
+		v->dataSectors = v->sectors - ( v->rsv + (v->fatQty * v->fatSize) );
+		v->clusters = v->dataSectors / v->spc;
+		v->fds = v->rsv + (v->fatQty * v->fatSize);
+
+		printf("Clusters totales: %u.\n" , v->clusters);
+
+		if ( v->clusters < 65525 ) {
+			return NULL;
+		} else {
+			return v;
 		}
-
-		pfs_fat_utils_cache_registrar_acceso();
-		Cache[aux].contenido=contenido;
-	}
-}
-/************************ Función pfs_fat_utils_CreateList() ***************************/
-/*
-   Propósito..: Inicializa la lista
-   Invocacion: 	pfs_fat_utils_CreateList(&firstNode);
-
-*/
-/********************************************************************/
-void pfs_fat_utils_CreateList(rsvCluster ** node){
-	*node = NULL;
-}
-
-/************************ Función pfs_fat_utils_insertNodo() ***************************/
-/*
-   Propósito..: Inserta un nodo al final de la lista sin ningun tipo de criterio de orden
-   Invocacion: 	insertarNodo(&FirstCluster, nroCluster);
-*/
-/********************************************************************/
-void pfs_fat_utils_insertNodo(rsvCluster ** FirstCluster, uint32_t Cluster){
-	//printf("\tInsertando nodo %d\n", Cluster);
-
-   	rsvCluster * newNode = (rsvCluster *) malloc(sizeof(rsvCluster));
-   	newNode->Cluster = Cluster;
-
-	if(pfs_fat_utils_IsListEmpty(*FirstCluster)){
-		*FirstCluster = (rsvCluster *)malloc(sizeof (rsvCluster));
-		(*FirstCluster)->Cluster = Cluster;
-		(*FirstCluster)->Next = NULL;
-		//printf("\tLa cabeza tiene ahora: %d\n", newNode->Cluster);
-	}
-	else
-	{
-		rsvCluster *previousNode, *nextNode;
-		previousNode = *FirstCluster;
-		nextNode = previousNode->Next;
-		while (nextNode!=NULL)
-		{
-			previousNode = nextNode;
-			nextNode = nextNode->Next;
-		}
-		previousNode->Next = newNode;
-		newNode->Next = nextNode;
-		//printf("\tEl valor agregado fue: %d\n", newNode->Cluster);
-	}
-}
-
-/************************ Función pfs_fat_utils_IsListEmpty() ***************************/
-/*
-   Propósito..: Verifica si la lista esta vacia (primerNodo = NULL)
-   Invocacion: 	fs_fat_utils_IsListEmpty(*FirstCluster);
-   Devuelve: 1 si esta vacia 0 si no lo esta
-*/
-/********************************************************************/
-uint32_t pfs_fat_utils_IsListEmpty(rsvCluster * FirstCluster){
-	if(FirstCluster == NULL){
-		return 1;
-	}
-	else{
-		return 0;
-	}
-}
-
-/************************ Función pfs_fat_utils_ShowList() ***************************/
-/*
-   Propósito..: Muestra la lista por pantalla
-   Invocacion: 	pfs_fat_utils_ShowList(firtsNode);
-*/
-/********************************************************************/
-
-void pfs_fat_utils_ShowList(rsvCluster * FirstCluster){
-	uint32_t n=0;
-	//puts("\tListando...");
-	rsvCluster * nodoAux = (rsvCluster *)malloc(sizeof (rsvCluster));
-	nodoAux = FirstCluster;
-	while(nodoAux != NULL){
-		printf("\t%d-. El valor es: %d\n", n, nodoAux->Cluster);
-		nodoAux = nodoAux->Next;
-		n++;
 	}
 
-}
-
-/************************ Función pfs_fat_utils_ShowList() ***************************/
-/*
-   Propósito..: Obtiene el siguiente sector que sera escrito y lo borra de la lista
-   Invocacion: 	pfs_fat_utils_GetNextCluster(&firstNode);
-   Devuelve: El numero de cluster a escribir
-*/
-/********************************************************************/
-uint32_t pfs_fat_utils_GetNextCluster(rsvCluster ** FirstCluster){
-	uint32_t rsv_cluster = (*FirstCluster)->Cluster;
-	rsvCluster * aux = (*FirstCluster);
-	*FirstCluster = (*FirstCluster)->Next;
-	free(aux);
-	return rsv_cluster;
-}
-
-/************************ Función pfs_fat_utils_FreeList() ***************************/
-/*
-   Propósito..: Libera la lista completa
-   Invocacion: 	pfs_fat_utils_FreeList(&firstNode);
-*/
-/********************************************************************/
-
-void pfs_fat_utils_FreeList(rsvCluster **FirstCluster)
-{
-   rsvCluster *currentNode,*nextNode;
-
-   currentNode = *FirstCluster;
-   while (currentNode!=NULL)
-   {
-	   nextNode = currentNode->Next;
-      free(currentNode);
-      currentNode = nextNode;
-   }
-   *FirstCluster = NULL;
-}
 
 
-/***************************************************
-
-  Funciones auxiliares para trabajar con los datos
-  de FAT32.
-
-***************************************************/
 
 
-uint32_t pfs_fat_fetchChar(LDirEntry *D, int8_t n) {
-    int i = (n % 13);
 
-    if ( i <= 4  ) return D->LDIR_Name1[i];
-    if ( i <= 10 ) return D->LDIR_Name2[i-5];
-    return D->LDIR_Name3[i-11];
-}
+	uint32_t pfs_fat_utils_getFatEntrySector(Volume * v , uint32_t cluster){
+		uint32_t sectorNumberInFat = v->rsv + (cluster * 4 / v->bps);
+		return sectorNumberInFat;
+	}
 
-int8_t pfs_fat_getNameLength(LDirEntry * ldirentry){
-	uint8_t i;
-	uint16_t character;
+	uint32_t pfs_fat_utils_getFatEntryOffset(Volume * v , uint32_t cluster){
+		uint32_t fatEntryOffset = (cluster * 4) % v->bps;
+		return fatEntryOffset;
+	}
 
-    for ( i=0 ; i<13 ; i++) {
-    	character = pfs_fat_fetchChar(ldirentry , i);
-		if ( LFN_ISNULL(character) )
-			return (i + 1);
-    }
-
-    return (i + 1);
-}
-
-void pfs_fat_extractName( LDirEntry * d, uint16_t * dest, int8_t length) {
-	int8_t i;
-
-	for (i=0; i < (length - 1); i++) {
-    	dest[i] = pfs_fat_fetchChar(d , i);
-    }
-
-    dest[length - 1] = 0x00;
-
-    return;
-}
-
-char *  pfs_fat_get_fileName(LDirEntry * l){
-	uint8_t nameLength = pfs_fat_getNameLength(l);
-
-	uint16_t utf16name[13];
-	pfs_fat_extractName(l , utf16name , nameLength);
-
-	char * utf8name = (char *)calloc(nameLength,sizeof(char));
-	size_t utf8length = 0;
-
-	unicode_utf16_to_utf8_inbuffer(utf16name , nameLength - 1 , utf8name , &utf8length);
-
-	return utf8name;
-}
-
-void pfs_fat_toDirent(struct dirent * de , DirEntry direntry , LDirEntry ldirentry){
-
-	if (ldirentry.LDIR_Attr == ATTR_LONG_NAME ){
-		uint8_t length = pfs_fat_getNameLength(&ldirentry);
+	char *  pfs_fat_utils_getFileName(LongDirEntry * l){
+		uint8_t nameLength = pfs_fat_getNameLength(l);
 
 		uint16_t utf16name[13];
-		pfs_fat_extractName(&ldirentry,utf16name,length);
+		pfs_fat_extractName(l , utf16name , nameLength);
 
-		char * utf8name = (char *)calloc(length,sizeof(char));
-
+		char * utf8name = (char *)calloc(nameLength,sizeof(char));
 		size_t utf8length = 0;
-		unicode_utf16_to_utf8_inbuffer(utf16name , length - 1 , utf8name , &utf8length);
-		strcpy(de->d_name,utf8name);
-		free(utf8name);
-	} else {
-		strncpy(de->d_name , direntry.DIR_Name , 11);
+
+		unicode_utf16_to_utf8_inbuffer(utf16name , nameLength - 1 , utf8name , &utf8length);
+
+		return utf8name;
 	}
 
-	de->d_ino = pfs_fat_getFirstClusterFromDirEntry(&direntry);
 
-	if ( direntry.DIR_Attr == ATTR_DIRECTORY )
-		de->d_type = DT_DIR;
-	else
-		de->d_type = DT_REG;
-}
-
-
+	uint32_t pfs_fat_utils_getFirstSectorOfCluster(Volume * v , uint32_t cluster){
+		uint32_t firstSector = ((cluster - 2) * v->spc) + v->fds;
+		return firstSector;
+	}

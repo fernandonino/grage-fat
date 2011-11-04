@@ -13,7 +13,6 @@
 #include <fuse.h>
 
 #include <pfs-fuse.h>
-#include "pfs-fat32.h"
 
 	struct fuse_operations grage_oper = {
 	  .getattr = pfs_fuse_getattr,
@@ -33,12 +32,25 @@
 	};
 
 
+
+
+	void pfs_fuse_launchFuse(int argc , char * argv[] ){
+		struct fuse_operations operations;
+		fuse_main(argc, argv, &operations);
+	}
+
+
+
+
+
 	int pfs_fuse_mknod(const char *path, mode_t mode, dev_t dev){
 		return EXIT_SUCCESS;
 	}
 
 	int pfs_fuse_open(const char *path, struct fuse_file_info *fi){
-		//pfs_fat_open(void);
+
+
+
 		return EXIT_SUCCESS;
 	}
 
@@ -74,29 +86,6 @@
 	}
 
 	int pfs_fuse_readdir(const char * path , void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi){
-/*
-		struct dirent * de;
-		int8_t result;
-
-		result = pfs_fat_findDirectory(path);
-		if ( result == EXIT_FAILURE )
-			return -ENOENT;
-
-		do{
-			result = pfs_fat_readdir(path , de);
-
-			struct stat st;
-	        memset(&st, 0, sizeof(st));
-	        st.st_ino = de.d_ino;
-			if (de.d_type == DT_DIR) {
-				st.st_mode = S_IFDIR;
-			} else st.st_mode = S_IFREG;
-
-	        if (filler(buf, de.d_name, &st, 0))
-	            break;
-
-		} while (result != EXIT_FAILURE);
-*/
 		return EXIT_SUCCESS;
 	}
 
@@ -110,9 +99,4 @@
 
 	int pfs_fuse_rename(const char * path, const char * newpath){
 		return EXIT_SUCCESS;
-	}
-
-	int pfs_fuse_startFuse(int argc , char * argv[] , struct fuse_operations * operations){
-		int fuse_stat = fuse_main(argc, argv, operations);
-		return fuse_stat;
 	}

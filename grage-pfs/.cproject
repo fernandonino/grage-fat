@@ -47,8 +47,6 @@
 									<listOptionValue builtIn="false" value="grage-nipc"/>
 									<listOptionValue builtIn="false" value="m"/>
 									<listOptionValue builtIn="false" value="grage-commons"/>
-									<listOptionValue builtIn="false" value="grage-linux-testing-integration"/>
-									<listOptionValue builtIn="false" value="grage-linux-testing-unit"/>
 								</option>
 								<option id="gnu.c.link.option.paths.1809119535" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/opt/grage-repository/lib"/>
