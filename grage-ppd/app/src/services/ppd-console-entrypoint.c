@@ -42,7 +42,6 @@ void ppd_console_entrypoint_TiempoConsumido(uint32 pistaSolicitada, uint32 secto
 	//char * a = (char *)malloc(3);
 	//a=getPpdDiskSector();
 	uint32 cantidadSectoresPista = atoi(getPpdDiskSector());
-	uint32 canitdadPistasDisco = atoi(getPpdDiskCilinder());
 	uint32 costoPista = atoi(getPpdSaltoPistaMs());
 	uint32 costoSector =60*1000/atoi(getPpdRpm())/cantidadSectoresPista;
 	float tiempoPistas = 0;
@@ -61,7 +60,6 @@ void ppd_console_entrypoint_TiempoConsumido(uint32 pistaSolicitada, uint32 secto
 		}
 		sectorActual = nuevoSectorActual(sectorActual,costoPista,cantidadSectoresPista);
 		tiempoPistas = costoPista + tiempoPistas;
-		printf("%d:%d ",pistaActual,sectorActual);
 	}
 	while (sectorActual != sectorSolicitado)
 	{
