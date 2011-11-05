@@ -35,8 +35,7 @@
 
 
 	void ppd_launcher_initialize(){
-		//int status = log_create("ppd","../logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
-		int status = log_create("ppd","/opt/grage-repository/logs/ppd.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
+		int status = log_create("ppd", PPD_DEFAULT_LOG_FILE ,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 
 		if(status == 0)
 			puts("Log creado con exito");
@@ -44,8 +43,8 @@
 			puts("Fallo la creacion del log");
 
 		ppd_configuration_setup();
-		ppd_launchConsole_initialize();
-		ppd_launchConsole_startUNIX();
+		//ppd_launchConsole_initialize();
+		//ppd_launchConsole_startUNIX();
 
 		//ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(ppd_conf_getDiskPath()) );
 	}
