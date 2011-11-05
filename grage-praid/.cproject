@@ -40,6 +40,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/tests/unit/includes}&quot;"/>
 									<listOptionValue builtIn="false" value="/opt/grage-repository/includes"/>
 								</option>
+								<option id="gnu.c.compiler.option.misc.other.1689694079" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -std=c99" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1640661682" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.419536535" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">

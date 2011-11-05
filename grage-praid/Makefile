@@ -46,7 +46,7 @@ build:
 	mkdir build/bin
 	mkdir build/conf
 	mkdir build/logs
-	gcc $(BUILD_SOURCE) ./app/src/*.c $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET)
+	gcc $(BUILD_SOURCE) ./app/src/*.c $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET) -std=c99
 	cp app/conf/* build/conf
 
 build-lib: objdir
