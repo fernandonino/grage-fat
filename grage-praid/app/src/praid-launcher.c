@@ -18,7 +18,7 @@
 
 	void praid_launcher_initialize(){
 
-		int status = log_create("praid","/opt/grage-repository/logs/praid.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
+		int status = log_create("praid", PRAIND_DEFAULT_LOG_FILE ,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 
 		if(status == 0)
 			puts("Log inicializado con exito");
