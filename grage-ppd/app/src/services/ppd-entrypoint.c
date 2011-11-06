@@ -13,6 +13,8 @@
 #include "linux-commons-socket.h"
 
 #include "nipc-messaging.h"
+#include "ppd-entrypoint.h"
+#include "ppd-persistance.h"
 #include "ppd-queues.h"
 #include "ppd-state.h"
 
@@ -38,6 +40,24 @@
 		ppd_queues_putInQueue(message);
 	}
 
+	void ppd_entrypoint_executeSyncPutSector(NipcMessage message){
+
+		ppd_persistence_writeSector(message.payload.diskSector , ppd_state_getDiskStartAddress());
+	}
+
+	NipcMessage ppd_entrypoint_executeSyncGetSector(uint32_t sectorId){
+
+		NipcMessage message = nipc_mbuilder_buildNipcMessage();
+		DiskSector disk = ppd_persistence_readSector(sectorId , ppd_state_getDiskStartAddress());
+		message = nipc_mbuilder_addDiskSector( message , disk );
+		message = nipc_mbuilder_addMessageType( message , NIPC_MESSAGE_TYPE_SYNC_PROCESS);
+		return message;
+	}
+
+
+
+
+
 	void ppd_entrypoint_doLunch(){
 
 		while(TRUE){
@@ -56,6 +76,11 @@
 				ppd_entrypoint_executeGetSector(m);
 			}else if (m.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
 				ppd_entrypoint_executePutSector(m);
+			}else if(m.header.operationId == NIPC_OPERATION_ID_SYNC_PUT_SECTOR){
+				ppd_entrypoint_executeSyncPutSector(m);
+			}else if(m.header.operationId == NIPC_OPERATION_ID_SYNC_GET_SECTOR){
+				NipcMessage m = ppd_entrypoint_executeSyncGetSector(m.payload.diskSector.sectorNumber);
+				ppd_endpoint_responseGetSector(m);
 			}
 		}
 

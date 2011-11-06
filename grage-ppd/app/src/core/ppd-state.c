@@ -12,10 +12,9 @@
 #include "linux-commons-strings.h"
 
 	Boolean connectionStatusActive;
-
 	ListenSocket praidSocket;
 	ServerSocket * pfsConnection;
-	char * diskStartAddress;
+
 
 	void ppd_state_setPraidSocket(ListenSocket ls){
 		praidSocket = ls;
@@ -24,8 +23,6 @@
 	ListenSocket ppd_state_getPraidSocket(){
 		return praidSocket;
 	}
-
-
 	void ppd_state_setPfsConnection(ServerSocket * p){
 		pfsConnection = p;
 		connectionStatusActive = TRUE;
@@ -33,8 +30,6 @@
 	ServerSocket * ppd_state_getPfsConnection(){
 		return pfsConnection;
 	}
-
-
 	ListenSocket ppd_state_getActiveSocket(){
 		if(connectionStatusActive )
 			if(commons_string_equals( ppd_conf_getPpdMode() ,
@@ -47,10 +42,23 @@
 			return 0;
 	}
 
+
+	char * diskStartAddress;
+
 	char * ppd_state_getDiskStartAddress(){
 		return diskStartAddress;
 	}
-
 	void ppd_state_setDiskStartAddress(char * anAddress){
 		diskStartAddress = anAddress;
+	}
+
+
+
+	uint32_t sectorsCount;
+
+	void ppd_state_setSectorsCount(uint32_t count){
+		sectorsCount = count;
+	}
+	uint32_t ppd_state_getSectorsCount(){
+		return sectorsCount;
 	}

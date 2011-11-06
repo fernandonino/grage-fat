@@ -5,6 +5,14 @@
  *      Author: EL Seba
  */
 
+#include <strings.h>
+#include <sys/types.h>
+#include <wchar.h>
+#include <iconv.h>
+#include <fcntl.h>
+#include <dirent.h>
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
@@ -32,6 +40,17 @@
 
 	char * diskPath;
 
+	void ppd_launcher_initializeBPB(){
+
+		BPB biosParameterBlock;
+		DiskSector diskSector = ppd_persistence_readSector(0 , ppd_state_getDiskStartAddress());
+		memcpy(&biosParameterBlock , diskSector.sectorContent , sizeof(BPB));
+
+		ppd_state_setSectorsCount(biosParameterBlock.BPB_TotSec32);
+	}
+
+
+
 
 
 	void ppd_launcher_initialize(){
@@ -46,7 +65,10 @@
 		//ppd_launchConsole_initialize();
 		//ppd_launchConsole_startUNIX();
 
-		//ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(ppd_conf_getDiskPath()) );
+		ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(ppd_conf_getDiskPath()) );
+
+		ppd_launcher_initializeBPB();
+		ppd_queues_initialize();
 	}
 
 
@@ -58,6 +80,7 @@
 		pthread_join(jobsThread , NULL);
 		pthread_join(jobsThread , NULL);
 	}
+
 
 	void ppd_launcher_launchConnections(){
 		if(commons_string_equals(ppd_conf_getPpdMode() ,
@@ -71,7 +94,6 @@
 
 
 	void ppd_launcher_doLaunch(){
-		ppd_queues_initialize();
  		ppd_launcher_launchConnections();
 		ppd_entrypoint_launch();
 		ppd_planifier_worker_doJobs();
@@ -82,7 +104,7 @@
 
 	void ppd_launcher_exit(){
 		puts("finalizando todo");
-		//ppd_persistance_unmapDisk( ppd_conf_getDiskPath() , ppd_state_getDiskStartAddress() );
+		ppd_persistance_unmapDisk( ppd_conf_getDiskPath() , ppd_state_getDiskStartAddress() );
 		log_destroy();
 	}
 

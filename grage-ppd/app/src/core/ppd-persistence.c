@@ -18,44 +18,32 @@
 #include "ppd-configuration.h"
 #include "ppd-persistance.h"
 
-	// TODO: REEMPLAZAR perror POR FUNCIONES DE commons-logging
 
-	// Funciones (read+write)sector candidatas para RuntimeValidator
-	void ppd_persistence_writeSector(DiskSector * aSector , char * dest){
 
-        /*
-		uint32_t offset = aSector->sectorNumber * SECTOR_SIZE;
+	void ppd_persistence_writeSector(DiskSector aSector , char * dest){
 
-		char * validator = memcpy(dest + offset , aSector->sectorContent , SECTOR_SIZE );
+		uint32_t offset = aSector.sectorNumber * SECTOR_SIZE;
+
+		char * validator = memcpy(dest + offset , aSector.sectorContent , SECTOR_SIZE );
         if (validator == NULL){
         	perror("Error en memcpy");
         }
 
         msync(dest , SECTOR_SIZE , MS_SYNC );
-
-        */
-
-		puts("Escribiendo sector");
-		printf("SectorId: %i , Contenido: %s\n" , aSector->sectorNumber , aSector->sectorContent);
 	}
 
-	void ppd_persistence_readSector(DiskSector * aSector , char * source){
 
-        /*
-		uint32_t offset = aSector->sectorNumber * SECTOR_SIZE;
-		char * validator = memcpy(aSector->sectorContent , source + offset , SECTOR_SIZE );
+	DiskSector ppd_persistence_readSector(uint32_t sectorId , char * source){
+
+		DiskSector disk;
+		uint32_t offset = sectorId * SECTOR_SIZE;
+		char * validator = memcpy(&disk.sectorContent , source + offset , SECTOR_SIZE );
         if (validator == NULL){
         	perror("Error en memcpy");
         }
 
-        msync(source , SECTOR_SIZE , MS_SYNC );
-
-		 */
-		char * message = commons_string_concat("hola mundo - Get Sectores response from PPD: " , ppd_conf_getPpdIdDisk());
-		strcpy(aSector->sectorContent , message);
-
-		puts("Leyendo sector");
-		printf("SectorId: %i\n" , aSector->sectorNumber );
+		disk.sectorNumber = sectorId;
+		return disk;
 	}
 
 
@@ -89,7 +77,8 @@
 		return map;
 	}
 
-	// TODO: Revisar si el return value es sensato
+
+
 	char * ppd_persistance_unmapDisk(char * diskId , char * mapping){
 		struct stat filestat;
 

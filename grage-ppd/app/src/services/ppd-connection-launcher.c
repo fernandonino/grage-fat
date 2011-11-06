@@ -66,7 +66,7 @@
 			uint8_t ppdId = atoi(ppd_conf_getPpdIdDisk());
 
 			nipc_sendPpdHandshake(ppd_state_getPraidSocket(), ppdId ,
-					ppd_utils_getSectorsCount() , validator );
+					ppd_state_getSectorsCount() , validator );
 			message = nipc_receiveHandshake(ppd_state_getPraidSocket() , validator);
 
 		}else{
