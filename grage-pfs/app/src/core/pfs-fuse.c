@@ -49,14 +49,25 @@
 
 	int pfs_fuse_open(const char *path, struct fuse_file_info *fi){
 
+		fi->fh = pfs_fat32_open(path);
 
-
-		return EXIT_SUCCESS;
+		if(fi->fh != NULL)
+			return EXIT_SUCCESS;
+		else
+			return -ENOENT;
 	}
 
 	int pfs_fuse_read(const char *path, char *buf,
 			size_t size, off_t offset,
 			struct fuse_file_info *fi){
+
+		FatFile * fatFile = pfs_fat32_open(path);
+
+		if(fatFile == NULL)
+			return -ENOENT;
+
+
+
 		return EXIT_SUCCESS;
 	}
 

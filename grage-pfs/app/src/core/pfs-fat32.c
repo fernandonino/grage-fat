@@ -5,47 +5,41 @@
  *      Author: gonzalo-joaco
  */
 
+
+#include <stdlib.h>
 #include "pfs-fat32.h"
 
 
 
-	FatFile pfs_fat32_utils_openRootDirectory(Volume * v) {
+	FatFile * pfs_fat32_utils_openRootDirectory(Volume * v) {
 		FatFile fatFile;
 
-		uint32_t nextCluster;
+		uint32_t cluster = pfs_fat32_utils_getFatClusterEntry(v);
+
 		fatFile.source = v->root;
 		fatFile.sourceOffset = 0;
 
-		uint32_t sector = pfs_fat_utils_getFatEntrySector(v, v->root);
-		uint32_t offset = pfs_fat_utils_getFatEntryOffset(v, v->root);
-
-		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
-
-		memcpy(&nextCluster, diskSector.sectorContent + offset, sizeof(uint32_t));
-
-		if (FAT32_ISEOC(nextCluster))
+		if (FAT32_ISEOC(cluster))
 			fatFile.nextCluster = 0;
 		else
-			fatFile.nextCluster = nextCluster;
+			fatFile.nextCluster = cluster;
 
 		fatFile.dirEntryOffset = 0;
 		fatFile.dirType = 0;
 
-		return fatFile;
+		return &fatFile;
 	}
 
 
 
+	FatFile * pfs_fat32_utils_openNonRootDirectory(char * path , Volume * v ){
 
-	FatFile pfs_fat32_utils_openNonRootDirectory(char * path , Volume * v ){
-
-		uint32_t next;
+		uint32_t next = v->root;
 		FatFile fatFile;
 		LongDirEntry longEntry;
 		DirEntry sDirEntry;
 
 		uint32_t offset = v->fds * v->bps;
-		uint32_t currentCluster;
 
 		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(volume,
 				v->root);
@@ -57,8 +51,11 @@
 
 		List directories = commons_list_tokenize(path, '/');
 		Iterator * ite = commons_iterator_buildIterator(directories);
+		uint32_t originalSector ;
 
 		while (commons_iterator_hasMoreElements(ite)) {
+
+			originalSector = diskSector.sectorNumber;
 
 			char * token = commons_iterator_next(ite);
 
@@ -77,10 +74,20 @@
 
 				} else if (offset == FAT_32_SECTOR_SIZE) {
 
-					diskSector = pfs_endpoint_callGetSector(++sector);
+					if(pfs_fat32_utils_isLastSectorFromCluster(sector)){
 
+						uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);
+						diskSector = pfs_endpoint_callGetSector(sectorId);
+						next = pfs_fat32_utils_getNextClusterInChain(v , next);
+
+					}else{
+
+						diskSector = pfs_endpoint_callGetSector(++sector);
+
+					}
 					offset = 0;
 				}
+
 			}
 
 			if (longEntry.LDIR_Ord == FAT_32_ENDOFDIR) {
@@ -90,30 +97,31 @@
 				memcpy(&sDirEntry, diskSector.sectorContent + offset,
 						FAT_32_BLOCK_ENTRY_SIZE);
 
-				currentCluster = next;
-				next = getFirstClusterFromDirEntry(&sDirEntry);
+				fatFile.source = next;
+				next = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
 				sector = getFirstSectorOfCluster(v, next);
 
 				offset = sector * v->bps + FAT_32_BLOCK_ENTRY_SIZE; //quiza es 32
-
 			}
 		}
 
 		commons_misc_doFreeNull(utf8name);
 
-		fatFile.source = currentCluster;
-		fatFile.sourceOffset = currentCluster;
-		fatFile.nextCluster = getFirstClusterFromDirEntry(&sDirEntry);
-		fatFile.dirEntryOffset = offset -= 64;
-		fatFile.flag = 1;
+
+		fatFile.sourceOffset = pfs_fat32_utils_getDirEntryOffset(
+				diskSector.sectorNumber , originalSector , offset );;
+		fatFile.nextCluster = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
+		fatFile.currentSector = pfs_fat_utils_getFirstSectorOfCluster(volume,fatFile.nextCluster);
+		fatFile.dirEntryOffset = 0;
 		fatFile.dirType = 1;
 
-		return fatFile;
+		return &fatFile;
 	}
 
 
 
-	FatFile pfs_fat32_open(char * path) {
+
+	FatFile * pfs_fat32_open(char * path) {
 
 		Volume * v = pfs_state_getVolume();
 
@@ -122,4 +130,51 @@
 		} else {
 			return pfs_fat32_utils_openNonRootDirectory(path , v);
 		}
+	}
+
+
+
+
+	int8_t pfs_fat32_readDirectory( struct dirent * direntry , FatFile * file , Volume * volume){
+		LongDirEntry lfnentry;
+		DirEntry  sfnentry;
+		uint8_t lfncount = 0;
+		uint16_t offset = 0;
+
+		DiskSector diskSector = file->currentSector;
+
+		if( file->dirEntryOffset >= volume->bps){
+			uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(volume , file->nextCluster);
+			file->currentSector = diskSector = pfs_endpoint_callGetSector(sectorId);
+		}
+
+		lfnentry.LDIR_Ord = 0x00; // Fuerzo la entrada al ciclo
+		while ( LDIR_ISFREE(lfnentry.LDIR_Ord) ) {
+			memcpy(&lfnentry , diskSector->sectorContent + file->dirEntryOffset , sizeof(LongDirEntry));
+			file->dirEntryOffset += 32;
+
+			if( file->dirEntryOffset >= volume->bps ){
+				uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(volume , file->nextCluster);
+				diskSector = pfs_endpoint_callGetSector(sectorId);
+			} else
+				return EXIT_FAILURE;
+		}
+
+		if( LDIR_ISLASTLONG(lfnentry.LDIR_Ord) ){
+			lfncount++;
+			memcpy(&sfnentry , diskSector->sectorContent + file->dirEntryOffset  , sizeof(DirEntry));
+			file->dirEntryOffset += 32;
+
+			pfs_fat_toDirent(direntry , sfnentry , lfnentry);
+			return EXIT_SUCCESS;
+
+		} else if ( lfncount == 0 ){ //La entrada es solo DirEntry ( . o ..)
+			memcpy(&sfnentry , diskSector->sectorContent + file->dirEntryOffset - 32 , sizeof(DirEntry));
+
+			pfs_fat_toDirent(direntry , sfnentry , lfnentry);
+			return EXIT_SUCCESS;
+
+		}
+
+		return EXIT_FAILURE;
 	}

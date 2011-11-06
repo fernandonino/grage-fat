@@ -40,7 +40,12 @@
 
 		nipc_sendHandshake(dataSocket , NIPC_PROCESS_ID_PFS , validator);
 
-		nipc_receiveHandshake(pfs_state_getDataSocket() , validator);
+		NipcMessage message =  nipc_receiveHandshake(pfs_state_getDataSocket() , validator);
+
+		if(message.header.responseCode == NIPC_RESPONSE_CODE_ERROR){
+			puts("Fallo el handshake");
+			exit(1);
+		}
 
 	}
 
@@ -67,7 +72,7 @@
 
 		memcpy(&biosParameterBlock , sector.sectorContent , sizeof(BPB));
 
-		pfs_state_getBiosParameterBlock(biosParameterBlock);
+		pfs_state_setBiosParameterBlock(biosParameterBlock);
 
 		Volume * volume = pfs_fat_utils_loadVolume(&biosParameterBlock);
 
@@ -85,10 +90,10 @@
 
 	void pfs_launcher_launch(int argc, char *argv[]) {
 
-		pfs_fuse_launchFuse(argc,argv);
 
 		pfs_launcher_initializeBPB();
 
+		pfs_fuse_launchFuse(argc,argv);
 
 
 

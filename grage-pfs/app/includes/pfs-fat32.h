@@ -110,11 +110,12 @@
 		uint32_t sourceOffset; 		// Sector del cluster donde se encuentran los (L)DirEntries (del 1 al 8)
 		uint32_t content;			// Cluster donde comienza el contenido
 		uint32_t nextCluster;		// LO + HI del DirEntry
+		DiskSector currentSector;	// Cluster actual para el recorrido en el readdir
 		DirEntry shortEntry;		// LDirEntry del archivo/directorio
 		LongDirEntry longEntry;		// DirEntry del archivo/directorio
-		uint32_t dirEntryOffset;	// size total de los (L)DirEntries ya leidos --> solo para directorios
+		uint32_t dirEntryOffset;	// cluster offset para los direntries del archivo
 		uint8_t	dirType;			// Define si es root o subdir: 0 = root ; 1 = subdir
-		uint8_t flag;
+
 	} FatFile;
 
 
