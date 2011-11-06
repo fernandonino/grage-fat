@@ -95,6 +95,7 @@
 	int8_t pfs_fat32_unlink_FatEntryChain(Volume * v , FatFile * fd);
 	void pfs_fat32_unlink(Volume * v , FatFile * fd);
 	void pfs_fat32_rmdir(Volume * v , FatFile * fd);
+	void fat_stat(Volume * v , FatFile * fatFile , struct stat * st);
 
 //UTILS
 	Volume * pfs_fat_utils_loadVolume( BPB * b );

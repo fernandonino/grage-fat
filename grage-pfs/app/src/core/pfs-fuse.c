@@ -38,8 +38,8 @@
 
 
 	void pfs_fuse_launchFuse(int argc , char * argv[] ){
-		struct fuse_operations operations;
-		fuse_main(argc, argv, &operations);
+		struct fuse_operations grage_oper;
+		fuse_main(argc, argv, &grage_oper);
 	}
 
 

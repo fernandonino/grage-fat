@@ -6,6 +6,8 @@
  */
 
 #include <stdlib.h>
+#include <time.h>
+
 #include "pfs-fat32.h"
 
 
@@ -203,4 +205,28 @@
 		else
 			return 0;
 
+	}
+
+	time_t pfs_fat32_utils_processTime(int s, int m, int h, int d, int mo, int y) {
+		struct tm t;
+		memset((char *) &t, 0, sizeof(struct tm));
+
+		t.tm_sec=s;         /* seconds */
+	    t.tm_min=m;         /* minutes */
+	    t.tm_hour=h;        /* hours */
+	    t.tm_mday=d;        /* day of the month */
+	    t.tm_mon=mo;         /* month */
+	    t.tm_year=y;        /* year */
+
+	 	return mktime(&t);
+	}
+
+	time_t pfs_fat32_utils_getTime(DirEntry *D) {
+		int s=((((uint8_t *) &(D->DIR_WrtTime))[0] & 0x1f) * 2);
+		int m=((((((uint8_t *) &(D->DIR_WrtTime))[1]&0x7) << 3) + (((uint8_t *) &(D->DIR_WrtTime))[0] >> 5)));
+		int h=(((uint8_t *) &(D->DIR_WrtTime))[1] >> 3);
+		int d=(((uint8_t *) &(D->DIR_WrtDate))[0] & 0x1f);
+		int mo=((((((uint8_t *) &(D->DIR_WrtDate))[1]&0x1) << 3) + (((uint8_t *) &(D->DIR_WrtDate))[0] >> 5)));
+		int y=(( ((uint8_t *) &(D->DIR_WrtDate))[1] >> 1) + 80);
+	 	return pfs_fat32_utils_processTime(s,m,h,d,mo,y);
 	}
