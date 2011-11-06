@@ -13,8 +13,8 @@
 #include <sys/un.h>
 #include <linux-commons-logging.h>
 #include "ppd_console_interpreter.h"
-
-#define SOCK_PATH "/opt/.echo_socket"
+#define CONF_LOGS "/opt/grage-repository/logs/ppd-console.log"
+#define SOCK_PATH "/opt/grage-repository/.echo_socket"
 
 uint32 ppd_console_connect(){
 	int s, len;
@@ -40,7 +40,7 @@ uint32 ppd_console_connect(){
 }
 
 	void ppd_console_launcher_initialize(){
-		log_create("ppd-console","../logs/ppd-console.log",INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
+		log_create("ppd-console",CONF_LOGS,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 		ppd_console_connect();
 	}
 
