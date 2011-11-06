@@ -38,9 +38,65 @@
 	}
 
 
+	uint32_t pfs_fat32_utils_fetchChar(LongDirEntry *D, int8_t n) {
+	    uint8_t i = (n % 13);
+
+	    if ( i <= 4  ) return D->LDIR_Name1[i];
+	    if ( i <= 10 ) return D->LDIR_Name2[i-5];
+	    return D->LDIR_Name3[i-11];
+	}
+
+	int8_t pfs_fat32_utils_getNameLength(LongDirEntry * ldirentry){
+		uint8_t i;
+		uint16_t character;
+
+	    for ( i=0 ; i<13 ; i++) {
+	    	character = pfs_fat32_utils_fetchChar(ldirentry , i);
+			if ( FAT_32_LFN_ISNULL(character) )
+				return (i + 1);
+	    }
+
+	    return (i + 1);
+	}
+
+	void pfs_fat32_utils_extractName( LongDirEntry * d, uint16_t * dest, int8_t length) {
+		int8_t i;
+
+		for (i=0; i < (length - 1); i++) {
+	    	dest[i] = pfs_fat32_utils_fetchChar(d , i);
+	    }
+
+	    dest[length - 1] = 0x00;
+
+	    return;
+	}
+
+	int pfs_fat32_unicode_utf16_to_utf8_inbuffer(const uint16_t *src_utf16, const size_t src_utf16size, char* dest_utf8, size_t *dest_utf8size) {
+		UErrorCode error = U_ZERO_ERROR;
+
+		u_strToUTF8(dest_utf8, src_utf16size + 1, dest_utf8size, src_utf16, src_utf16size, &error);
+
+		if (error != U_ZERO_ERROR) {
+			return 0;
+		}
+
+		return 1;
+	}
 
 
+	char *  pfs_fat_utils_getFileName(LongDirEntry * l){
+		uint8_t nameLength = pfs_fat32_utils_getNameLength(l);
 
+		uint16_t utf16name[13];
+		pfs_fat32_utils_extractName(l , utf16name , nameLength);
+
+		char * utf8name = (char *)calloc(nameLength,sizeof(char));
+		size_t utf8length = 0;
+
+		pfs_fat32_unicode_utf16_to_utf8_inbuffer(utf16name , nameLength - 1 , utf8name , &utf8length);
+
+		return utf8name;
+	}
 
 	uint32_t pfs_fat_utils_getFatEntrySector(Volume * v , uint32_t cluster){
 		uint32_t sectorNumberInFat = v->rsv + (cluster * 4 / v->bps);
@@ -52,19 +108,6 @@
 		return fatEntryOffset;
 	}
 
-	char *  pfs_fat_utils_getFileName(LongDirEntry * l){
-		uint8_t nameLength = pfs_fat_getNameLength(l);
-
-		uint16_t utf16name[13];
-		pfs_fat_extractName(l , utf16name , nameLength);
-
-		char * utf8name = (char *)calloc(nameLength,sizeof(char));
-		size_t utf8length = 0;
-
-		unicode_utf16_to_utf8_inbuffer(utf16name , nameLength - 1 , utf8name , &utf8length);
-
-		return utf8name;
-	}
 
 
 	uint32_t pfs_fat_utils_getFirstSectorOfCluster(Volume * v , uint32_t cluster){
@@ -72,12 +115,10 @@
 		return firstSector;
 	}
 
-
-
 	uint32_t pfs_fat32_utils_getNextClusterInChain(Volume * v , uint32_t clusterId){
 		uint32_t nextCluster;
 
-		uint32_t sector = pfs_fat_utils_getFatEntrySector(clusterId);
+		uint32_t sector = pfs_fat_utils_getFatEntrySector(v, clusterId);
 		uint32_t offset = pfs_fat_utils_getFatEntryOffset(v, clusterId);
 
 		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
@@ -90,7 +131,7 @@
 
 	uint32_t pfs_fat32_utils_getFirstSectorFromNextClusterInChain(Volume * v , uint32_t clusterId){
 
-		uint32_t nextCluster = pfs_fat32_utils_getFatClusterEntry(v , clusterId);
+		uint32_t nextCluster = pfs_fat32_utils_getNextClusterInChain(v , clusterId);
 		return pfs_fat_utils_getFirstSectorOfCluster(v , nextCluster);
 	}
 

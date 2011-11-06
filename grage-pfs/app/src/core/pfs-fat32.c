@@ -41,7 +41,7 @@
 
 		uint32_t offset = v->fds * v->bps;
 
-		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(volume,
+		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v ,
 				v->root);
 
 		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
@@ -74,7 +74,7 @@
 
 				} else if (offset == FAT_32_SECTOR_SIZE) {
 
-					if(pfs_fat32_utils_isLastSectorFromCluster(sector)){
+					if(pfs_fat32_utils_isLastSectorFromCluster(v , sector)){
 
 						uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);
 						diskSector = pfs_endpoint_callGetSector(sectorId);
@@ -111,7 +111,7 @@
 		fatFile.sourceOffset = pfs_fat32_utils_getDirEntryOffset(
 				diskSector.sectorNumber , originalSector , offset );;
 		fatFile.nextCluster = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
-		fatFile.currentSector = pfs_fat_utils_getFirstSectorOfCluster(volume,fatFile.nextCluster);
+		fatFile.currentSector.sectorNumber = pfs_fat_utils_getFirstSectorOfCluster(v , fatFile.nextCluster);
 		fatFile.dirEntryOffset = 0;
 		fatFile.dirType = 1;
 
@@ -149,8 +149,8 @@
 		}
 
 		lfnentry.LDIR_Ord = 0x00; // Fuerzo la entrada al ciclo
-		while ( LDIR_ISFREE(lfnentry.LDIR_Ord) ) {
-			memcpy(&lfnentry , diskSector->sectorContent + file->dirEntryOffset , sizeof(LongDirEntry));
+		while ( FAT_32_DIRENT_ISFREE(lfnentry.LDIR_Ord) ) {
+			memcpy(&lfnentry , diskSector.sectorContent + file->dirEntryOffset , sizeof(LongDirEntry));
 			file->dirEntryOffset += 32;
 
 			if( file->dirEntryOffset >= volume->bps ){
@@ -160,16 +160,16 @@
 				return EXIT_FAILURE;
 		}
 
-		if( LDIR_ISLASTLONG(lfnentry.LDIR_Ord) ){
+		if( FAT_32_LDIR_ISLAST(lfnentry.LDIR_Ord) ){
 			lfncount++;
-			memcpy(&sfnentry , diskSector->sectorContent + file->dirEntryOffset  , sizeof(DirEntry));
+			memcpy(&sfnentry , diskSector.sectorContent + file->dirEntryOffset  , sizeof(DirEntry));
 			file->dirEntryOffset += 32;
 
 			pfs_fat_toDirent(direntry , sfnentry , lfnentry);
 			return EXIT_SUCCESS;
 
 		} else if ( lfncount == 0 ){ //La entrada es solo DirEntry ( . o ..)
-			memcpy(&sfnentry , diskSector->sectorContent + file->dirEntryOffset - 32 , sizeof(DirEntry));
+			memcpy(&sfnentry , diskSector.sectorContent + file->dirEntryOffset - 32 , sizeof(DirEntry));
 
 			pfs_fat_toDirent(direntry , sfnentry , lfnentry);
 			return EXIT_SUCCESS;
