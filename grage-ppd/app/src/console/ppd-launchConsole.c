@@ -14,7 +14,7 @@
 #include "linux-commons.h"
 #include "ppd-configuration.h"
 #include "ppd-console-entreypoint.h"
-#define SOCK_PATH "/opt/.echo_socket"
+#define SOCK_PATH "/opt/grage-repository/.echo_socket"
 
 void ppd_launchConsole_startUNIX(){
 
