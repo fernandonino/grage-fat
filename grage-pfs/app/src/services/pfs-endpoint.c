@@ -14,7 +14,7 @@
 #include "pfs-endpoint.h"
 #include "nipc-messaging.h"
 
-	void pfs_endpoint_callPutSector(){
+	void pfs_endpoint_callPutSector( DiskSector diskSector){
 
 	}
 

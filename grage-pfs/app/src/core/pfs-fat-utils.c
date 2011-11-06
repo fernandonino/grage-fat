@@ -71,19 +71,6 @@
 	    return;
 	}
 
-	int pfs_fat32_unicode_utf16_to_utf8_inbuffer(const uint16_t *src_utf16, const size_t src_utf16size, char* dest_utf8, size_t *dest_utf8size) {
-		UErrorCode error = U_ZERO_ERROR;
-
-		u_strToUTF8(dest_utf8, src_utf16size + 1, dest_utf8size, src_utf16, src_utf16size, &error);
-
-		if (error != U_ZERO_ERROR) {
-			return 0;
-		}
-
-		return 1;
-	}
-
-
 	char *  pfs_fat_utils_getFileName(LongDirEntry * l){
 		uint8_t nameLength = pfs_fat32_utils_getNameLength(l);
 
@@ -93,7 +80,7 @@
 		char * utf8name = (char *)calloc(nameLength,sizeof(char));
 		size_t utf8length = 0;
 
-		pfs_fat32_unicode_utf16_to_utf8_inbuffer(utf16name , nameLength - 1 , utf8name , &utf8length);
+		unicode_utf16_to_utf8_inbuffer(utf16name , nameLength - 1 , utf8name , &utf8length);
 
 		return utf8name;
 	}
@@ -163,3 +150,57 @@
 		return (sectorId - os) * 512 + offset - FAT_32_BLOCK_ENTRY_SIZE;
 	}
 
+	void pfs_fat32_utils_toDirent(struct dirent * de , DirEntry direntry , LongDirEntry ldirentry , Volume * v){
+		uint8_t length = pfs_fat32_utils_getNameLength(&ldirentry);
+
+		uint16_t utf16name[13];
+		pfs_fat32_utils_extractName(&ldirentry,utf16name,length);
+
+		char * utf8name = (char *)calloc(length,sizeof(char));
+
+		size_t utf8length = 0;
+		unicode_utf16_to_utf8_inbuffer(utf16name , length - 1 , utf8name , &utf8length);
+
+		strcpy(de->d_name,utf8name);
+		de->d_ino = pfs_fat_getFirstClusterFromDirEntry(&direntry);
+		free(utf8name);
+
+		if ( direntry.DIR_Attr == FAT_32_ATTR_DIRECTORY ){
+			de->d_type = DT_DIR;
+		}
+		else
+			de->d_type = DT_REG;
+	}
+
+	uint8_t pfs_fat32_isDirectoryEmpty(Volume * v, FatFile * fd){
+		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v , fd->nextCluster);
+		uint32_t offset = FAT_32_BLOCK_ENTRY_SIZE;
+		uint32_t next = fd->nextCluster;
+		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
+		LongDirEntry lDirEntry;
+		memcpy(&lDirEntry, diskSector.sectorContent + offset, sizeof(LongDirEntry));
+
+		while(lDirEntry.LDIR_Ord == FAT_32_FREEENT){
+			offset += FAT_32_BLOCK_ENTRY_SIZE;
+			memcpy(&lDirEntry, diskSector.sectorContent + offset, sizeof(LongDirEntry));
+
+			if(offset == FAT_32_SECTOR_SIZE){
+				if(pfs_fat32_utils_isLastSectorFromCluster(v , sector)){
+					if(FAT_32_ISEOC(next)) return 1;
+					sector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);
+					diskSector = pfs_endpoint_callGetSector(sector);
+					next = pfs_fat32_utils_getNextClusterInChain(v , next);
+				}
+				else{
+					diskSector = pfs_endpoint_callGetSector(++sector);
+				}
+				offset = 0;
+			}
+		}
+
+		if(lDirEntry.LDIR_Ord == FAT_32_ENDOFDIR)
+			return 1;
+		else
+			return 0;
+
+	}

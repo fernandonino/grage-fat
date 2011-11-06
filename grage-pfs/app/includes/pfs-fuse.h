@@ -15,8 +15,7 @@
 
 	int pfs_fuse_mknod(const char *path, mode_t mode, dev_t dev);
 	int pfs_fuse_open(const char *path, struct fuse_file_info *fi);
-	int pfs_fuse_read(const char *path, char *buf,
-			size_t size, off_t offset, struct fuse_file_info *fi);
+	int pfs_fuse_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
 	int pfs_fuse_write(const char *path, const char *buf, size_t size, off_t offset,
 			struct fuse_file_info *fi);
 	int pfs_fuse_flush(const char *path, struct fuse_file_info *fi);

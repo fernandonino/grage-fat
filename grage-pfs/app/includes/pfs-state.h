@@ -5,9 +5,9 @@
  *      Author: Fernando
  */
 
+#include "grage-commons.h"
 #include <linux-commons-socket.h>
 
-#include "pfs-fat32.h"
 
 #ifndef PFS_STATE_H_
 #define PFS_STATE_H_

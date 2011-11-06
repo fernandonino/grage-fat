@@ -5,11 +5,14 @@
  *      Author: gonzalo
  */
 
-#include <linux-commons.h>
+#include "linux-commons.h"
+#include "linux-commons-strings.h"
 #include "linux-commons-list.h"
 #include "grage-commons.h"
 #include "nipc-messaging.h"
 #include "pfs-endpoint.h"
+#include "pfs-state.h"
+#include "pfs-utils.h"
 
 #ifndef PFS_FAT32_H_
 #define PFS_FAT32_H_
@@ -23,9 +26,16 @@
 	#define FAT_32_FREEENT  0xE5 /* The directory entry is free             */
 	#define FAT_32_ENDOFDIR 0x00 /* This and the following entries are free */
 
+	#define FAT_32_ATTR_READ_ONLY 								0x1
+	#define FAT_32_ATTR_HIDDEN 									0x2
+	#define FAT_32_ATTR_SYSTEM 									0x4
+	#define FAT_32_ATTR_VOLUME_ID 								0x8
+	#define FAT_32_ATTR_DIRECTORY 								0x10
+	#define FAT_32_ATTR_ARCHIVE 								0x20
+	#define FAT_32_ATTR_LONG_NAME ( FAT_32_ATTR_READ_ONLY | FAT_32_ATTR_HIDDEN | FAT_32_ATTR_SYSTEM | FAT_32_ATTR_VOLUME_ID )
+	#define FAT_32_FAT_FREE_ENTRY								0x00000000
 
 	#define FAT_32_ISEOC(EntryValue)  (((EntryValue) & 0x0FFFFFFF) >= 0x0FFFFFF8)
-	#define FAT_32_ATTR_LONG_NAME ( ATTR_READ_ONLY | ATTR_HIDDEN | ATTR_SYSTEM | ATTR_VOLUME_ID )
 	#define FAT_32_ISFREE(EntryValue) (((EntryValue) & 0x0FFFFFFF) == 0x00000000)
 	#define FAT_32_DIRENT_ISFREE(D) (((D) == FAT_32_FREEENT) || ((D) == FAT_32_ENDOFDIR))
 	#define FAT_32_DIRENT_ISLAST(D) (D == ENDOFDIR)
@@ -65,7 +75,7 @@
 
 	typedef struct {
 		uint32_t source; 			// Cluster donde se encuentran los (L)DirEntries del archivo/directorio
-		uint32_t sourceOffset; 		// Sector del cluster donde se encuentran los (L)DirEntries (del 1 al 8)
+		uint32_t sourceOffset; 		// Offset dentro del cluster
 		uint32_t content;			// Cluster donde comienza el contenido
 		uint32_t nextCluster;		// LO + HI del DirEntry
 		DiskSector currentSector;	// Cluster actual para el recorrido en el readdir
@@ -76,12 +86,17 @@
 
 	} FatFile;
 
+//FAT32
+	FatFile * pfs_fat32_utils_openRootDirectory(Volume * v);
+	FatFile * pfs_fat32_utils_openNonRootDirectory(const char * path , Volume * v );
+	FatFile * pfs_fat32_open(const char * path);
+	int8_t pfs_fat32_readDirectory( struct dirent * direntry , FatFile * file , Volume * volume);
+	void pfs_fat32_unlink_dirEntry(Volume * v , FatFile * fd , DiskSector * diskSector);
+	int8_t pfs_fat32_unlink_FatEntryChain(Volume * v , FatFile * fd);
+	void pfs_fat32_unlink(Volume * v , FatFile * fd);
+	void pfs_fat32_rmdir(Volume * v , FatFile * fd);
 
-
-
-
-
-
+//UTILS
 	Volume * pfs_fat_utils_loadVolume( BPB * b );
 	uint32_t pfs_fat32_utils_fetchChar(LongDirEntry *D, int8_t n);
 	int8_t pfs_fat32_utils_getNameLength(LongDirEntry * ldirentry);
@@ -96,5 +111,7 @@
 	Boolean pfs_fat32_utils_isLastSectorFromCluster(Volume * v , uint32_t sectorId);
 	uint32_t pfs_fat_getFirstClusterFromDirEntry(DirEntry * D);
 	uint32_t pfs_fat32_utils_getDirEntryOffset(uint32_t sectorId , uint32_t os , uint32_t offset);
+	void pfs_fat32_utils_toDirent(struct dirent * de , DirEntry direntry , LongDirEntry ldirentry , Volume * v);
+	uint8_t pfs_fat32_isDirectoryEmpty(Volume * v, FatFile * fd);
 
 #endif /* PFS_FAT32_H_ */
