@@ -67,7 +67,7 @@
 		uint32_t BS_VolID;
 		uint8_t BS_VolLab[11];
 		uint8_t BS_FilSysType[8];
-	} BPB;
+	} __attribute__((packed)) BPB;
 
 
 
@@ -88,7 +88,7 @@
 		uint32_t root;			// cluster number of root directory
 
 		int32_t disk;			// disk file descriptor - solo ese usa en los tests
-	} Volume;
+	} __attribute__((packed)) Volume;
 
 
 
