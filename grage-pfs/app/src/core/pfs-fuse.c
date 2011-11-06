@@ -61,6 +61,16 @@
 	}
 
 	int pfs_fuse_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi){
+
+		Volume * volume = pfs_state_getVolume();
+		FatFile * file = (FatFile *)fi->fh;
+
+		uint8_t result = pfs_fat32_utils_seek(volume , file , offset);
+		if ( result == EXIT_FAILURE )
+			return ESPIPE;
+
+		pfs_fat32_read();
+
 		return EXIT_SUCCESS;
 	}
 

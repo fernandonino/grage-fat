@@ -5,6 +5,11 @@
  *      Author: gonzalo
  */
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdint.h>
+#include <time.h>
+
 #include "linux-commons.h"
 #include "linux-commons-strings.h"
 #include "linux-commons-list.h"
@@ -114,5 +119,9 @@
 	uint32_t pfs_fat32_utils_getDirEntryOffset(uint32_t sectorId , uint32_t os , uint32_t offset);
 	void pfs_fat32_utils_toDirent(struct dirent * de , DirEntry direntry , LongDirEntry ldirentry , Volume * v);
 	uint8_t pfs_fat32_isDirectoryEmpty(Volume * v, FatFile * fd);
+
+	time_t pfs_fat32_utils_processTime(int s, int m, int h, int d, int mo, int y);
+	time_t pfs_fat32_utils_getTime(DirEntry *D);
+	uint8_t pfs_fat32_utils_fillTime(uint16_t * , uint16_t * , time_t);
 
 #endif /* PFS_FAT32_H_ */

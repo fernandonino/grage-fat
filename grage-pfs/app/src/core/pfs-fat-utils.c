@@ -230,3 +230,51 @@
 		int y=(( ((uint8_t *) &(D->DIR_WrtDate))[1] >> 1) + 80);
 	 	return pfs_fat32_utils_processTime(s,m,h,d,mo,y);
 	}
+
+	/*
+	 *  pfs_fat32_utils_fillTime(uint16_t *Date, uint16_t *Time, time_t t);
+	 *
+	 * 	Uso:
+	 *
+	 * 	tim = time(NULL);
+	 *  fat_fill_time(&(sDirEntry.DIR_CrtDate), &(sDirEntry.DIR_CrtTime), tim);
+	 */
+	uint8_t pfs_fat32_utils_fillTime(uint16_t * d , uint16_t * t , time_t actualTime) {
+		struct tm time;
+		uint16_t date=0;
+		uint16_t tim=0;
+		uint16_t bmask3=0x07FF;
+		uint16_t bmask2=0x01FF;
+		uint16_t bmask1=0x001F;
+
+		gmtime_r(&actualTime, &time);
+
+		date = (uint16_t) time.tm_mday;
+		date &= bmask1; // to set 0 first 11 bits;
+		date |= ((uint16_t) time.tm_mon) << 5;
+		date &= bmask2; // to set 0 first 6 bits;
+		date |= (((uint16_t) ((time.tm_year + 1900) -1980)) << 9);
+
+		tim = (uint16_t) (time.tm_sec / 2);
+		tim &= bmask1;
+		tim |= (((uint16_t) (time.tm_min)) << 5);
+		tim &= bmask3;
+		tim |= (((uint16_t) (time.tm_hour)) << 11);
+
+		*d = tim;
+		*t = date;
+		return 0;
+	}
+
+	int8_t pfs_fat32_utils_seek(Volume * v , FatFile * f , off_t offset){
+		uint32_t fileSize = f->shortEntry->DIR_FileSize;
+
+		if ( offset > fileSize || offset < 0 || f->shortEntry->DIR_Attr == FAT_32_ATTR_DIRECTORY ){
+			return EXIT_FAILURE;
+		}
+
+		uint32_t clusterLocation = fileSize / v->bpc;
+		uint32_t sectorLocation = fileSize / v->bps;
+
+		return EXIT_SUCCESS;
+	}

@@ -7,12 +7,8 @@
 
 
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <time.h>
 
 #include "pfs-fat32.h"
-
 
 
 	FatFile * pfs_fat32_utils_openRootDirectory(Volume * v) {
@@ -254,7 +250,8 @@
 			return 1;
 	}
 
-	/*void fat_stat(Volume * v , FatFile * fatFile , struct stat * st) {
+	/*
+	void fat_stat(Volume * v , FatFile * fatFile , struct stat * st) {
 
 		memset((char *) st, 0, sizeof(struct stat));
 
@@ -282,11 +279,7 @@
 	    st->st_ctim = st->st_atim = st->st_mtim = pfs_fat32_utils_getTime(fatFile->shortEntry);
 	  }
 
-	}
-	*/
-
-
-
+	}*/
 
 
 
