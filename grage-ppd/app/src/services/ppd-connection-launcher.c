@@ -47,11 +47,15 @@
 		ServerSocket * pfsConnection = commons_socket_openServerConnection(
 				ppd_conf_getPpdPort());
 
-		ListenSocket pfsSocket = commons_socket_acceptConnection(pfsConnection);
-
 		ppd_state_setPfsConnection(pfsConnection);
 
-		ppd_connections_handshake();
+		while(TRUE){
+
+			ListenSocket pfsSocket = commons_socket_acceptConnection(pfsConnection);
+
+			ppd_connections_handshake();
+
+		}
 	}
 
 

@@ -12,23 +12,23 @@
 #include "ppd-configuration.h"
 #include "ppd-utils.h"
 
-	char * ppdMode;
-	char * ppdAlgoritmo;
-	char * ppdPort;
-	char * ppdIdDisk;
-	char * ppdDiskCilinder;
-	char * ppdDiskHead;
-	char * ppdDiskSector;
-	char * ppdReadTimeMs;
-	char * ppdWriteTimeMs;
-	char * ppdRpm;
-	char * ppdSaltoPistaMs;
-	char * ppdWriteDelay;
-	char * ppdReadDelay;
+	char * ppdMode = NULL;
+	char * ppdAlgoritmo = NULL;
+	char * ppdPort = NULL;
+	char * ppdIdDisk = NULL;
+	char * ppdDiskCilinder = NULL;
+	char * ppdDiskHead = NULL;
+	char * ppdDiskSector = NULL;
+	char * ppdReadTimeMs = NULL;
+	char * ppdWriteTimeMs = NULL;
+	char * ppdRpm = NULL;
+	char * ppdSaltoPistaMs = NULL;
+	char * ppdWriteDelay = NULL;
+	char * ppdReadDelay = NULL;
 
-	char * praidAddress;
-	char * praidPort;
-	char * diskPath;
+	char * praidAddress = NULL;
+	char * praidPort = NULL;
+	char * diskPath = NULL;
 
 
 

@@ -62,3 +62,15 @@
 	uint32_t ppd_state_getSectorsCount(){
 		return sectorsCount;
 	}
+
+
+
+	ListenSocket ppdConsoleSocket;
+
+	void ppd_state_setPpdConsoleSocket(ListenSocket ls){
+		ppdConsoleSocket = ls;
+	}
+	ListenSocket ppd_state_getPpdConsoleSocket(){
+		return ppdConsoleSocket;
+	}
+

@@ -89,3 +89,13 @@
 		exit(1);
 
 	}
+
+
+	void ppd_entrypoint_runPfsSlaveThread(ListenSocket * ls){
+
+	}
+
+	void ppd_entrypoint_servePfsRequests(ListenSocket listenSocket){
+
+	}
+

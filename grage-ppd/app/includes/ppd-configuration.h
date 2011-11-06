@@ -16,7 +16,7 @@
 //#define PPD_DEFAULT_LOG_FILE				"../logs/ppd.log"
 
 #define PPD_DEFAULT_LOG_FILE				"/opt/grage-repository/logs/ppd.log"
-#define PPD_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/grage-ppd.properties"
+#define PPD_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/grage-ppd-sebas.properties"
 #define PPD_CONFIGURATION_MODE				"ppd.configuration.mode"
 #define PPD_CONFIGURATION_ALGORITMO			"ppd.configuration.algoritmo"
 #define PPD_CONFIGURATION_LISTEN_PORT		"ppd.configuration.listen.port"

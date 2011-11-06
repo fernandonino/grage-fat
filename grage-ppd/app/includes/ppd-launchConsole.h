@@ -12,4 +12,10 @@
 	uint32 ppd_launchConsole_initialize();
 	void ppd_launchConsole_startUNIX();
 
+
+	void ppd_launchConsole_launchSlaveThread();
+
+	void ppdConsoleServiceThread();
+
+
 #endif /* PPD_CONSOLE_H_ */
