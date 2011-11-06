@@ -239,3 +239,8 @@
 		closedir(myDir);
 		return NULL;
 	}
+
+
+	Boolean commons_file_isValidConfValue(char * value){
+		return (value != NULL && !commons_string_equals(value , ""));
+	}

@@ -53,4 +53,5 @@
 
 	char * commons_file_getStartNameMatchingFile(char * path , char * pattern);
 
+	Boolean commons_file_isValidConfValue(char * value);
 #endif
