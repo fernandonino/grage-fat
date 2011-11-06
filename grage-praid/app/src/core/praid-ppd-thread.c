@@ -52,8 +52,21 @@
 				praid_state_storage_setDisconnected(storage);
 
 				break;
-			}else{
+			}else if(message.header.messageType == NIPC_MESSAGE_TYPE_SYNC_PROCESS){
 
+				PPDConnectionStorage * dest = praid_sync_getSyncProcessState().destiny;
+				PPDConnectionStorage * src = praid_sync_getSyncProcessState().source;
+
+				printf("Copiando sector %i desde PPD %i hacia PPD %i"
+						, praid_sync_getSyncProcessState().sectorId , src->id , dest->id);
+
+				praid_endpoint_ppd_callSyncPutSector(dest->connection , message.payload.diskSector);
+
+				praid_sync_incrementSyncSectorId();
+
+				praid_endpoint_ppd_callSyncGetSector(src->connection , praid_sync_getSyncProcessState().sectorId);
+
+			}else{
 				praid_state_storage_decrementPendingResponses(storage);
 
 				praid_endpoint_pfs_responseAndClose(message.payload.pfsSocket , message);

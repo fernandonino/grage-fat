@@ -6,18 +6,51 @@
  */
 
 #include <linux-commons-list.h>
-#include <linux-commons.h>
+
 
 #include "praid-sync.h"
 #include "praid-queue.h"
 #include "praid-state.h"
+#include "praid-endpoint.h"
 
+
+
+
+	SyncProcessState syncState;
+
+	void praid_sync_setSyncProcessState(SyncProcessState s){
+		syncState = s;
+	}
+	SyncProcessState praid_sync_getSyncProcessState(){
+		return syncState;
+	}
+
+
+	void praid_sync_incrementSyncSectorId(){
+		syncState.sectorId += 1;
+	}
+
+
+
+
+
+	SyncProcessState praid_sync_buildSyncProcessState
+	(uint32_t sid , PPDConnectionStorage * src , PPDConnectionStorage * dest){
+		SyncProcessState syncProcess;
+
+		syncProcess.sectorId = 0;
+		syncProcess.source = src;
+		syncProcess.destiny = dest;
+
+		return syncProcess;
+	}
 
 
 
 	Boolean praid_ppd_sync_isValidReplication(){
 		return (praid_state_getPpdStorages()->size >= 2);
 	}
+
 
 	PPDConnectionStorage * praid_ppd_sync_selectMasterStorage(){
 		Iterator * ite = commons_iterator_buildIterator(praid_state_getPpdStorages());
@@ -27,16 +60,21 @@
 	}
 
 
-
-	void praid_ppd_sync_synchronizeStorage(PPDConnectionStorage * source ,
+	void praid_ppd_sync_fireSynchronization(PPDConnectionStorage * source ,
 			PPDConnectionStorage * dest){
 
-		for(int i=0 ; i<source->sectorsCount ; i++){
+		puts("Sincronizando datos");
 
-		}
+		SyncProcessState syncProcess = praid_sync_buildSyncProcessState(0 , source , dest);
+
+		praid_endpoint_ppd_callSyncGetSector(source->connection , 0);
+		praid_sync_setSyncProcessState(syncProcess);
 	}
 
-	void praid_ppd_sync_synchronize(PPDConnectionStorage * source){
 
+	void praid_ppd_sync_synchronize(PPDConnectionStorage * destiny){
+
+		PPDConnectionStorage * master = praid_ppd_sync_selectMasterStorage();
+		praid_ppd_sync_fireSynchronization(master , destiny);
 	}
 
