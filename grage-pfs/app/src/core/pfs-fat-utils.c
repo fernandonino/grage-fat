@@ -267,14 +267,37 @@
 	}
 
 	int8_t pfs_fat32_utils_seek(Volume * v , FatFile * f , off_t offset){
-		uint32_t fileSize = f->shortEntry->DIR_FileSize;
+		uint32_t fileSize = f->shortEntry.DIR_FileSize;
 
-		if ( offset > fileSize || offset < 0 || f->shortEntry->DIR_Attr == FAT_32_ATTR_DIRECTORY ){
+		if ( offset > fileSize || offset < 0 || f->shortEntry.DIR_Attr == FAT_32_ATTR_DIRECTORY ){
 			return EXIT_FAILURE;
 		}
 
-		uint32_t clusterLocation = fileSize / v->bpc;
-		uint32_t sectorLocation = fileSize / v->bps;
+		f->fileClusterNumber = offset / v->bpc + 1;
+		f->fileSectorNumberOfCluster = offset % v->bpc / v->bps + 1;
+		f->sectorByteOffset = offset % v->bpc;
 
 		return EXIT_SUCCESS;
 	}
+
+	DiskSector pfs_fat32_utils_getSectorFromNthCluster(FatFile * f){
+		Volume * v = pfs_state_getVolume();
+		uint16_t clusterCount = 0;
+
+		uint32_t c = pfs_fat_getFirstClusterFromDirEntry( &(f->shortEntry) );
+		clusterCount++;
+		while( clusterCount < f->fileClusterNumber ){
+			c = pfs_fat32_utils_getNextClusterInChain(v,c);
+			clusterCount++;
+		}
+
+		uint32_t s = pfs_fat_utils_getFirstSectorOfCluster(v,c);
+
+		if ( f->fileSectorNumberOfCluster != 1)
+			s = s + f->fileSectorNumberOfCluster - 1;
+
+		return pfs_endpoint_callGetSector(s);
+	}
+
+
+

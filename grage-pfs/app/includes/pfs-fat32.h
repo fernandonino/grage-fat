@@ -89,6 +89,11 @@
 		uint32_t dirEntryOffset;	// cluster offset para los direntries del archivo
 		uint8_t	dirType;			// Define si es root o subdir: 0 = root ; 1 = subdir
 
+		//pfs_fat32_read
+		uint32_t fileClusterNumber;
+		uint32_t fileSectorNumberOfCluster;
+		uint16_t sectorByteOffset;
+
 	} FatFile;
 
 //FAT32
@@ -101,6 +106,7 @@
 	void pfs_fat32_unlink(Volume * v , FatFile * fd);
 	void pfs_fat32_rmdir(Volume * v , FatFile * fd);
 	void fat_stat(Volume * v , FatFile * fatFile , struct stat * st);
+	uint16_t pfs_fat32_read(Volume * , FatFile * , char * , size_t);
 
 //UTILS
 	Volume * pfs_fat_utils_loadVolume( BPB * b );
@@ -123,5 +129,8 @@
 	time_t pfs_fat32_utils_processTime(int s, int m, int h, int d, int mo, int y);
 	time_t pfs_fat32_utils_getTime(DirEntry *D);
 	uint8_t pfs_fat32_utils_fillTime(uint16_t * , uint16_t * , time_t);
+
+	int8_t pfs_fat32_utils_seek(Volume * , FatFile * , off_t );
+	DiskSector pfs_fat32_utils_getSectorFromNthCluster(FatFile *);
 
 #endif /* PFS_FAT32_H_ */

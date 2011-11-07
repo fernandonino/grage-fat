@@ -67,11 +67,11 @@
 
 		uint8_t result = pfs_fat32_utils_seek(volume , file , offset);
 		if ( result == EXIT_FAILURE )
-			return ESPIPE;
+			return -ESPIPE;
 
-		pfs_fat32_read();
+		uint16_t read = pfs_fat32_read(volume , file , buf , size);
 
-		return EXIT_SUCCESS;
+		return read;
 	}
 
 	int pfs_fuse_write(const char *path, const char *buf, size_t size, off_t offset,

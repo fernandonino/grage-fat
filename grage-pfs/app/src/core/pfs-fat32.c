@@ -281,6 +281,23 @@
 
 	}*/
 
+	uint16_t pfs_fat32_read(Volume * v , FatFile * f , char * buf , size_t size){
+		uint16_t bytesRead = 0;
+
+		DiskSector sector = pfs_fat32_utils_getSectorFromNthCluster(f);
+
+		if ( f->sectorByteOffset + size <= v->bps ){
+			memcpy(buf , sector.sectorContent + f->sectorByteOffset , size);
+			return bytesRead += size;
+		}
+
+		// Desarrollar el caso en que el sectorByteOffset + size exceda el 1 cluster:
+		// Hay que calcular cuantos sectores y/o clusters se necesitan
+		// ir copiando en buf, y cortar cuando bytesRead sea igual a size
+
+		return -1;
+	}
+
 
 
 
