@@ -61,7 +61,6 @@
 
 	void ppd_connections_handshake(){
 
-		RuntimeErrorValidator * validator = commons_errors_buildSuccessValidator();
 		NipcMessage message;
 
 		if(commons_string_equals( ppd_conf_getPpdMode() ,
@@ -70,16 +69,17 @@
 			uint8_t ppdId = atoi(ppd_conf_getPpdIdDisk());
 
 			nipc_sendPpdHandshake(ppd_state_getPraidSocket(), ppdId ,
-					ppd_state_getSectorsCount() , validator );
-			message = nipc_receiveHandshake(ppd_state_getPraidSocket() , validator);
+					ppd_state_getSectorsCount() );
+			message = nipc_receiveHandshake(ppd_state_getPraidSocket());
+
+			if(message.header.responseCode == NIPC_RESPONSE_CODE_ERROR){
+				puts("El proceso RAID denego la coneccion del proceso PPD, vuelva a intentarlo mas tarde");
+				exit(1);
+			}
 
 		}else{
 			ServerSocket * s = ppd_state_getPfsConnection();
-			message = nipc_receiveHandshake(s->listenSocket , validator);
-		}
-
-		if(commons_errors_hasError(validator)){
-			printf("no se pudo realizar el handshake");
+			message = nipc_receiveHandshake(s->listenSocket );
 		}
 	}
 

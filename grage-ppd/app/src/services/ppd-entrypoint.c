@@ -62,8 +62,6 @@
 
 		while(TRUE){
 
-			printf("esperando peticiones de PRAID/PFS\n");
-
 			NipcMessage m = nipc_messaging_receive(ppd_state_getActiveSocket());
 
 			/*

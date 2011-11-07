@@ -54,7 +54,7 @@
 
 
 	void ppd_launcher_console(){
-		//ppd_launchConsole_initialize();
+		ppd_launchConsole_initialize();
 		ppd_launchConsole_launchSlaveThread();
 	}
 
@@ -88,7 +88,7 @@
 
 		printf("joineando hilos\n");
 
-		//pthread_join(entrypointThread , NULL);
+		pthread_join(entrypointThread , NULL);
 		pthread_join(jobsThread , NULL);
 		pthread_join(ppdConsoleThread , NULL);
 	}
@@ -108,9 +108,9 @@
 
 
 	void ppd_launcher_doLaunch(){
- 		//ppd_launcher_launchConnections();
-		//ppd_entrypoint_launch();
-		ppd_launcher_console();
+ 		ppd_launcher_launchConnections();
+		ppd_entrypoint_launch();
+		//ppd_launcher_console();
 		ppd_planifier_worker_doJobs();
 		ppd_launcher_joinAllThread();
 	}

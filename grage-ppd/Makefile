@@ -46,6 +46,7 @@ build:
 	mkdir build/bin
 	mkdir build/conf
 	mkdir build/logs
+	mkdir build/data
 	gcc $(BUILD_SOURCE) ./app/src/*.c $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET)
 	cp app/conf/* build/conf
 
