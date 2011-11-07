@@ -59,6 +59,7 @@
 
 		pfs_launcher_launchConnections();
 		//pfs_console_initialize();
+		ppd_initializeDisk();
 	}
 
 
