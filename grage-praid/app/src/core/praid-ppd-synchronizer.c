@@ -15,6 +15,15 @@
 
 
 
+	Boolean replicationStatusActive;
+
+	Boolean praid_sync_isReplicationActive(){
+		return replicationStatusActive;
+	}
+	void praid_sync_setReplicationStatus(Boolean status){
+		replicationStatusActive = status;
+	}
+
 
 	SyncProcessState syncState;
 
@@ -66,13 +75,15 @@
 		puts("Sincronizando datos");
 
 		SyncProcessState syncProcess = praid_sync_buildSyncProcessState(0 , source , dest);
+		praid_sync_setSyncProcessState(syncProcess);
 
 		praid_endpoint_ppd_callSyncGetSector(source->connection , 0);
-		praid_sync_setSyncProcessState(syncProcess);
 	}
 
 
 	void praid_ppd_sync_synchronize(PPDConnectionStorage * destiny){
+
+		praid_sync_setReplicationStatus(TRUE);
 
 		PPDConnectionStorage * master = praid_ppd_sync_selectMasterStorage();
 		praid_ppd_sync_fireSynchronization(master , destiny);

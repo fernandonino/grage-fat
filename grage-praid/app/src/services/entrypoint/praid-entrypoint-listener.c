@@ -5,6 +5,7 @@
  *      Author: gonzalo
  */
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "linux-commons-socket.h"
 
@@ -20,6 +21,35 @@
 
 
 
+
+	void praid_entry_processNewPpdConnection(NipcMessage message , ListenSocket listenSocket){
+
+		uint8_t ppdId = message.header.operationId;
+
+		PPDConnectionStorage * storage = praid_state_buildPPDConnectionStorageFromId(listenSocket , ppdId);
+
+		storage->sectorsCount = message.header.responseCode;
+
+		praid_state_addPpdStorage(storage);
+
+		praid_ppd_thread_launchNewSlaveThread(storage);
+	}
+
+
+	void praid_entry_denegateConnection(uint8_t processId , ListenSocket aListenSocket){
+
+		NipcMessage message = nipc_mbuilder_buildNipcMessage();
+
+		message = nipc_mbuilder_addResponseCode(message , NIPC_RESPONSE_CODE_ERROR);
+		message = nipc_mbuilder_addMessageType(message , NIPC_MESSAGE_TYPE_HANDSHAKE);
+		message = nipc_mbuilder_addProcessId(message , processId);
+
+		nipc_messaging_send(aListenSocket , message);
+
+		close(aListenSocket);
+	}
+
+
 	void praid_entry_startEntrypointListening(){
 
 		puts("Queda en escucha");
@@ -30,20 +60,25 @@
 			ListenSocket listenSocket = commons_socket_acceptConnection(serverSocket);
 			puts("Se conecto algo");
 
-			RuntimeErrorValidator * validator = commons_errors_buildSuccessValidator();
-
-			NipcMessage handshake = nipc_receiveHandshake(listenSocket , validator);
+			NipcMessage handshake = nipc_receiveHandshake(listenSocket );
 
 			if(handshake.header.messageType == NIPC_MESSAGE_TYPE_HANDSHAKE){
 
+				/*
+				 * Si la replicacion no esta en proceso se aceptan conecciones de nuevos ppds
+				 * de lo contrario las mismas son denegadas para no generar inconsistencias				 *
+				 */
+				if(handshake.header.processHandshakeId == NIPC_PROCESS_ID_PPD
+						&& praid_sync_isReplicationActive()){
+
+					praid_entry_denegateConnection(handshake.header.processHandshakeId , listenSocket);
+
+					continue;
+				}
+
 				printf("tipo de proceso conectado: %i\n" , handshake.header.processHandshakeId);
 
-				nipc_sendHandshake(listenSocket ,  handshake.header.processHandshakeId, validator);
-
-				if(commons_errors_hasError(validator)){
-					puts("ha ocurrido un error en el handshake");
-					exit(1);
-				}
+				nipc_sendHandshake(listenSocket ,  handshake.header.processHandshakeId );
 
 				if(handshake.header.processHandshakeId == NIPC_PROCESS_ID_PFS){
 
@@ -51,19 +86,9 @@
 
 				}else if(handshake.header.processHandshakeId == NIPC_PROCESS_ID_PPD){
 
-					uint8_t ppdId = handshake.header.operationId;
-
-					PPDConnectionStorage * storage = praid_state_buildPPDConnectionStorageFromId(listenSocket , ppdId);
-
-					storage->sectorsCount = handshake.header.responseCode;
-
-					praid_state_addPpdStorage(storage);
-
-					praid_ppd_thread_launchNewSlaveThread(storage);
+					praid_entry_processNewPpdConnection(handshake , listenSocket);
 				}
 			}
-
-			free(validator);
 		}
 	}
 

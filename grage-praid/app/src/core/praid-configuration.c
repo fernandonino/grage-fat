@@ -6,12 +6,14 @@
  */
 #include <string.h>
 #include <stdlib.h>
-#include "linux-commons-file.h"
+
+#include <linux-commons-file.h>
+#include <linux-commons-strings.h>
 
 #include "praid-configuration.h"
 
 	char * devicePort = NULL;
-	char * consoleStatus = NULL;
+	Boolean consoleStatus = FALSE;
 
 
 	char * praid_configuration_getDevicePort(void){
@@ -22,19 +24,23 @@
 		devicePort = devAddress;
 	}
 
-	char * praid_configuration_getConsoleStatus(void){
+	Boolean praid_configuration_getConsoleStatus(void){
 		return consoleStatus;
 	}
 
-	void praid_configuration_setConsoleStatus(char * consoleStatusValue){
+	void praid_configuration_setConsoleStatus(Boolean consoleStatusValue){
 		consoleStatus = consoleStatusValue;
 	}
 
 	void praid_configuration_processEntries(char * key , char * value , void * object){
-		if( !strcmp(key, PRAID_DEVICE_PORT)){
+		if( !strcmp(key, PRAID_CONF_DEVICE_PORT)){
 			praid_configuration_setDevicePort(value);
-		}else if(!strcmp(key , PRAID_CONSOLE_STATUS)){
-			praid_configuration_setConsoleStatus(value);
+		}else if(!strcmp(key , PRAID_CONF_CONSOLE_STATUS)){
+			if( commons_string_equals( value , PRAID_CONF_VALUE_TRUE)){
+				praid_configuration_setConsoleStatus(TRUE);
+			}else if( commons_string_equals(value , PRAID_CONF_VALUE_FALSE)){
+				praid_configuration_setConsoleStatus(FALSE);
+			}
 		}
 	}
 

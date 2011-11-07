@@ -39,6 +39,34 @@
 
 
 
+
+	void praid_ppd_thread_printStatus(uint32_t sectorId , uint32_t totalSectorsCount , uint8_t masterId , uint8_t slaveId ){
+		if(sectorId % 1024 == 0)
+			printf("Copiando sector %i/%i desde PPD %i hacia PPD %i \n", sectorId , totalSectorsCount , masterId ,slaveId);
+
+	}
+
+
+	void praid_ppd_thread_syncDiskSectorFromMasterToSlave
+	(DiskSector diskSector , PPDConnectionStorage * master , PPDConnectionStorage * slave){
+
+		praid_ppd_thread_printStatus(praid_sync_getSyncProcessState().sectorId , master->sectorsCount , master->id , slave->id);
+
+		praid_endpoint_ppd_callSyncPutSector(slave->connection , diskSector);
+
+		praid_sync_incrementSyncSectorId();
+
+		if(praid_sync_getSyncProcessState().sectorId == master->sectorsCount){
+			praid_sync_setReplicationStatus(FALSE);
+			puts("Replicacion finalizada");
+		}else{
+			praid_endpoint_ppd_callSyncGetSector(master->connection , praid_sync_getSyncProcessState().sectorId);
+		}
+	}
+
+
+
+
 	void praid_ppd_thread_listener(PPDConnectionStorage * storage){
 
 		puts("Ejecutando Hilo Listener de proceso PPD");
@@ -55,28 +83,20 @@
 			}else if(message.header.messageType == NIPC_MESSAGE_TYPE_SYNC_PROCESS){
 
 				PPDConnectionStorage * dest = praid_sync_getSyncProcessState().destiny;
-				PPDConnectionStorage * src = praid_sync_getSyncProcessState().source;
 
-				printf("Copiando sector %i desde PPD %i hacia PPD %i"
-						, praid_sync_getSyncProcessState().sectorId , src->id , dest->id);
-
-				praid_endpoint_ppd_callSyncPutSector(dest->connection , message.payload.diskSector);
-
-				praid_sync_incrementSyncSectorId();
-
-				praid_endpoint_ppd_callSyncGetSector(src->connection , praid_sync_getSyncProcessState().sectorId);
+				praid_ppd_thread_syncDiskSectorFromMasterToSlave(message.payload.diskSector , storage , dest);
 
 			}else{
 				praid_state_storage_decrementPendingResponses(storage);
 
 				praid_endpoint_pfs_responseAndClose(message.payload.pfsSocket , message);
 			}
-
 		}
 
 		printf("Eliminando PPD con Id %i tras desconexion\n" , storage->id);
 		praid_state_removePddStorage(storage);
 	}
+
 
 
 	void praid_ppd_thread_sender(PPDConnectionStorage * aStorage){
@@ -86,6 +106,14 @@
 		while(praid_state_storage_isConnected(aStorage)){
 
 			while( commons_queue_isEmpty(aStorage->pendingJobs));
+
+			/*
+			 * Si se esta realizando la replicacion entonces no se envian trabajos
+			 */
+			if(praid_sync_isReplicationActive()){
+				sleep(10);
+				continue;
+			}
 
 			NipcMessage message = praid_storage_queue_get(aStorage->pendingJobs);
 

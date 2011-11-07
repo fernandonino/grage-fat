@@ -53,6 +53,7 @@
 	void praid_state_storage_setDisconnected(PPDConnectionStorage * storage);
 	Boolean praid_state_storage_isConnected(PPDConnectionStorage * s);
 
-
+	Boolean praid_sync_isReplicationActive();
+	void praid_sync_setReplicationStatus(Boolean status);
 
 #endif /* PRAID_STATE_H_ */

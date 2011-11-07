@@ -15,7 +15,7 @@
 	void praid_endpoint_pfs_responseAndClose(ListenSocket ls , NipcMessage m);
 	void praid_endpoint_ppd_sendMessage(ListenSocket ppdSocket , NipcMessage m);
 
-	DiskSector praid_endpoint_ppd_callSyncGetSector(ListenSocket , uint32_t);
+	void praid_endpoint_ppd_callSyncGetSector(ListenSocket , uint32_t);
 	void praid_endpoint_ppd_callSyncPutSector(ListenSocket , DiskSector );
 
 #endif /* PRAID_ENDPOINT_H_ */
