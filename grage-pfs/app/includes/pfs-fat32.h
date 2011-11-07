@@ -40,8 +40,8 @@
 	#define FAT_32_ATTR_LONG_NAME ( FAT_32_ATTR_READ_ONLY | FAT_32_ATTR_HIDDEN | FAT_32_ATTR_SYSTEM | FAT_32_ATTR_VOLUME_ID )
 	#define FAT_32_FAT_FREE_ENTRY								0x00000000
 
-	#define FAT_32_ISEOC(EntryValue)  (((EntryValue) & 0x0FFFFFFF) >= 0x0FFFFFF8)
-	#define FAT_32_ISFREE(EntryValue) (((EntryValue) & 0x0FFFFFFF) == 0x00000000)
+	#define FAT_32_ISEOC(FatEntryValue)  (((FatEntryValue) & 0x0FFFFFFF) >= 0x0FFFFFF8)
+	#define FAT_32_ISFREE(FatEntryValue) (((FatEntryValue) & 0x0FFFFFFF) == 0x00000000)
 	#define FAT_32_DIRENT_ISFREE(D) (((D) == FAT_32_FREEENT) || ((D) == FAT_32_ENDOFDIR))
 	#define FAT_32_DIRENT_ISLAST(D) (D == ENDOFDIR)
 	#define FAT_32_LDIR_ISLAST(Ord)	((Ord & 0x40) == 0x40)
@@ -91,6 +91,7 @@
 
 		//pfs_fat32_read
 		uint32_t fileClusterNumber;
+		uint32_t fileAbsoluteClusterNumber;
 		uint32_t fileSectorNumberOfCluster;
 		uint16_t sectorByteOffset;
 

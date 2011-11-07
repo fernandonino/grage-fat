@@ -283,19 +283,50 @@
 
 	uint16_t pfs_fat32_read(Volume * v , FatFile * f , char * buf , size_t size){
 		uint16_t bytesRead = 0;
+		uint16_t bytesLeft = size;
+		uint16_t bytesToRead;
 
 		DiskSector sector = pfs_fat32_utils_getSectorFromNthCluster(f);
 
 		if ( f->sectorByteOffset + size <= v->bps ){
 			memcpy(buf , sector.sectorContent + f->sectorByteOffset , size);
 			return bytesRead += size;
+		} else {
+			memcpy(buf , sector.sectorContent + f->sectorByteOffset , v->bps - f->sectorByteOffset);
+			bytesRead += v->bps - f->sectorByteOffset;
+			bytesLeft -= bytesRead;
 		}
 
-		// Desarrollar el caso en que el sectorByteOffset + size exceda el 1 cluster:
-		// Hay que calcular cuantos sectores y/o clusters se necesitan
-		// ir copiando en buf, y cortar cuando bytesRead sea igual a size
+		uint32_t nextNeededCluster = f->fileAbsoluteClusterNumber;
 
-		return -1;
+
+		// El siguiente algoritmo alcanza para leer un sector + 1 cluster entero
+		// Si el size es suficientemente grande como para abarcar mas de un cluster, entonces falla.
+		// Otro detalle: si size pedido es mayor al tamanio del archivo menos la posicion (del fat_seek),
+		// entonces se estan devolviendo bytes de mas!
+		while( bytesRead < size ){
+
+			if( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) ){
+				uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , nextNeededCluster);
+				sector = pfs_endpoint_callGetSector(sectorId);
+			} else {
+				sector = pfs_endpoint_callGetSector(sector.sectorNumber + 1);
+			}
+
+			if ( bytesLeft <= v->bps ){
+				bytesToRead = bytesLeft;
+			} else if ( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) && FAT_32_ISEOC(nextNeededCluster) ){
+				bytesToRead = bytesLeft;
+			} else {
+				bytesToRead = v->bps;
+			}
+
+			memcpy( buf + bytesRead , sector.sectorContent , bytesToRead);
+			bytesRead += bytesToRead;
+			bytesLeft -= bytesToRead;
+		}
+
+		return bytesRead; //Nunca se deberia llegar aca
 	}
 
 

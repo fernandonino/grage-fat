@@ -291,6 +291,8 @@
 			clusterCount++;
 		}
 
+		f->fileAbsoluteClusterNumber = c;
+
 		uint32_t s = pfs_fat_utils_getFirstSectorOfCluster(v,c);
 
 		if ( f->fileSectorNumberOfCluster != 1)
