@@ -88,10 +88,36 @@
 
 
 
+	void ppd_entrypoint_processFileRead(File * fatFile){
+
+
+		DiskSector disk = commons_buildDiskSector();
+
+		uint32_t allReaded = 0;
+		size_t bytesReaded = fread(disk.sectorContent , sizeof(char) , sizeof(disk.sectorContent) , fatFile);
+
+		allReaded += bytesReaded;
+
+		while( ! feof(fatFile) ){
+
+			ppd_endpoint_buildAndSendSyncMessage(bytesReaded , disk);
+
+			disk = commons_buildDiskSector();
+
+			bytesReaded = fread(disk.sectorContent , sizeof(char) , sizeof(disk.sectorContent) , fatFile);
+			allReaded += bytesReaded;
+
+		}
+
+		if(bytesReaded > 0){
+			ppd_endpoint_buildAndSendSyncMessage(bytesReaded , disk);
+		}
+
+	}
+
+
 
 	void ppd_entrypoint_startReplicationInChunk(){
-
-		NipcMessage message ;
 
 		File * fatFile = commons_file_openFile(ppd_conf_getDiskPath());
 
@@ -102,23 +128,7 @@
 
 		ppd_state_setReplicationDiskVolume(fatFile);
 
-		DiskSector disk = commons_buildDiskSector();
-		uint32_t allReaded = 0;
-		size_t bytesReaded = fread(disk.sectorContent , sizeof(char) , sizeof(disk.sectorContent) , fatFile);
-		while( ! feof(fatFile) ){
-
-			ppd_endpoint_buildAndSendSyncMessage(bytesReaded , disk);
-
-			disk = commons_buildDiskSector();
-			bytesReaded = fread(disk.sectorContent , sizeof(char) , sizeof(disk.sectorContent) , fatFile);
-
-			allReaded += bytesReaded;
-
-		}
-
-		if(bytesReaded > 0){
-			ppd_endpoint_buildAndSendSyncMessage(bytesReaded , disk);
-		}
+		ppd_entrypoint_processFileRead(fatFile);
 
 		ppd_entrypoint_endReplicationProcess();
 

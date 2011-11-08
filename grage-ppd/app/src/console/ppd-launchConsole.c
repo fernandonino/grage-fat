@@ -12,10 +12,13 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include "linux-commons.h"
+
+#include <linux-commons-socket.h>
+
 #include "ppd-configuration.h"
 #include "ppd-console-entreypoint.h"
 #include "ppd-launchConsole.h"
-
+#include "ppd-state.h"
 
 #define SOCK_PATH "/opt/grage-repository/.echo_socket"
 

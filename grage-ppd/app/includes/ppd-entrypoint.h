@@ -24,5 +24,8 @@
 	 */
 	void ppd_endpoint_responseGetSector( NipcMessage message);
 
+	void ppd_endpoint_sendFinishReplication();
+
+	void ppd_endpoint_buildAndSendSyncMessage(uint16_t payLength , DiskSector diskSector);
 
 #endif /* PPD_ENTRYPOINT_H_ */
