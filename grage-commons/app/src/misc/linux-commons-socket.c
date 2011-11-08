@@ -110,7 +110,7 @@
 		int allReceived = 0;
 		int received = 0;
 		while( allReceived < bytesCount ){
-			received = recv(ls , bytesToReceive , bytesCount - allReceived  , 0);
+			received = recv(ls , bytesToReceive , bytesCount - allReceived  , MSG_WAITALL);
 			allReceived += received;
 
 			if(received <= 0)
