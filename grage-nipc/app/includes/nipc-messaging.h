@@ -33,6 +33,7 @@
 #define NIPC_OPERATION_ID_DISCONNECT			'D'
 #define NIPC_OPERATION_ID_SYNC_PUT_SECTOR		'p'
 #define NIPC_OPERATION_ID_SYNC_GET_SECTOR		'g'
+#define NIPC_OPERATION_ID_SYNC_END				'e'
 
 #define NIPC_PROCESS_ID_PFS						4
 #define NIPC_PROCESS_ID_PPD						3
@@ -97,8 +98,8 @@
 
 	Boolean nipc_mbuilder_isBlanckMessage(NipcMessage message);
 
-	void nipc_sendHandshake(ListenSocket lSocket , uint8_t processId , RuntimeErrorValidator * validator);
-	void nipc_sendPpdHandshake(ListenSocket lSocket , uint8_t ppdId , uint32_t sectorsCount , RuntimeErrorValidator * validator);
-	NipcMessage nipc_receiveHandshake(ListenSocket lSocket , RuntimeErrorValidator * validator);
+	void nipc_sendHandshake(ListenSocket lSocket , uint8_t processId );
+	void nipc_sendPpdHandshake(ListenSocket lSocket , uint8_t ppdId , uint32_t sectorsCount);
+	NipcMessage nipc_receiveHandshake(ListenSocket lSocket );
 
 #endif /* NIPC_PROTOCOL_H_ */
