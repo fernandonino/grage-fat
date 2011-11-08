@@ -54,4 +54,7 @@
 	char * commons_file_getStartNameMatchingFile(char * path , char * pattern);
 
 	Boolean commons_file_isValidConfValue(char * value);
+
+	int commons_file_getFileSize(File * file);
+
 #endif

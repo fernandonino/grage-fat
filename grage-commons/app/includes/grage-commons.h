@@ -92,4 +92,6 @@
 
 
 
+	DiskSector commons_buildDiskSector();
+
 #endif /* GRAGE_COMMONS_H_ */

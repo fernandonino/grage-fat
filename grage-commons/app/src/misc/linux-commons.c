@@ -14,6 +14,7 @@
 #include <math.h>
 
 #include "linux-commons.h"
+#include "grage-commons.h"
 
 	int commons_misc_digitsCount(int i){
 		return (i == 0) ? 1 : log10(i) + 1;
@@ -108,4 +109,14 @@
 		Time time;
 		gettimeofday(&time, NULL);
 		return time;
+	}
+
+
+
+	DiskSector commons_buildDiskSector(){
+		DiskSector disk;
+		disk.sectorNumber = -1;
+		bzero(disk.sectorContent , sizeof(disk.sectorContent));
+
+		return disk;
 	}

@@ -244,3 +244,12 @@
 	Boolean commons_file_isValidConfValue(char * value){
 		return (value != NULL && !commons_string_equals(value , ""));
 	}
+
+
+
+	int commons_file_getFileSize(File * file){
+		struct stat fileInfo;
+		fstat(fileno(file) , &fileInfo);
+		return fileInfo.st_size;
+	}
+
