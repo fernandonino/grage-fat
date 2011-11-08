@@ -31,6 +31,7 @@
 	pthread_t entrypointThread;
 
 
+	Boolean inReplicationProcess = FALSE;
 
 	void ppd_entrypoint_launch(){
 		pthread_create(&entrypointThread , NULL , (void * (*) (void* )) ppd_entrypoint_doLunch , NULL);
@@ -84,6 +85,8 @@
 		File * file = ppd_state_getReplicationDiskVolume();
 		fclose(file);
 		ppd_state_setReplicationDiskVolume(NULL);
+		inReplicationProcess = FALSE;
+		ppd_planifier_worker_doJobs();
 	}
 
 
@@ -138,7 +141,6 @@
 
 
 
-
 	void ppd_entrypoint_doLunch(){
 
 		while(TRUE){
@@ -152,19 +154,32 @@
 				break;
 
 			if(m.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
-				ppd_entrypoint_executeGetSector(m);
+
+				if(!inReplicationProcess)
+					ppd_entrypoint_executeGetSector(m);
 
 			}else if (m.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
-				ppd_entrypoint_executePutSector(m);
+
+				if(!inReplicationProcess)
+					ppd_entrypoint_executePutSector(m);
 
 			}else if(m.header.messageType == NIPC_MESSAGE_TYPE_SYNC_PROCESS){
 
 				if(m.header.operationId == NIPC_OPERATION_ID_SYNC_PUT_SECTOR){
+					if(!inReplicationProcess)
+						inReplicationProcess = TRUE;
+
 					ppd_entrypoint_executeSyncPutSector(m);
 				}else if(m.header.operationId == NIPC_OPERATION_ID_SYNC_GET_SECTOR){
+
+					if(!inReplicationProcess)
+						inReplicationProcess = TRUE;
+
 					ppd_entrypoint_startReplicationInChunk();
 				}else if(m.header.operationId == NIPC_OPERATION_ID_SYNC_END){
+
 					ppd_entrypoint_endReplicationProcess();
+
 				}
 			}
 		}

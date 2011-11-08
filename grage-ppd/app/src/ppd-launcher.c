@@ -92,7 +92,7 @@
 		printf("joineando hilos\n");
 
 		pthread_join(entrypointThread , NULL);
-		pthread_join(jobsThread , NULL);
+		//pthread_join(jobsThread , NULL);
 		pthread_join(ppdConsoleThread , NULL);
 	}
 
@@ -114,7 +114,7 @@
  		ppd_launcher_launchConnections();
 		ppd_entrypoint_launch();
 		//ppd_launcher_console();
-		ppd_planifier_worker_doJobs();
+		//ppd_planifier_worker_doJobs();
 		ppd_launcher_joinAllThread();
 	}
 
