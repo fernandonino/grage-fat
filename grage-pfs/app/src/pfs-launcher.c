@@ -26,7 +26,7 @@
 #include "pfs-fat32.h"
 #include "pfs-fuse.h"
 
-
+	/*
 	void pfs_launcher_launchConnections(){
 
 		char * host = pfs_configuration_getDeviceAddress();
@@ -40,7 +40,7 @@
 
 		nipc_sendHandshake(dataSocket , NIPC_PROCESS_ID_PFS , validator);
 
-		NipcMessage message =  nipc_receiveHandshake(pfs_state_getDataSocket() , validator);
+		NipcMessage message =  nipc_receiveHandshake(pfs_state_getDataSocket());
 
 		if(message.header.responseCode == NIPC_RESPONSE_CODE_ERROR){
 			puts("Fallo el handshake");
@@ -48,6 +48,7 @@
 		}
 
 	}
+	*/
 
 
 
@@ -57,7 +58,7 @@
 				INFO | DEBUG | WARNING | ERROR, M_CONSOLE_DISABLE);
 		pfs_configuration_initialize();
 
-		pfs_launcher_launchConnections();
+		//pfs_launcher_launchConnections();
 		//pfs_console_initialize();
 		ppd_initializeDisk();
 	}
