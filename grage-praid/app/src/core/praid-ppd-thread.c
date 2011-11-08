@@ -37,15 +37,6 @@
 
 
 
-	void praid_ppd_thread_printStatus(uint32_t sectorId , uint32_t totalSectorsCount , uint8_t masterId , uint8_t slaveId ){
-		if(sectorId % 1024 == 0)
-			printf("Copiando sector %i/%i desde PPD %i hacia PPD %i \n", sectorId , totalSectorsCount , masterId ,slaveId);
-
-	}
-
-
-
-
 	void praid_ppd_thread_listener(PPDConnectionStorage * storage){
 
 		puts("Ejecutando Hilo Listener de proceso PPD");
@@ -69,9 +60,13 @@
 
 					praid_sync_incrementBytesSynchronized(message.header.payloadLength);
 
-					printf("Sincronizados %i bytes de un total de %i\n" ,
+					char buffer[20];
+					bzero(buffer , 20);
+					memcpy(buffer , message.payload.diskSector.sectorContent , 20);
+
+					printf("[Sincronizados %i bytes de un total de %i, contenido: %s ]\n" ,
 							praid_sync_getSyncProcessState().bytesSynchronized,
-							praid_sync_getSyncProcessState().source->volumeSize);
+							praid_sync_getSyncProcessState().source->volumeSize , buffer);
 
 				}else if (message.header.operationId == NIPC_OPERATION_ID_SYNC_END){
 

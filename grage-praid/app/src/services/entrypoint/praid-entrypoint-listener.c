@@ -35,6 +35,8 @@
 
 		if(praid_ppd_sync_isValidReplication())
 			praid_ppd_sync_synchronize(storage);
+		else
+			praid_endpoint_ppd_callFinishReplication(storage->connection);
 
 		praid_ppd_thread_launchNewSlaveThread(storage);
 	}
