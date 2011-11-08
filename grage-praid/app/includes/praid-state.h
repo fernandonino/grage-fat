@@ -29,7 +29,7 @@
 		pthread_t storageThreadListener;
 		pthread_t storageThreadSender;
 
-		uint32_t sectorsCount;
+		uint32_t volumeSize;
 
 	} PPDConnectionStorage;
 

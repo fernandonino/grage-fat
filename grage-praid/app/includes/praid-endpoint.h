@@ -16,6 +16,7 @@
 	void praid_endpoint_ppd_sendMessage(ListenSocket ppdSocket , NipcMessage m);
 
 	void praid_endpoint_ppd_callSyncGetSector(ListenSocket , uint32_t);
-	void praid_endpoint_ppd_callSyncPutSector(ListenSocket , DiskSector );
+	void praid_endpoint_ppd_callSyncPutSector(ListenSocket , DiskSector , uint16_t bytes);
+	void praid_endpoint_ppd_callFinishReplication(ListenSocket);
 
 #endif /* PRAID_ENDPOINT_H_ */

@@ -14,6 +14,7 @@
 #include "praid-configuration.h"
 #include "praid-entrypoint.h"
 #include "praid-state.h"
+#include "praid-sync.h"
 
 
 
@@ -28,9 +29,12 @@
 
 		PPDConnectionStorage * storage = praid_state_buildPPDConnectionStorageFromId(listenSocket , ppdId);
 
-		storage->sectorsCount = message.header.responseCode;
+		storage->volumeSize = message.header.responseCode;
 
 		praid_state_addPpdStorage(storage);
+
+		if(praid_ppd_sync_isValidReplication())
+			praid_ppd_sync_synchronize(storage);
 
 		praid_ppd_thread_launchNewSlaveThread(storage);
 	}

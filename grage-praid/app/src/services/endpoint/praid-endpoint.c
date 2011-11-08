@@ -30,15 +30,16 @@
 	void praid_endpoint_ppd_callSyncGetSector(ListenSocket ls , uint32_t sectorId){
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();
 		message = nipc_mbuilder_addMessageType(message , NIPC_MESSAGE_TYPE_SYNC_PROCESS);
-		message = nipc_mbuilder_addDiskSectorId(message , sectorId);
+		//message = nipc_mbuilder_addDiskSectorId(message , sectorId);//al pedo!!!!!!!
 		message = nipc_mbuilder_addOperationId(message, NIPC_OPERATION_ID_SYNC_GET_SECTOR);
 
 		nipc_messaging_send(ls , message);
 	}
 
-	void praid_endpoint_ppd_callSyncPutSector(ListenSocket ls , DiskSector diskSector){
+	void praid_endpoint_ppd_callSyncPutSector(ListenSocket ls , DiskSector diskSector , uint16_t bytes){
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();
 		message = nipc_mbuilder_addDiskSector(message , diskSector);
+		message = nipc_mbuilder_addPayloadLength(message , bytes);
 		message = nipc_mbuilder_addMessageType(message , NIPC_MESSAGE_TYPE_SYNC_PROCESS);
 		message = nipc_mbuilder_addOperationId(message, NIPC_OPERATION_ID_SYNC_PUT_SECTOR);
 
@@ -48,6 +49,14 @@
 
 
 
+	void praid_endpoint_ppd_callFinishReplication(ListenSocket ls){
+		NipcMessage message = nipc_mbuilder_buildNipcMessage();
+		message = nipc_mbuilder_addMessageType(message , NIPC_MESSAGE_TYPE_SYNC_PROCESS);
+		message = nipc_mbuilder_addOperationId(message, NIPC_OPERATION_ID_SYNC_END);
+
+		nipc_messaging_send(ls , message);
+
+	}
 
 
 

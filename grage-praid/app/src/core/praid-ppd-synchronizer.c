@@ -35,19 +35,22 @@
 	}
 
 
-	void praid_sync_incrementSyncSectorId(){
-		syncState.sectorId += 1;
+	//void praid_sync_incrementSyncSectorId(){
+	//	syncState.sectorId += 1;
+	//}
+	void praid_sync_incrementBytesSynchronized(uint32_t bytes){
+		syncState.bytesSynchronized += bytes;
 	}
 
 
 
 
 
-	SyncProcessState praid_sync_buildSyncProcessState
-	(uint32_t sid , PPDConnectionStorage * src , PPDConnectionStorage * dest){
+	SyncProcessState praid_sync_buildSyncProcessState( PPDConnectionStorage * src , PPDConnectionStorage * dest){
 		SyncProcessState syncProcess;
 
-		syncProcess.sectorId = 0;
+		//syncProcess.sectorId = 0;
+		syncProcess.bytesSynchronized = 0;
 		syncProcess.source = src;
 		syncProcess.destiny = dest;
 
@@ -74,7 +77,7 @@
 
 		puts("Sincronizando datos");
 
-		SyncProcessState syncProcess = praid_sync_buildSyncProcessState(0 , source , dest);
+		SyncProcessState syncProcess = praid_sync_buildSyncProcessState( source , dest);
 		praid_sync_setSyncProcessState(syncProcess);
 
 		praid_endpoint_ppd_callSyncGetSector(source->connection , 0);

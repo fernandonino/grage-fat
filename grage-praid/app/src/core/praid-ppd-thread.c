@@ -30,9 +30,6 @@
 
 		puts("Lanzando hilo entrypoint PPD");
 
-		if(praid_ppd_sync_isValidReplication())
-			praid_ppd_sync_synchronize(aStorage);
-
 		pthread_create(&aStorage->storageThreadListener , NULL , (void * (*)(void *)) praid_ppd_thread_listener , aStorage);
 		pthread_create(&aStorage->storageThreadSender , NULL , (void * (*)(void *)) praid_ppd_thread_sender , aStorage);
 	}
@@ -44,24 +41,6 @@
 		if(sectorId % 1024 == 0)
 			printf("Copiando sector %i/%i desde PPD %i hacia PPD %i \n", sectorId , totalSectorsCount , masterId ,slaveId);
 
-	}
-
-
-	void praid_ppd_thread_syncDiskSectorFromMasterToSlave
-	(DiskSector diskSector , PPDConnectionStorage * master , PPDConnectionStorage * slave){
-
-		praid_ppd_thread_printStatus(praid_sync_getSyncProcessState().sectorId , master->sectorsCount , master->id , slave->id);
-
-		praid_endpoint_ppd_callSyncPutSector(slave->connection , diskSector);
-
-		praid_sync_incrementSyncSectorId();
-
-		if(praid_sync_getSyncProcessState().sectorId == master->sectorsCount){
-			praid_sync_setReplicationStatus(FALSE);
-			puts("Replicacion finalizada");
-		}else{
-			praid_endpoint_ppd_callSyncGetSector(master->connection , praid_sync_getSyncProcessState().sectorId);
-		}
 	}
 
 
@@ -84,7 +63,22 @@
 
 				PPDConnectionStorage * dest = praid_sync_getSyncProcessState().destiny;
 
-				praid_ppd_thread_syncDiskSectorFromMasterToSlave(message.payload.diskSector , storage , dest);
+				if(message.header.operationId == NIPC_OPERATION_ID_SYNC_PUT_SECTOR){
+
+					praid_endpoint_ppd_callSyncPutSector(dest->connection , message.payload.diskSector , message.header.payloadLength);
+
+					praid_sync_incrementBytesSynchronized(message.header.payloadLength);
+
+					printf("Sincronizados %i bytes de un total de %i\n" ,
+							praid_sync_getSyncProcessState().bytesSynchronized,
+							praid_sync_getSyncProcessState().source->volumeSize);
+
+				}else if (message.header.operationId == NIPC_OPERATION_ID_SYNC_END){
+
+					praid_sync_setReplicationStatus(FALSE);
+					praid_endpoint_ppd_callFinishReplication(dest->connection);
+					puts("Replicacion finalizada");
+				}
 
 			}else{
 				praid_state_storage_decrementPendingResponses(storage);
