@@ -82,10 +82,15 @@
 
 
 	void ppd_entrypoint_endReplicationProcess(){
-		File * file = ppd_state_getReplicationDiskVolume();
-		fclose(file);
-		ppd_state_setReplicationDiskVolume(NULL);
-		inReplicationProcess = FALSE;
+
+		if(inReplicationProcess){
+
+			File * file = ppd_state_getReplicationDiskVolume();
+			fclose(file);
+			ppd_state_setReplicationDiskVolume(NULL);
+			inReplicationProcess = FALSE;
+		}
+
 		ppd_planifier_worker_doJobs();
 	}
 
