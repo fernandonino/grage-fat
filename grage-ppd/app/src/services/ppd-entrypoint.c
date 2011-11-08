@@ -103,6 +103,7 @@
 		ppd_state_setReplicationDiskVolume(fatFile);
 
 		DiskSector disk = commons_buildDiskSector();
+		uint32_t allReaded = 0;
 		size_t bytesReaded = fread(disk.sectorContent , sizeof(char) , sizeof(disk.sectorContent) , fatFile);
 		while( ! feof(fatFile) ){
 
@@ -110,6 +111,8 @@
 
 			disk = commons_buildDiskSector();
 			bytesReaded = fread(disk.sectorContent , sizeof(char) , sizeof(disk.sectorContent) , fatFile);
+
+			allReaded += bytesReaded;
 
 		}
 
