@@ -60,13 +60,9 @@
 
 					praid_sync_incrementBytesSynchronized(message.header.payloadLength);
 
-					char buffer[20];
-					bzero(buffer , 20);
-					memcpy(buffer , message.payload.diskSector.sectorContent , 20);
-
-					printf("[Sincronizados %i bytes de un total de %i, contenido: %s ]\n" ,
+					printf("[Sincronizados %i bytes de un total de %i ]\n" ,
 							praid_sync_getSyncProcessState().bytesSynchronized,
-							praid_sync_getSyncProcessState().source->volumeSize , buffer);
+							praid_sync_getSyncProcessState().source->volumeSize);
 
 				}else if (message.header.operationId == NIPC_OPERATION_ID_SYNC_END){
 
