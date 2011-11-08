@@ -29,7 +29,7 @@
 
 		printf("lanzando workers\n");
 		pthread_create(&jobsThread , NULL , (void * (*)(void *)) ppd_planifier_worker_doJob , NULL);
-		pthread_join(jobsThread , NULL);
+		//pthread_join(jobsThread , NULL);
 	}
 
 

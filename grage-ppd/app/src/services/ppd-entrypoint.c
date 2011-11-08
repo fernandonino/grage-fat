@@ -28,6 +28,8 @@
 
 
 
+	Boolean workerRunning = FALSE;
+
 	pthread_t entrypointThread;
 
 
@@ -44,6 +46,9 @@
 	void ppd_entrypoint_executeGetSector(NipcMessage message){
 		ppd_queues_putInQueue(message);
 	}
+
+	uint32_t allBytesWritten = 0;
+	uint32_t sectorsWrittenCount = 0;
 
 	void ppd_entrypoint_executeSyncPutSector(NipcMessage message){
 
@@ -70,6 +75,9 @@
 			size_t bytesWritten = fwrite(message.payload.diskSector.sectorContent ,	sizeof(char) ,
 					message.header.payloadLength , ppd_state_getReplicationDiskVolume());
 
+			allBytesWritten += bytesWritten;
+			sectorsWrittenCount ++;
+
 			if(bytesWritten < 0){
 				puts("Error en la escritura del archivo");
 				puts("No se pudo finalizar la replicacion");
@@ -77,6 +85,8 @@
 			}
 
 			fflush(ppd_state_getReplicationDiskVolume());
+		}else{
+			printf("Sector perdido %s\n" , message.payload.diskSector.sectorContent);
 		}
 	}
 
@@ -89,22 +99,31 @@
 			fclose(file);
 			ppd_state_setReplicationDiskVolume(NULL);
 			inReplicationProcess = FALSE;
+
 		}
 
-		ppd_planifier_worker_doJobs();
+		if(!workerRunning){
+			workerRunning = TRUE;
+			ppd_planifier_worker_doJobs();
+		}
 	}
 
+
+
+	uint32_t allBytesReaded = 0;
+	uint32_t sectorsReadedCount = 0;
 
 
 	void ppd_entrypoint_processFileRead(File * fatFile){
 
 
+		uint32_t fileSize = ppd_state_getVolumeSize();
 		DiskSector disk = commons_buildDiskSector();
 
-		uint32_t allReaded = 0;
 		size_t bytesReaded = fread(disk.sectorContent , sizeof(char) , sizeof(disk.sectorContent) , fatFile);
 
-		allReaded += bytesReaded;
+		allBytesReaded += bytesReaded;
+		sectorsReadedCount++;
 
 		while( ! feof(fatFile) ){
 
@@ -113,7 +132,8 @@
 			disk = commons_buildDiskSector();
 
 			bytesReaded = fread(disk.sectorContent , sizeof(char) , sizeof(disk.sectorContent) , fatFile);
-			allReaded += bytesReaded;
+			allBytesReaded += bytesReaded;
+			sectorsReadedCount++;
 
 		}
 
@@ -141,6 +161,9 @@
 		ppd_entrypoint_endReplicationProcess();
 
 		ppd_endpoint_sendFinishReplication();
+
+		printf("leidos %i bytes\n" , allBytesReaded);
+		printf("leidos %i sectors\n" , sectorsReadedCount );
 	}
 
 
@@ -185,7 +208,12 @@
 
 					ppd_entrypoint_endReplicationProcess();
 
+					printf("estritos %i bytes\n" , allBytesWritten);
+					printf("escritos %i sectors\n" , sectorsWrittenCount );
+
 				}
+			}else{
+				printf(" Entro por aca: %s\n" , m.payload.diskSector.sectorContent);
 			}
 		}
 

@@ -92,8 +92,8 @@
 		printf("joineando hilos\n");
 
 		pthread_join(entrypointThread , NULL);
-		//pthread_join(jobsThread , NULL);
 		pthread_join(ppdConsoleThread , NULL);
+		pthread_join(jobsThread , NULL);
 	}
 
 
