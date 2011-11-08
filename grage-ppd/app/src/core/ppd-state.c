@@ -10,11 +10,13 @@
 #include "linux-commons.h"
 #include "linux-commons-socket.h"
 #include "linux-commons-strings.h"
+#include "ppd-state.h"
+#include "ppd-persistance.h"
+
+
 
 	Boolean connectionStatusActive;
 	ListenSocket praidSocket;
-	ServerSocket * pfsConnection;
-
 
 	void ppd_state_setPraidSocket(ListenSocket ls){
 		praidSocket = ls;
@@ -23,6 +25,11 @@
 	ListenSocket ppd_state_getPraidSocket(){
 		return praidSocket;
 	}
+
+
+
+	ServerSocket * pfsConnection;
+
 	void ppd_state_setPfsConnection(ServerSocket * p){
 		pfsConnection = p;
 		connectionStatusActive = TRUE;
@@ -30,6 +37,9 @@
 	ServerSocket * ppd_state_getPfsConnection(){
 		return pfsConnection;
 	}
+
+
+
 	ListenSocket ppd_state_getActiveSocket(){
 		if(connectionStatusActive )
 			if(commons_string_equals( ppd_conf_getPpdMode() ,
@@ -43,7 +53,8 @@
 	}
 
 
-	char * diskStartAddress;
+
+	char * diskStartAddress = NULL;
 
 	char * ppd_state_getDiskStartAddress(){
 		return diskStartAddress;
@@ -52,16 +63,6 @@
 		diskStartAddress = anAddress;
 	}
 
-
-
-	uint32_t sectorsCount;
-
-	void ppd_state_setSectorsCount(uint32_t count){
-		sectorsCount = count;
-	}
-	uint32_t ppd_state_getSectorsCount(){
-		return sectorsCount;
-	}
 
 
 
@@ -73,4 +74,34 @@
 	ListenSocket ppd_state_getPpdConsoleSocket(){
 		return ppdConsoleSocket;
 	}
+
+
+
+	File * replicationDiskVolume = NULL;
+
+	void ppd_state_setReplicationDiskVolume(File * f){
+		replicationDiskVolume = f;
+	}
+	File * ppd_state_getReplicationDiskVolume(){
+		return replicationDiskVolume;
+	}
+
+
+
+	void ppd_state_initializeDiskStartAddress(){
+		ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(ppd_conf_getDiskPath()) );
+	//	ppd_launcher_initializeBPB();
+	}
+
+
+	uint32_t volumeSize;
+
+	void ppd_state_setVolumeSize(uint32_t v){
+		volumeSize = v;
+	}
+	uint32_t ppd_state_getVolumeSize(){
+		return volumeSize;
+	}
+
+
 

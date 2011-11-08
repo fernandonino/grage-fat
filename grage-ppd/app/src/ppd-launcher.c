@@ -40,9 +40,7 @@
 	extern pthread_t ppdConsoleThread;
 
 
-	char * diskPath;
-
-	void ppd_launcher_initializeBPB(){
+	/*void ppd_launcher_initializeBPB(){
 
 		BPB biosParameterBlock;
 		DiskSector diskSector = ppd_persistence_readSector(0 , ppd_state_getDiskStartAddress());
@@ -50,7 +48,7 @@
 
 		ppd_state_setSectorsCount(biosParameterBlock.BPB_TotSec32);
 	}
-
+*/
 
 
 	void ppd_launcher_console(){
@@ -59,10 +57,6 @@
 	}
 
 
-	void ppd_initializeDisk(){
-		ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(ppd_conf_getDiskPath()) );
-		ppd_launcher_initializeBPB();
-	}
 
 	void ppd_launcher_initialize(){
 		int status = log_create("ppd", PPD_DEFAULT_LOG_FILE ,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
@@ -77,8 +71,17 @@
 		/*
 		 * Si existe la configuracion se mapea el disco
 		 */
-		if( commons_file_isValidConfValue( ppd_conf_getDiskPath()))
-			ppd_initializeDisk();
+		if( !commons_file_isValidConfValue( ppd_conf_getDiskPath())){
+			puts("No existe un path al archivo del volumen");
+			exit(1);
+		}else{
+
+			File * volumeFile = commons_file_openFile(ppd_conf_getDiskPath());
+			if( volumeFile != NULL){
+				ppd_state_setVolumeSize(commons_file_getFileSize(volumeFile));
+				commons_file_closeFile(volumeFile);
+			}
+		}
 
 		ppd_queues_initialize();
 	}

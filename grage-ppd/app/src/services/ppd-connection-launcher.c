@@ -69,7 +69,7 @@
 			uint8_t ppdId = atoi(ppd_conf_getPpdIdDisk());
 
 			nipc_sendPpdHandshake(ppd_state_getPraidSocket(), ppdId ,
-					ppd_state_getSectorsCount() );
+					ppd_state_getVolumeSize() );
 			message = nipc_receiveHandshake(ppd_state_getPraidSocket());
 
 			if(message.header.responseCode == NIPC_RESPONSE_CODE_ERROR){

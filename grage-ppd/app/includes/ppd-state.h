@@ -25,7 +25,15 @@
 	char * ppd_state_getDiskStartAddress(void);
 	void ppd_state_setDiskStartAddress(char *);
 
-	void ppd_state_setSectorsCount(uint32_t count);
-	uint32_t ppd_state_getSectorsCount();
+
+	void ppd_state_setReplicationDiskVolume(File * f);
+	File * ppd_state_getReplicationDiskVolume();
+
+
+	void ppd_state_setVolumeSize(uint32_t v);
+	uint32_t ppd_state_getVolumeSize();
+
+
+
 
 #endif /* PPD_STATE_H_ */
