@@ -84,13 +84,17 @@
 
 		void removingStorage(PPDConnectionStorage * s){
 			//remover la cola del storage
-			free(s);
 			close(s->connection);
+			commons_misc_doFreeNull(s);
 		}
 
 		commons_list_removeNode(ppdStorages , storage , (void (*)(Object)) removingStorage);
 	}
 
 
+	Boolean praid_state_isThereAnyPpdConnected(){
+		return ( praid_state_getPpdStorages() != NULL
+				&& praid_state_getPpdStorages()->size > 0 );
+	}
 
 

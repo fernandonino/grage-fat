@@ -56,4 +56,6 @@
 	Boolean praid_sync_isReplicationActive();
 	void praid_sync_setReplicationStatus(Boolean status);
 
+	Boolean praid_state_isThereAnyPpdConnected();
+
 #endif /* PRAID_STATE_H_ */

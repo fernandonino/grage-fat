@@ -110,17 +110,27 @@
 					praid_entry_denegateConnection(handshake.header.processHandshakeId , listenSocket);
 
 					continue;
-				}
+				}else if (handshake.header.processHandshakeId == NIPC_PROCESS_ID_PFS
+						&& !praid_state_isThereAnyPpdConnected()){
 
-				nipc_sendHandshake(listenSocket ,  handshake.header.processHandshakeId );
+					puts("[ Se denega la conexion del proceso PFS por ausencia de recursos PPD's conectados ]");
 
-				if(handshake.header.processHandshakeId == NIPC_PROCESS_ID_PFS){
+					praid_entry_denegateConnection(handshake.header.processHandshakeId , listenSocket);
 
-					praid_pfs_launchNewSlaveThread(listenSocket);
+					continue;
 
-				}else if(handshake.header.processHandshakeId == NIPC_PROCESS_ID_PPD){
+				}else{
 
-					praid_entry_processNewPpdConnection(handshake , listenSocket);
+					nipc_sendHandshake(listenSocket ,  handshake.header.processHandshakeId );
+
+					if(handshake.header.processHandshakeId == NIPC_PROCESS_ID_PFS){
+
+						praid_pfs_launchNewSlaveThread(listenSocket);
+
+					}else if(handshake.header.processHandshakeId == NIPC_PROCESS_ID_PPD){
+
+						praid_entry_processNewPpdConnection(handshake , listenSocket);
+					}
 				}
 			}
 		}
