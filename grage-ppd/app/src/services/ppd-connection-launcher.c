@@ -16,7 +16,7 @@
 #include "ppd-configuration.h"
 #include "ppd-entrypoint.h"
 
-	void ppd_connections_handshake();
+	Boolean ppd_connections_handshake(ListenSocket);
 
 
 	void ppd_connections_connectToPraid(){
@@ -32,8 +32,12 @@
 			ppd_state_setPraidSocket(praidSocket);
 
 			puts("Realizando handshake");
-			ppd_connections_handshake();
+			Boolean status = ppd_connections_handshake(praidSocket);
 
+			if(!status){
+				puts("El proceso RAID denego la coneccion del proceso PPD, vuelva a intentarlo mas tarde");
+				exit(1);
+			}
 
 		}else{
 			puts("Fallo la coneccion con el proceso PRAID");
@@ -53,13 +57,16 @@
 
 			ListenSocket pfsSocket = commons_socket_acceptConnection(pfsConnection);
 
-			ppd_connections_handshake();
+			Boolean status = ppd_connections_handshake(pfsSocket);
 
+			if(status){
+				//TODO: administrar thread pfs
+			}
 		}
 	}
 
 
-	void ppd_connections_handshake(){
+	Boolean ppd_connections_handshake(ListenSocket theSocket){
 
 		NipcMessage message;
 
@@ -68,18 +75,24 @@
 
 			uint8_t ppdId = atoi(ppd_conf_getPpdIdDisk());
 
-			nipc_sendPpdHandshake(ppd_state_getPraidSocket(), ppdId ,
-					ppd_state_getVolumeSize() );
-			message = nipc_receiveHandshake(ppd_state_getPraidSocket());
+			nipc_sendPpdHandshake(theSocket, ppdId , ppd_state_getVolumeSize() );
+
+			message = nipc_receiveHandshake(theSocket);
 
 			if(message.header.responseCode == NIPC_RESPONSE_CODE_ERROR){
-				puts("El proceso RAID denego la coneccion del proceso PPD, vuelva a intentarlo mas tarde");
-				exit(1);
+				return FALSE;
+			}else{
+				return TRUE;
 			}
 
 		}else{
-			ServerSocket * s = ppd_state_getPfsConnection();
-			message = nipc_receiveHandshake(s->listenSocket );
+
+			message = nipc_receiveHandshake(theSocket );
+
+			if(message.header.processHandshakeId == NIPC_PROCESS_ID_PFS)
+				nipc_sendHandshake(theSocket , NIPC_PROCESS_ID_PPD);
+
+			return TRUE;
 		}
 	}
 
