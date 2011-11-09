@@ -50,7 +50,8 @@
 
 		if(ppd_state_getReplicationDiskVolume() == NULL){
 
-			File * fatFile = commons_file_openOrCreateFile(ppd_conf_getDiskPath());
+			File * fatFile = fopen(ppd_conf_getDiskPath() , "w");
+					//commons_file_openOrCreateFile(ppd_conf_getDiskPath());
 
 			if( fatFile == NULL){
 				printf("No existe el archivo %s\n." , ppd_conf_getDiskPath());
