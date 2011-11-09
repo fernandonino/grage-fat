@@ -13,6 +13,7 @@
 #include "ppd-state.h"
 #include "ppd-endpoint.h"
 #include "ppd-planifier.h"
+#include "ppd-persistance.h"
 
 	uint32_t allBytesWritten = 0;
 	uint32_t sectorsWrittenCount = 0;
@@ -102,8 +103,14 @@
 		 * se lo levanta
 		 */
 		if(!ppd_state_isWorkerRunning()){
-			ppd_state_setWorkerRunning(TRUE);
+
+			char * startAddress = ppd_persistance_mapDisk(ppd_conf_getDiskPath());
+
+			ppd_state_setDiskStartAddress(startAddress);
+
 			ppd_planifier_worker_doJobs();
+
+			ppd_state_setWorkerRunning(TRUE);
 		}
 	}
 

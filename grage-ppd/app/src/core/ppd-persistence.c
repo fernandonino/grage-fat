@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
+#include <linux-commons-strings.h>
+
 #include "grage-commons.h"
 #include "ppd-configuration.h"
 #include "ppd-persistance.h"
@@ -21,6 +23,7 @@
 
 
 	void ppd_persistence_writeSector(DiskSector aSector , char * dest){
+/*
 
 		uint32_t offset = aSector.sectorNumber * SECTOR_SIZE;
 
@@ -30,18 +33,29 @@
         }
 
         msync(dest , SECTOR_SIZE , MS_SYNC );
+ */
+
+
+		printf("Contenido recibido: %s\n" , aSector.sectorContent);
+
+
 	}
 
 
 	DiskSector ppd_persistence_readSector(uint32_t sectorId , char * source){
 
-		DiskSector disk;
+		DiskSector disk = commons_buildDiskSector();
+		/*
 		uint32_t offset = sectorId * SECTOR_SIZE;
 		char * validator = memcpy(&disk.sectorContent , source + offset , SECTOR_SIZE );
         if (validator == NULL){
         	perror("Error en memcpy");
         }
 
+		 */
+
+		char * mensaje = commons_string_concat("Hola mundo desde PPD " , ppd_conf_getPpdIdDisk());
+		memcpy(disk.sectorContent , mensaje , strlen(mensaje));
 		disk.sectorNumber = sectorId;
 		return disk;
 	}
