@@ -10,15 +10,17 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
+
 #include "linux-commons.h"
 #include "grage-commons.h"
 #include "nipc-messaging.h"
+
 #include "ppd-queues.h"
 #include "ppd-persistance.h"
 #include "ppd-state.h"
 #include "ppd-entrypoint.h"
 #include "ppd-configuration.h"
-
+#include "ppd-endpoint.h"
 	void ppd_planifier_worker_doJob(void * arg);
 
 
@@ -26,10 +28,7 @@
 
 
 	void ppd_planifier_worker_doJobs(){
-
-		printf("lanzando workers\n");
 		pthread_create(&jobsThread , NULL , (void * (*)(void *)) ppd_planifier_worker_doJob , NULL);
-		//pthread_join(jobsThread , NULL);
 	}
 
 

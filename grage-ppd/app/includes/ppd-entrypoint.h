@@ -13,19 +13,11 @@
 
 
 	void ppd_entrypoint_launch();
-
-
 	pthread_t ppd_entrypoint_getEntrypointThread();
+	void ppd_entrypoint_executePutSector(NipcMessage message);
+	void ppd_entrypoint_executeGetSector(NipcMessage message);
+	void ppd_entrypoint_doLunch();
 
-
-	/*
-	 * Esto deberia ir en un endpoint.h pero quiero aprobar el tp mas
-	 * de lo q quiero hacer un projecto lindo ... (estoy perdiendo el toke)
-	 */
-	void ppd_endpoint_responseGetSector( NipcMessage message);
-
-	void ppd_endpoint_sendFinishReplication();
-
-	void ppd_endpoint_buildAndSendSyncMessage(uint16_t payLength , DiskSector diskSector);
+	void ppd_entrypoint_endReplicationProcess();
 
 #endif /* PPD_ENTRYPOINT_H_ */

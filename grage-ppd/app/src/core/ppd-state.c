@@ -105,3 +105,22 @@
 
 
 
+	Boolean workerRunning = FALSE;
+
+	Boolean ppd_state_isWorkerRunning(){
+		return workerRunning;
+	}
+	void ppd_state_setWorkerRunning(Boolean status){
+		workerRunning = status;
+	}
+
+
+
+	Boolean replicationProcessActive = FALSE;
+
+	Boolean ppd_state_isReplicationProcessActive(){
+		return replicationProcessActive;
+	}
+	void ppd_state_setReplicationProcessActive(Boolean s){
+		replicationProcessActive = s;
+	}

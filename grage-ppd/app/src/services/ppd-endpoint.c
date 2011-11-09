@@ -13,7 +13,7 @@
 		nipc_messaging_send(ppd_state_getActiveSocket() , message);
 	}
 
-	void ppd_endpoint_buildAndSendSyncMessage(uint16_t payLength , DiskSector diskSector){
+	void ppd_endpoint_sendSyncSector(uint16_t payLength , DiskSector diskSector){
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();
 
 		message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_SYNC_PUT_SECTOR);

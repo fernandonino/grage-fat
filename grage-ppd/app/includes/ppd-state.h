@@ -34,6 +34,11 @@
 	uint32_t ppd_state_getVolumeSize();
 
 
+	Boolean ppd_state_isWorkerRunning();
+	void ppd_state_setWorkerRunning(Boolean status);
+
+	Boolean ppd_state_isReplicationProcessActive();
+	void ppd_state_setReplicationProcessActive(Boolean s);
 
 
 #endif /* PPD_STATE_H_ */

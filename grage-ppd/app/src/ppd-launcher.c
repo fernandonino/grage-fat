@@ -40,16 +40,6 @@
 	extern pthread_t ppdConsoleThread;
 
 
-	/*void ppd_launcher_initializeBPB(){
-
-		BPB biosParameterBlock;
-		DiskSector diskSector = ppd_persistence_readSector(0 , ppd_state_getDiskStartAddress());
-		memcpy(&biosParameterBlock , diskSector.sectorContent , sizeof(BPB));
-
-		ppd_state_setSectorsCount(biosParameterBlock.BPB_TotSec32);
-	}
-*/
-
 
 	void ppd_launcher_console(){
 		ppd_launchConsole_initialize();
