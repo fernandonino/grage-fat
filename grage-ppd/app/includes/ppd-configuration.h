@@ -12,11 +12,11 @@
 #define PPD_CONFIGURATION_MODE_CONNECT		"connect"
 #define PPD_CONFIGURATION_MODE_LISTEN		"listen"
 
-//#define PPD_DEFAULT_CONFIGURATION_FILE		"../conf/grage-ppd.properties"
-//#define PPD_DEFAULT_LOG_FILE				"../logs/ppd.log"
+#define PPD_DEFAULT_CONFIGURATION_FILE		"../conf/grage-ppd.properties"
+#define PPD_DEFAULT_LOG_FILE				"../logs/ppd.log"
 
-#define PPD_DEFAULT_LOG_FILE				"/opt/grage-repository/logs/ppd2.log"
-#define PPD_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/grage-ppd-2.properties"
+//#define PPD_DEFAULT_LOG_FILE				"/opt/grage-repository/logs/ppd2.log"
+//#define PPD_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/grage-ppd-2.properties"
 
 #define PPD_CONFIGURATION_MODE				"ppd.configuration.mode"
 #define PPD_CONFIGURATION_ALGORITMO			"ppd.configuration.algoritmo"
