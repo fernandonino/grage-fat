@@ -49,7 +49,7 @@
 
 
 
-	void praid_endpoint_ppd_callFinishReplication(ListenSocket ls){
+	void praid_endpoint_ppd_callProcessJobs(ListenSocket ls){
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();
 		message = nipc_mbuilder_addMessageType(message , NIPC_MESSAGE_TYPE_SYNC_PROCESS);
 		message = nipc_mbuilder_addOperationId(message, NIPC_OPERATION_ID_SYNC_END);

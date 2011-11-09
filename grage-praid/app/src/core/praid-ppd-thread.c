@@ -28,8 +28,6 @@
 
 	void praid_ppd_thread_launchNewSlaveThread(PPDConnectionStorage * aStorage){
 
-		puts("Lanzando hilo entrypoint PPD");
-
 		pthread_create(&aStorage->storageThreadListener , NULL , (void * (*)(void *)) praid_ppd_thread_listener , aStorage);
 		pthread_create(&aStorage->storageThreadSender , NULL , (void * (*)(void *)) praid_ppd_thread_sender , aStorage);
 	}
@@ -67,7 +65,7 @@
 				}else if (message.header.operationId == NIPC_OPERATION_ID_SYNC_END){
 
 					praid_sync_setReplicationStatus(FALSE);
-					praid_endpoint_ppd_callFinishReplication(dest->connection);
+					praid_endpoint_ppd_callProcessJobs(dest->connection);
 					puts("Replicacion finalizada");
 				}
 

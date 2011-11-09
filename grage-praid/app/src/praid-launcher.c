@@ -35,9 +35,11 @@
 		praid_entry_startEntrypointListening();
 	}
 
+
 	void praid_launcher_exit() {
 		log_destroy();
 	}
+
 
 	int main(int argc, char *args[]){
 

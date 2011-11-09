@@ -19,4 +19,6 @@
 	void praid_endpoint_ppd_callSyncPutSector(ListenSocket , DiskSector , uint16_t bytes);
 	void praid_endpoint_ppd_callFinishReplication(ListenSocket);
 
+	void praid_endpoint_ppd_callProcessJobs(ListenSocket ls);
+
 #endif /* PRAID_ENDPOINT_H_ */

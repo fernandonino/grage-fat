@@ -13,6 +13,7 @@
 
 #include "praid-configuration.h"
 #include "praid-entrypoint.h"
+#include "praid-endpoint.h"
 #include "praid-state.h"
 #include "praid-sync.h"
 
@@ -36,10 +37,13 @@
 		if(praid_ppd_sync_isValidReplication())
 			praid_ppd_sync_synchronize(storage);
 		else
-			praid_endpoint_ppd_callFinishReplication(storage->connection);
+			praid_endpoint_ppd_callProcessJobs(storage->connection);
 
 		praid_ppd_thread_launchNewSlaveThread(storage);
 	}
+
+
+
 
 
 	void praid_entry_denegateConnection(uint8_t processId , ListenSocket aListenSocket){
@@ -54,6 +58,9 @@
 
 		close(aListenSocket);
 	}
+
+
+
 
 
 	void praid_entry_startEntrypointListening(){
