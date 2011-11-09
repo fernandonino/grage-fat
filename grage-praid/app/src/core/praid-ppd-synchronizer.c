@@ -21,7 +21,7 @@
 	Boolean praid_sync_isReplicationActive(){
 		return replicationStatusActive;
 	}
-	void praid_sync_setReplicationStatus(Boolean status){
+	void praid_sync_setReplicationStatusActive(Boolean status){
 		replicationStatusActive = status;
 	}
 
@@ -86,7 +86,7 @@
 
 	void praid_ppd_sync_synchronize(PPDConnectionStorage * destiny){
 
-		praid_sync_setReplicationStatus(TRUE);
+		praid_sync_setReplicationStatusActive(TRUE);
 
 		PPDConnectionStorage * master = praid_ppd_sync_selectMasterStorage();
 		praid_ppd_sync_fireSynchronization(master , destiny);

@@ -23,7 +23,7 @@
 
 	void praid_ppd_thread_listener(PPDConnectionStorage * );
 	void praid_ppd_thread_sender(PPDConnectionStorage * );
-
+	void praid_ppd_checkIfContinueDenegatingRequests(uint8_t ppdid);
 
 
 	void praid_ppd_thread_launchNewSlaveThread(PPDConnectionStorage * aStorage){
@@ -71,7 +71,7 @@
 
 					praid_utils_printClusterInformation();
 
-					praid_sync_setReplicationStatus(FALSE);
+					praid_sync_setReplicationStatusActive(FALSE);
 
 					praid_utils_printLines();
 				}
@@ -89,6 +89,8 @@
 		praid_utils_printClusterInformation();
 
 		praid_utils_printLines();
+
+		praid_ppd_checkIfContinueDenegatingRequests(storage->id);
 
 	}
 
@@ -120,7 +122,14 @@
 
 
 
+	void praid_ppd_checkIfContinueDenegatingRequests(uint8_t ppdid){
 
+		SyncProcessState state = praid_sync_getSyncProcessState();
+
+		if(state.source->id == ppdid || state.destiny->id == ppdid)
+			praid_sync_setReplicationStatusActive(FALSE);
+
+	}
 
 
 
