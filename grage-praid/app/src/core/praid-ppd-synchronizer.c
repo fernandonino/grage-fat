@@ -12,6 +12,7 @@
 #include "praid-queue.h"
 #include "praid-state.h"
 #include "praid-endpoint.h"
+#include "praid-configuration.h"
 
 
 
@@ -35,9 +36,9 @@
 	}
 
 
-	//void praid_sync_incrementSyncSectorId(){
-	//	syncState.sectorId += 1;
-	//}
+	void praid_sync_incrementSyncSectorsCounter(){
+		syncState.sectorsCounter += 1;
+	}
 	void praid_sync_incrementBytesSynchronized(uint32_t bytes){
 		syncState.bytesSynchronized += bytes;
 	}
@@ -49,7 +50,7 @@
 	SyncProcessState praid_sync_buildSyncProcessState( PPDConnectionStorage * src , PPDConnectionStorage * dest){
 		SyncProcessState syncProcess;
 
-		//syncProcess.sectorId = 0;
+		syncProcess.sectorsCounter = 0;
 		syncProcess.bytesSynchronized = 0;
 		syncProcess.source = src;
 		syncProcess.destiny = dest;
@@ -60,7 +61,8 @@
 
 
 	Boolean praid_ppd_sync_isValidReplication(){
-		return (praid_state_getPpdStorages()->size >= 2);
+		return (praid_state_getPpdStorages()->size >= 2)
+				&& praid_configuration_getEnableReplication();
 	}
 
 
@@ -74,8 +76,6 @@
 
 	void praid_ppd_sync_fireSynchronization(PPDConnectionStorage * source ,
 			PPDConnectionStorage * dest){
-
-		puts("Sincronizando datos");
 
 		SyncProcessState syncProcess = praid_sync_buildSyncProcessState( source , dest);
 		praid_sync_setSyncProcessState(syncProcess);

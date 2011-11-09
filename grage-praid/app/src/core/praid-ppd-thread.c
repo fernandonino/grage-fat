@@ -18,7 +18,7 @@
 #include "praid-endpoint.h"
 #include "praid-configuration.h"
 #include "praid-sync.h"
-
+#include "praid-utils.h"
 
 
 	void praid_ppd_thread_listener(PPDConnectionStorage * );
@@ -37,8 +37,6 @@
 
 	void praid_ppd_thread_listener(PPDConnectionStorage * storage){
 
-		puts("Ejecutando Hilo Listener de proceso PPD");
-
 		while(praid_state_storage_isConnected(storage)){
 
 			NipcMessage message = nipc_messaging_receive(storage->connection);
@@ -48,25 +46,34 @@
 				praid_state_storage_setDisconnected(storage);
 
 				break;
+
 			}else if(message.header.messageType == NIPC_MESSAGE_TYPE_SYNC_PROCESS){
 
 				PPDConnectionStorage * dest = praid_sync_getSyncProcessState().destiny;
 
+				SyncProcessState syncState = praid_sync_getSyncProcessState();
+
 				if(message.header.operationId == NIPC_OPERATION_ID_SYNC_PUT_SECTOR){
+
+					praid_sync_incrementSyncSectorsCounter();
 
 					praid_endpoint_ppd_callSyncPutSector(dest->connection , message.payload.diskSector , message.header.payloadLength);
 
 					praid_sync_incrementBytesSynchronized(message.header.payloadLength);
 
-					printf("[Sincronizados %i bytes de un total de %i ]\n" ,
-							praid_sync_getSyncProcessState().bytesSynchronized,
-							praid_sync_getSyncProcessState().source->volumeSize);
+					praid_utils_printSynchingInformation(syncState);
 
 				}else if (message.header.operationId == NIPC_OPERATION_ID_SYNC_END){
 
-					praid_sync_setReplicationStatus(FALSE);
 					praid_endpoint_ppd_callProcessJobs(dest->connection);
-					puts("Replicacion finalizada");
+
+					praid_utils_printEndSynchingInformation(syncState);
+
+					praid_utils_printClusterInformation();
+
+					praid_sync_setReplicationStatus(FALSE);
+
+					praid_utils_printLines();
 				}
 
 			}else{
@@ -75,16 +82,19 @@
 				praid_endpoint_pfs_responseAndClose(message.payload.pfsSocket , message);
 			}
 		}
-
-		printf("Eliminando PPD con Id %i tras desconexion\n" , storage->id);
+		praid_utils_printLines();
+		printf("[ Se ha desconectado el PPD %i ]\n" , storage->id);
+		printf("[ Eliminando PPD con Id %i tras desconexion ]\n" , storage->id);
 		praid_state_removePddStorage(storage);
+		praid_utils_printClusterInformation();
+
+		praid_utils_printLines();
+
 	}
 
 
 
 	void praid_ppd_thread_sender(PPDConnectionStorage * aStorage){
-
-		puts("Ejecutando Hilo Sender de process PPD");
 
 		while(praid_state_storage_isConnected(aStorage)){
 

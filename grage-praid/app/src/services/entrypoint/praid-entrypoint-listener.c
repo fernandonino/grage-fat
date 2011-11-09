@@ -34,10 +34,31 @@
 
 		praid_state_addPpdStorage(storage);
 
-		if(praid_ppd_sync_isValidReplication())
+		praid_utils_printLines();
+
+		printf("[ Nuevo PPD en el cluster con Id: %i ]\n" , ppdId);
+
+		praid_utils_printClusterInformation(ppdId);
+
+		if(praid_ppd_sync_isValidReplication()) {
+
+			puts("[ Comenzando la replicacion de datos ]");
+
+			praid_utils_printLines();
+
+			sleep(1.5);
+
 			praid_ppd_sync_synchronize(storage);
-		else
+
+		} else {
+
+			puts("[ No se realiza replicacion de datos ]");
+
+			praid_utils_printLines();
+
 			praid_endpoint_ppd_callProcessJobs(storage->connection);
+
+		}
 
 		praid_ppd_thread_launchNewSlaveThread(storage);
 	}
@@ -65,13 +86,13 @@
 
 	void praid_entry_startEntrypointListening(){
 
-		puts("Queda en escucha");
+		puts("[ Proceso RAID en escucha ]");
+
 		ServerSocket * serverSocket = commons_socket_openServerConnection(praid_configuration_getDevicePort());
 
 		while (TRUE){
 
 			ListenSocket listenSocket = commons_socket_acceptConnection(serverSocket);
-			puts("Se conecto algo");
 
 			NipcMessage handshake = nipc_receiveHandshake(listenSocket );
 
@@ -84,12 +105,12 @@
 				if(handshake.header.processHandshakeId == NIPC_PROCESS_ID_PPD
 						&& praid_sync_isReplicationActive()){
 
+					puts("[ Se denega la conexion del proceso PPD para mantener la consistencia en la replicacion en curso ]");
+
 					praid_entry_denegateConnection(handshake.header.processHandshakeId , listenSocket);
 
 					continue;
 				}
-
-				printf("tipo de proceso conectado: %i\n" , handshake.header.processHandshakeId);
 
 				nipc_sendHandshake(listenSocket ,  handshake.header.processHandshakeId );
 

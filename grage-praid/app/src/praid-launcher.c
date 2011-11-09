@@ -20,10 +20,12 @@
 
 		int status = log_create("praid", PRAIND_DEFAULT_LOG_FILE ,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 
-		if(status == 0)
-			puts("Log inicializado con exito");
-		else
-			puts("Falló la inicialización del log");
+		if(status == 0){
+			puts("[ Log inicializado con exito ]");
+		} else {
+			puts("[ Falló la inicialización del log ]");
+			exit(EXIT_FAILURE);
+		}
 
 		praid_configuration_setup();
 

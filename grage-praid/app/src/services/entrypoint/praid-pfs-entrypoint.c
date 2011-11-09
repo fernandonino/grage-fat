@@ -31,13 +31,10 @@
 		ListenSocket * theSocket = malloc(sizeof(ListenSocket));
 		*theSocket = ls;
 
-		puts("Lanzando hilo entrypoint PFS");
 		pthread_create(&pfsSlaveThread , NULL , (void * (*)(void *))praid_pfs_entrypoint_receiveInvocation , theSocket);
 	}
 
 	void praid_pfs_entrypoint_receiveInvocation(ListenSocket * ls){
-
-		puts("Ejecutando hilo entrypoint PFS");
 
 		NipcMessage message = nipc_messaging_receive(*ls);
 		message.payload.pfsSocket = *ls;
@@ -52,14 +49,27 @@
 
 	void praid_pfs_entrypoint_executePutSector(NipcMessage message){
 
-		puts("Ejecutando put sector");
+
+		praid_utils_printLines();
+		puts("[ Ejecutando PUT ]");
+		printf("[ Se escribira sobre los PPD's con los siguientes ID: ");
 
 		Iterator * storages = commons_iterator_buildIterator(praid_state_getPpdStorages());
 
 		while( commons_iterator_hasMoreElements( storages ) ){
+
 			PPDConnectionStorage * storage = commons_iterator_next(storages);
+
 			praid_storage_queue_put(storage->pendingJobs , message);
+
+			printf("%i " , storage->id);
+
+			if(commons_iterator_hasMoreElements(storages))
+				printf(" , ");
 		}
+
+		printf("\n");
+
 
 		free(storages);
 	}
@@ -67,8 +77,15 @@
 
 	void praid_pfs_entrypoint_executeGetSector(NipcMessage message){
 
-		puts("Ejecutando get sector");
+		praid_utils_printLines();
+
+		puts("[ Ejecutando GET ]");
 
 		PPDConnectionStorage * storage = praid_balancer_selectStorage();
+
+		printf("[ Se leera del PPD: %i ]\n" , storage->id);
+
 		praid_storage_queue_put(storage->pendingJobs , message);
+
+
 	}
