@@ -266,13 +266,13 @@
 		return 0;
 	}
 
-	int8_t pfs_fat32_utils_seek(Volume * v , FatFile * f , off_t offset){
-		uint32_t fileSize = f->shortEntry.DIR_FileSize;
+	int8_t pfs_fat32_utils_seek(Volume * v , FatFile * f , off_t offset , uint32_t fsize){
 
-		if ( offset > fileSize || offset < 0 || f->shortEntry.DIR_Attr == FAT_32_ATTR_DIRECTORY ){
+		if ( offset > fsize || offset < 0 || f->shortEntry.DIR_Attr == FAT_32_ATTR_DIRECTORY ){
 			return EXIT_FAILURE;
 		}
 
+		//Revisar en el caso que de 0
 		f->fileClusterNumber = offset / v->bpc + 1;
 		f->fileSectorNumberOfCluster = offset % v->bpc / v->bps + 1;
 		f->sectorByteOffset = offset % v->bpc;

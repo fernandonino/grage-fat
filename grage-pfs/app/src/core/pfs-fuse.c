@@ -65,7 +65,11 @@
 		Volume * volume = pfs_state_getVolume();
 		FatFile * file = (FatFile *)fi->fh;
 
-		uint8_t result = pfs_fat32_utils_seek(volume , file , offset);
+		uint32_t filesize = file->shortEntry.DIR_FileSize;
+		if ( (offset + size) > filesize )
+			size = filesize - offset;
+
+		uint8_t result = pfs_fat32_utils_seek(volume , file , offset , filesize);
 		if ( result == EXIT_FAILURE )
 			return -ESPIPE;
 

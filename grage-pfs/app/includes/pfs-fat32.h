@@ -131,7 +131,7 @@
 	time_t pfs_fat32_utils_getTime(DirEntry *D);
 	uint8_t pfs_fat32_utils_fillTime(uint16_t * , uint16_t * , time_t);
 
-	int8_t pfs_fat32_utils_seek(Volume * , FatFile * , off_t );
+	int8_t pfs_fat32_utils_seek(Volume * , FatFile * , off_t , uint32_t);
 	DiskSector pfs_fat32_utils_getSectorFromNthCluster(FatFile *);
 
 #endif /* PFS_FAT32_H_ */
