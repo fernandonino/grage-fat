@@ -12,22 +12,23 @@
 
 
 	FatFile * pfs_fat32_utils_openRootDirectory(Volume * v) {
-		FatFile fatFile;
+		FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
 
-		uint32_t cluster = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v, v->root);
+		uint32_t cluster = pfs_fat32_utils_getNextClusterInChain(v , v->root);
 
-		fatFile.source = v->root;
-		fatFile.sourceOffset = 0;
+		fatFile->source = v->root;
+		fatFile->sourceOffset = 0;
 
 		if (FAT_32_ISEOC(cluster))
-			fatFile.nextCluster = 0;
+			fatFile->nextCluster = 0;
 		else
-			fatFile.nextCluster = cluster;
+			fatFile->nextCluster = cluster;
 
-		fatFile.dirEntryOffset = 0;
-		fatFile.dirType = 0;
+		fatFile->currentSector.sectorNumber = v->fds;
+		fatFile->dirEntryOffset = 0;
+		fatFile->dirType = 0;
 
-		return &fatFile;
+		return fatFile;
 	}
 
 
@@ -145,7 +146,8 @@
 		DirEntry  sfnentry;
 		uint8_t lfncount = 0;
 
-		DiskSector diskSector = file->currentSector;
+		DiskSector diskSector = pfs_endpoint_callGetSector(file->currentSector.sectorNumber);
+
 
 		if( file->dirEntryOffset >= volume->bps){
 			uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(volume , file->nextCluster);
@@ -161,7 +163,7 @@
 				uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(volume , file->nextCluster);
 				diskSector = pfs_endpoint_callGetSector(sectorId);
 			}
-		} while ( lfnentry.LDIR_Ord != 0x00 );
+		} while ( FAT_32_DIRENT_ISFREE(lfnentry.LDIR_Ord) );
 
 		if( FAT_32_LDIR_ISLAST(lfnentry.LDIR_Ord) ){
 			lfncount++;

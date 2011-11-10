@@ -328,7 +328,9 @@
 			}
 			st->st_size = fatFile->shortEntry.DIR_FileSize;
 			st->st_blocks = (st->st_size / v->bpc) + 1;
-			st->st_ctim.tv_sec = st->st_atim.tv_sec = st->st_mtim.tv_sec = pfs_fat32_utils_getTime(&(fatFile->shortEntry));
+			//st->st_ctim.tv_sec = st->st_atim.tv_sec = st->st_mtim.tv_sec = pfs_fat32_utils_getTime(&(fatFile->shortEntry));
 		}
 	}
+
+
 

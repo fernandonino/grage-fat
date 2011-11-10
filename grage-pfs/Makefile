@@ -49,8 +49,9 @@ build:
 	mkdir build/bin
 	mkdir build/conf
 	mkdir build/logs
-	gcc $(BUILD_SOURCE) $(BUILD_SOURCE_SERVICES) $(BUILD_SOURCE_CONSOLE) $(BUILD_INCLUDES) $(BUILD_DEPS) -o $(BUILD_TARGET)
+	gcc $(BUILD_SOURCE) $(BUILD_SOURCE_SERVICES) $(BUILD_SOURCE_CONSOLE) $(BUILD_INCLUDES) $(BUILD_DEPS) -g -o $(BUILD_TARGET)
 	cp app/conf/* build/conf
+	cp app/conf/* /opt/grage-repository/conf
 	
 build-lib:
 	if [ -d build ]; then rm -rf build; fi

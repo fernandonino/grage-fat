@@ -113,23 +113,24 @@
 
 	int pfs_fuse_readdir(const char * path , void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi){
 
-		FatFile * fatFile = pfs_fat32_open(path);
 		uint8_t result;
-		struct dirent * de = NULL;
-		Volume * v = pfs_state_getVolume();
+		struct dirent de;
 		struct stat st;
+
+		FatFile * fatFile = pfs_fat32_open(path);
+		Volume * v = pfs_state_getVolume();
 
 		if(fatFile == NULL)
 			return -ENOENT;
 
-		while( (result = pfs_fat32_readDirectory(de , fatFile , v)) == 0 ){
+		while( (result = pfs_fat32_readDirectory(&de , fatFile , v)) == 0 ){
 	        memset(&st, 0, sizeof(st));
-	        st.st_ino = de->d_ino;
-			if (de->d_type == DT_DIR) {
+	        st.st_ino = de.d_ino;
+			if (de.d_type == DT_DIR) {
 				st.st_mode = S_IFDIR;
 			} else st.st_mode = S_IFREG;
 
-	        if (filler(buf, de->d_name, &st, 0))
+	        if (filler(buf, de.d_name, &st, 0))
 	            break;
 		}
 		return EXIT_SUCCESS;

@@ -24,7 +24,6 @@
 
 
 	#define FAT_32_ROOT_FORWARD_SLASH					"/"
-	#define FAT_32_ENDOFDIR 							0x00
 	#define FAT_32_DIR_ENTRY_SIZE						32
 	#define FAT_32_BLOCK_ENTRY_SIZE						64
 	#define FAT_32_SECTOR_SIZE 							512
@@ -61,7 +60,7 @@
 		uint16_t DIR_WrtDate;
 		uint16_t DIR_FstClusLO;
 		uint32_t DIR_FileSize;
-	} DirEntry;
+	}  __attribute__((packed)) DirEntry;
 
 
 
@@ -74,7 +73,7 @@
 		uint16_t LDIR_Name2[6];
 		uint16_t LDIR_FstClusLO;
 		uint16_t LDIR_Name3[2];
-	}  LongDirEntry;
+	}  __attribute__((packed)) LongDirEntry;
 
 
 

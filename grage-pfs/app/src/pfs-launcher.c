@@ -26,6 +26,8 @@
 #include "pfs-fat32.h"
 #include "pfs-fuse.h"
 
+void launch_pfs_tests(void);
+
 	/*
 	void pfs_launcher_launchConnections(){
 
@@ -54,8 +56,9 @@
 
 
 	void pfs_launcher_initialize() {
-		log_create("pfs", "/opt/grage-repository/logs/pfs.log",
+		log_create("pfs", "/opt/grage-repository/logs/grage-pfs.log",
 				INFO | DEBUG | WARNING | ERROR, M_CONSOLE_DISABLE);
+		pfs_configuration_setConfigurationFile(PFS_DEFAULT_CONFIGURATION_FILE);
 		pfs_configuration_initialize();
 
 		//pfs_launcher_launchConnections();
@@ -95,11 +98,9 @@
 
 		pfs_launcher_initializeBPB();
 
-		pfs_fuse_launchFuse(argc,argv);
+		//pfs_fuse_launchFuse(argc,argv);
 
-
-
-
+		launch_pfs_tests();
 
 	}
 
@@ -109,16 +110,6 @@
 
 	int main(int argc, char *argv[]) {
 
-		/*
-		 * Parametro de la aplicacion - path al archivo de conf
-		 */
-
-		if (argc > 1) {
-			pfs_configuration_setConfigurationFile(argv[1]);
-		} else {
-			pfs_configuration_setConfigurationFile(PFS_DEFAULT_CONFIGURATION_FILE);
-		}
-
 		pfs_launcher_initialize();
 
 		pfs_launcher_launch(argc , argv);
@@ -127,4 +118,12 @@
 
 
 		return EXIT_SUCCESS;
+	}
+
+	void launch_pfs_tests(void){
+		Volume * v = pfs_state_getVolume();
+		FatFile * file = pfs_fat32_open("/");
+		struct dirent de;
+		pfs_fat32_readDirectory(&de , file , v);
+		free(file);
 	}
