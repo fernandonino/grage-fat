@@ -35,7 +35,6 @@
 	void ppd_launcher_exit();
 
 
-	extern pthread_t entrypointThread;
 	extern pthread_t jobsThread;
 	extern pthread_t ppdConsoleThread;
 
@@ -48,55 +47,45 @@
 
 
 
-	void ppd_launcher_initialize(){
-		int status = log_create("ppd", PPD_DEFAULT_LOG_FILE ,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
+	void ppd_launcher_initializeOrVolume(){
 
-		if(status == 0)
-			puts("Log creado con exito");
-		else
-			puts("Fallo la creacion del log");
+		if( ppd_state_isListenMode()){
+			ppd_persistence_mapDevice();
 
-		ppd_configuration_setup();
-
-		/*
-		 * Si existe la configuracion se mapea el disco
-		 */
-		if( !commons_file_isValidConfValue( ppd_conf_getDiskPath())){
-			puts("No existe un path al archivo del volumen");
-			exit(1);
 		}else{
 
 			File * volumeFile = commons_file_openFile(ppd_conf_getDiskPath());
+
 			if( volumeFile != NULL){
 				ppd_state_setVolumeSize(commons_file_getFileSize(volumeFile));
 				commons_file_closeFile(volumeFile);
 			}
 		}
+	}
+
+
+	void ppd_launcher_initialize(){
+		int status = log_create("ppd", PPD_DEFAULT_LOG_FILE ,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
+
+		if(status == 0)
+			puts("[ Log creado con exito ]");
+		else{
+			puts("[ Fallo la creacion del log ]");
+			exit(EXIT_FAILURE);
+		}
+
+		ppd_configuration_setup();
+
+		if( !commons_file_isValidConfValue( ppd_conf_getDiskPath())){
+			puts("[ No existe un path al archivo del volumen ]");
+			exit(EXIT_FAILURE);
+		}else{
+			ppd_launcher_initializeOrVolume();
+		}
 
 		ppd_queues_initialize();
 	}
 
-
-	void ppd_launcher_joinAllThread(){
-
-		printf("joineando hilos\n");
-
-		pthread_join(entrypointThread , NULL);
-		pthread_join(ppdConsoleThread , NULL);
-		pthread_join(jobsThread , NULL);
-	}
-
-
-	void ppd_launcher_launchConnections(){
-		if(commons_string_equals(ppd_conf_getPpdMode() ,
-				PPD_CONFIGURATION_MODE_CONNECT)){
-
-			ppd_connections_connectToPraid();
-
-		}else{
-			ppd_connections_waitForPfsConnections();
-		}
-	}
 
 
 
@@ -104,20 +93,19 @@
  		ppd_launcher_launchConnections();
 		ppd_entrypoint_launch();
 		//ppd_launcher_console();
-		//ppd_planifier_worker_doJobs();
-		ppd_launcher_joinAllThread();
+		ppd_planifier_worker_doJobs();
 	}
 
 
 
 	void ppd_launcher_exit(){
-		puts("finalizando todo");
+		puts("[ Finalizando todo ]");
 
 		/*
 		 * Desmapeamos el disco solo si fue mapeado
 		 */
 		if( commons_file_isValidConfValue( ppd_conf_getDiskPath()))
-			ppd_persistance_unmapDisk( ppd_conf_getDiskPath() , ppd_state_getDiskStartAddress() );
+			ppd_persistence_mapDevice();
 
 		log_destroy();
 	}

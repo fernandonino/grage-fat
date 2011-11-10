@@ -15,8 +15,17 @@
 #include "ppd-state.h"
 #include "ppd-configuration.h"
 #include "ppd-entrypoint.h"
+#include "ppd-connection.h"
 
-	Boolean ppd_connections_handshake(ListenSocket);
+
+	void ppd_launcher_launchConnections(){
+		if( ppd_state_isListenMode()){
+			ppd_connections_waitForPfsConnections();
+		}else{
+			ppd_connections_connectToPraid();
+		}
+	}
+
 
 
 	void ppd_connections_connectToPraid(){
@@ -40,11 +49,12 @@
 			}
 
 		}else{
-			puts("Fallo la coneccion con el proceso PRAID");
-			puts("Finalizando");
-			exit(1);
+			puts("[ Fallo la coneccion con el proceso PRAID ]");
+			puts("[ Finalizando ]");
+			exit(EXIT_FAILURE);
 		}
 	}
+
 
 	void ppd_connections_waitForPfsConnections(){
 
@@ -53,16 +63,6 @@
 
 		ppd_state_setPfsConnection(pfsConnection);
 
-		while(TRUE){
-
-			ListenSocket pfsSocket = commons_socket_acceptConnection(pfsConnection);
-
-			Boolean status = ppd_connections_handshake(pfsSocket);
-
-			if(status){
-				//TODO: administrar thread pfs
-			}
-		}
 	}
 
 

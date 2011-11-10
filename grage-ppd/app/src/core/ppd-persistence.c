@@ -16,10 +16,11 @@
 
 #include <linux-commons-strings.h>
 
-#include "grage-commons.h"
+#include <grage-commons.h>
+
 #include "ppd-configuration.h"
 #include "ppd-persistance.h"
-
+#include "ppd-state.h"
 
 
 	void ppd_persistence_writeSector(DiskSector aSector , char * dest){
@@ -116,4 +117,13 @@
 		return NULL;
 	}
 
+
+	void ppd_persistence_mapDevice(){
+		char * startAddress = ppd_persistance_mapDisk(ppd_conf_getDiskPath());
+		ppd_state_setDiskStartAddress(startAddress);
+	}
+
+	void ppd_persistence_unmapDevice(){
+		ppd_persistance_unmapDisk( ppd_conf_getDiskPath() , ppd_state_getDiskStartAddress() );
+	}
 

@@ -39,8 +39,15 @@
 	}
 
 
+	Boolean ppd_state_isListenMode(){
+		return ( commons_string_equals(
+				ppd_conf_getPpdMode() ,
+				PPD_CONFIGURATION_MODE_LISTEN));
+	}
 
-	ListenSocket ppd_state_getActiveSocket(){
+	/*
+
+	ListenSocket ppd_state_getPraidSocket(){
 		if(connectionStatusActive )
 			if(commons_string_equals( ppd_conf_getPpdMode() ,
 							PPD_CONFIGURATION_MODE_CONNECT)){
@@ -51,6 +58,8 @@
 		else
 			return 0;
 	}
+
+	*/
 
 
 
@@ -87,11 +96,6 @@
 	}
 
 
-
-	void ppd_state_initializeDiskStartAddress(){
-		ppd_state_setDiskStartAddress( ppd_persistance_mapDisk(ppd_conf_getDiskPath()) );
-	//	ppd_launcher_initializeBPB();
-	}
 
 
 	uint32_t volumeSize;
