@@ -238,6 +238,7 @@
 	 *
 	 * 	tim = time(NULL);
 	 *  fat_fill_time(&(sDirEntry.DIR_CrtDate), &(sDirEntry.DIR_CrtTime), tim);
+	 *  fat_fill_time(&(sDirEntry.DIR_WrtDate), &(sDirEntry.DIR_WrtTime), tim);
 	 */
 	uint8_t pfs_fat32_utils_fillTime(uint16_t * d , uint16_t * t , time_t actualTime) {
 		struct tm time;
@@ -302,4 +303,32 @@
 	}
 
 
+	void pfs_fat32_utils_fileStat(Volume * v , FatFile * fatFile , struct stat * st) {
+		memset((char *) st, 0, sizeof(struct stat));
+
+		st->st_dev = (int)(v);
+		st->st_nlink = 1;
+		st->st_rdev = 0;
+		st->st_blksize = v->bpc;
+
+		if(fatFile->dirType == 0) {
+			st->st_ino = v->root;
+			st->st_mode = S_IFDIR | S_IRWXU;
+			st->st_size = 0;
+			st->st_blocks=0;
+			//Hay que ver por que y como solucionar esto
+			//st->st_ctim = st->st_atim = st->st_mtim = 0;
+		} else {
+			st->st_ino = pfs_fat_getFirstClusterFromDirEntry(&(fatFile->shortEntry));
+
+			if ( fatFile->shortEntry.DIR_Attr == FAT_32_ATTR_DIRECTORY ) {
+				st->st_mode = S_IFDIR | S_IRWXU;
+			} else {
+				st->st_mode = S_IFREG | S_IRWXU;
+			}
+			st->st_size = fatFile->shortEntry.DIR_FileSize;
+			st->st_blocks = (st->st_size / v->bpc) + 1;
+			st->st_ctim.tv_sec = st->st_atim.tv_sec = st->st_mtim.tv_sec = pfs_fat32_utils_getTime(&(fatFile->shortEntry));
+		}
+	}
 

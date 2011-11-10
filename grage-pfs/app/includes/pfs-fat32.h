@@ -106,7 +106,6 @@
 	int8_t pfs_fat32_unlink_FatEntryChain(Volume * v , FatFile * fd);
 	void pfs_fat32_unlink(Volume * v , FatFile * fd);
 	void pfs_fat32_rmdir(Volume * v , FatFile * fd);
-	void fat_stat(Volume * v , FatFile * fatFile , struct stat * st);
 	uint16_t pfs_fat32_read(Volume * , FatFile * , char * , size_t);
 
 //UTILS
@@ -126,6 +125,7 @@
 	uint32_t pfs_fat32_utils_getDirEntryOffset(uint32_t sectorId , uint32_t os , uint32_t offset);
 	void pfs_fat32_utils_toDirent(struct dirent * de , DirEntry direntry , LongDirEntry ldirentry , Volume * v);
 	uint8_t pfs_fat32_isDirectoryEmpty(Volume * v, FatFile * fd);
+	void pfs_fat32_utils_fileStat(Volume * , FatFile * , struct stat *);
 
 	time_t pfs_fat32_utils_processTime(int s, int m, int h, int d, int mo, int y);
 	time_t pfs_fat32_utils_getTime(DirEntry *D);
@@ -135,3 +135,5 @@
 	DiskSector pfs_fat32_utils_getSectorFromNthCluster(FatFile *);
 
 #endif /* PFS_FAT32_H_ */
+
+

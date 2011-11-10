@@ -22,7 +22,7 @@
 	  .mkdir = pfs_fuse_mkdir,				//Pendiente
 	  .unlink = pfs_fuse_unlink,			//Terminada
 	  .rmdir = pfs_fuse_rmdir,				//Terminada
-	  .rename = pfs_fuse_rename,
+	  .rename = pfs_fuse_rename,			//Pendiente
 	  .open = pfs_fuse_open,				//Terminada
 	  .read = pfs_fuse_read,				//Ultimos detalles pendientes
 	  .write = pfs_fuse_write,				//Pendiente
@@ -152,6 +152,15 @@
 	}
 
 	int pfs_fuse_getattr(const char *path, struct stat *statbuf){
+		Volume * v = pfs_state_getVolume();
+
+		FatFile * file = pfs_fat32_open(path);
+		if (file == NULL){
+			return EXIT_FAILURE;
+		}
+
+		pfs_fat32_utils_fileStat(v , file , statbuf);
+
 		return EXIT_SUCCESS;
 	}
 
