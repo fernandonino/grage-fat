@@ -82,6 +82,8 @@
 
 	void praid_state_removePddStorage(PPDConnectionStorage * storage){
 
+		praid_state_storage_setDisconnected(storage);
+
 		void removingStorage(PPDConnectionStorage * s){
 			//remover la cola del storage
 			close(s->connection);

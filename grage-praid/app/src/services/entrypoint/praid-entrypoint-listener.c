@@ -36,25 +36,24 @@
 
 		praid_utils_printLines();
 
-		printf("[ Nuevo PPD en el cluster con Id: %i ]\n" , ppdId);
+		if(commons_console_logging_isDefault())
+			printf("[ Nuevo PPD en el cluster con Id: %i ]\n" , ppdId);
 
 		praid_utils_printClusterInformation(ppdId);
 
 		if(praid_ppd_sync_isValidReplication()) {
 
-			puts("[ Comenzando la replicacion de datos ]");
+			if(commons_console_logging_isDefault())
+				puts("[ Comenzando la replicacion de datos ]");
 
-			praid_utils_printLines();
-
-			sleep(1.5);
+			sleep(3);
 
 			praid_ppd_sync_synchronize(storage);
 
 		} else {
 
-			puts("[ No se realiza replicacion de datos ]");
-
-			praid_utils_printLines();
+			if(commons_console_logging_isDefault())
+				puts("[ No se realiza replicacion de datos ]");
 
 			praid_endpoint_ppd_callProcessJobs(storage->connection);
 
@@ -86,7 +85,8 @@
 
 	void praid_entry_startEntrypointListening(){
 
-		puts("[ Proceso RAID en escucha ]");
+		if(commons_console_logging_isDefault())
+			puts("[ Proceso RAID en escucha ]");
 
 		ServerSocket * serverSocket = commons_socket_openServerConnection(praid_configuration_getDevicePort());
 
@@ -105,7 +105,8 @@
 				if(handshake.header.processHandshakeId == NIPC_PROCESS_ID_PPD
 						&& praid_sync_isReplicationActive()){
 
-					puts("[ Se denega la conexion del proceso PPD para mantener la consistencia en la replicacion en curso ]");
+					if(commons_console_logging_isDefault())
+						puts("[ Se denega la conexion del proceso PPD para mantener la consistencia en la replicacion en curso ]");
 
 					praid_entry_denegateConnection(handshake.header.processHandshakeId , listenSocket);
 
@@ -113,7 +114,8 @@
 				}else if (handshake.header.processHandshakeId == NIPC_PROCESS_ID_PFS
 						&& !praid_state_isThereAnyPpdConnected()){
 
-					puts("[ Se denega la conexion del proceso PFS por ausencia de recursos PPD's conectados ]");
+					if(commons_console_logging_isDefault())
+						puts("[ Se denega la conexion del proceso PFS por ausencia de recursos PPD's conectados ]");
 
 					praid_entry_denegateConnection(handshake.header.processHandshakeId , listenSocket);
 

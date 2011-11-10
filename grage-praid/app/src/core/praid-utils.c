@@ -14,67 +14,76 @@
 
 
 	void praid_utils_printLines(){
-		//printf("\n");
 
-		for(int i=0 ; i<65 ; i++){
-			printf("-");
+		if(commons_console_logging_isDefault()){
+
+			for(int i=0 ; i<65 ; i++){
+				printf("-");
+			}
+			printf("\n");
 		}
-
-		printf("\n");
-
 	}
 
 
 	void praid_utils_printSynchingInformation(SyncProcessState state){
-
-		printf("[ Sincronizados %i bytes de un total de %i ]\n" ,
-			state.bytesSynchronized, state.source->volumeSize);
+		if(commons_console_logging_isAll())
+			printf("[ Sincronizados %i bytes de un total de %i ]\n" ,
+					state.bytesSynchronized, state.source->volumeSize);
 	}
 
 
 
 	void praid_utils_printEndSynchingInformation(SyncProcessState state){
 
-		commons_misc_lockThreadMutex(&listingMutex);
+		if(commons_console_logging_isDefault()){
 
-		praid_utils_printLines();
+			commons_misc_lockThreadMutex(&listingMutex);
 
-		puts("[ Replicacion finalizada ]");
+			praid_utils_printLines();
 
-		printf("[ Replicados %i sectores ]\n" , state.sectorsCounter);
-		printf("[ Replicados %i de %i bytes ]\n" ,
-				 state.bytesSynchronized , state.source->volumeSize);
+			puts("[ Replicacion finalizada ]");
 
-		//Time currentTime = commons_misc_getCurrentTime();
-		//Time diffTime = commons_misc_getTimeDiff( &currentTime , &state.startTime );
+			printf("[ Replicados %i sectores ]\n" , state.sectorsCounter);
+			printf("[ Replicados %i de %i bytes ]\n" ,
+					 state.bytesSynchronized , state.source->volumeSize);
 
-		//printf("[ Tiempo insumido: %i segundos, %i milisegundos ]\n" , diffTime.tv_sec , diffTime.tv_usec);
+			//Time currentTime = commons_misc_getCurrentTime();
+			//Time diffTime = commons_misc_getTimeDiff( &currentTime , &state.startTime );
 
+			//printf("[ Tiempo insumido: %i segundos, %i milisegundos ]\n" , diffTime.tv_sec , diffTime.tv_usec);
 
-		commons_misc_unlockThreadMutex(&listingMutex);
+			commons_misc_unlockThreadMutex(&listingMutex);
+		}
 	}
 
 
 
 	void praid_utils_printClusterInformation(){
 
-		commons_misc_lockThreadMutex(&listingMutex);
+		if(commons_console_logging_isDefault()){
 
-		Iterator * ite = commons_iterator_buildIterator(praid_state_getPpdStorages());
+			commons_misc_lockThreadMutex(&listingMutex);
 
-		printf("[ Cluster de %i PPD's: " , praid_state_getPpdStorages()->size);
+			Iterator * ite = commons_iterator_buildIterator(praid_state_getPpdStorages());
 
-		while( commons_iterator_hasMoreElements( ite)){
+			printf("[ Cluster formado por %i PPD'S: ]\n" , praid_state_getPpdStorages()->size);
 
-			PPDConnectionStorage * s = commons_iterator_next(ite);
+			if(praid_state_getPpdStorages()->size > 0){
+				printf("[ Miembros actuales: {");
 
-			printf(" %i " , s->id);
+				while( commons_iterator_hasMoreElements( ite)){
 
-			if( commons_iterator_hasMoreElements(ite))
-				printf( ",");
+					PPDConnectionStorage * s = commons_iterator_next(ite);
+
+					printf(" PPD-%i " , s->id);
+
+					if( commons_iterator_hasMoreElements(ite))
+						printf( ",");
+				}
+
+				printf("} ]\n");
+			}
+
+			commons_misc_unlockThreadMutex(&listingMutex);
 		}
-
-		printf(" ]\n");
-
-		commons_misc_unlockThreadMutex(&listingMutex);
 	}

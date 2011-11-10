@@ -9,6 +9,7 @@
 
 #include <linux-commons-file.h>
 #include <linux-commons-strings.h>
+#include <linux-commons-console-logging.h>
 
 #include "praid-configuration.h"
 
@@ -24,18 +25,6 @@
 	}
 
 
-
-
-	Boolean consoleStatus = TRUE;
-
-	Boolean praid_configuration_getConsoleStatus(void){
-		return consoleStatus;
-	}
-	void praid_configuration_setConsoleStatus(Boolean consoleStatusValue){
-		consoleStatus = consoleStatusValue;
-	}
-
-
 	Boolean enableReplication = TRUE;
 
 	Boolean praid_configuration_getEnableReplication(void){
@@ -47,17 +36,13 @@
 
 
 
-
-
 	void praid_configuration_processEntries(char * key , char * value , void * object){
 		if( !strcmp(key, PRAID_CONF_DEVICE_PORT)){
 			praid_configuration_setDevicePort(value);
-		}else if(!strcmp(key , PRAID_CONF_CONSOLE_STATUS)){
-			if( commons_string_equals( value , PRAID_CONF_VALUE_TRUE)){
-				praid_configuration_setConsoleStatus(TRUE);
-			}else if( commons_string_equals(value , PRAID_CONF_VALUE_FALSE)){
-				praid_configuration_setConsoleStatus(FALSE);
-			}
+		}else if(!strcmp(key , PRAID_CONF_CONSOLE_LEVEL)){
+
+			commons_console_logging_setLevel(value);
+
 		}else if( !strcmp(key , PRAID_CONF_ENABLE_REPLICATION)){
 			if( !strcmp(value , PRAID_CONF_VALUE_FALSE)){
 				praid_configuration_setEnableReplication(FALSE);
@@ -91,5 +76,6 @@
 		commons_file_loadConfiguration(file , praid_configuration_processEntries);
 		commons_file_closeFile(file);
 
-		puts("[ Se ha cargado la configuracion ]");
+		if(commons_console_logging_isDefault())
+			puts("[ Se ha cargado la configuracion ]");
 	}

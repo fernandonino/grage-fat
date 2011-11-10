@@ -10,8 +10,24 @@
 #include "linux-commons-list.h"
 
 
+
+#define PRAID_BALANCER_WEIGHT_PENDING_RESPONSE			1
+#define PRAID_BALANCER_WEIGHT_PENDING_REQUEST			2
+
+
 	ThreadMutex loadBalancingMutex = PTHREAD_MUTEX_INITIALIZER;
 
+
+
+	uint32_t praid_balancer_storageRanking(PPDConnectionStorage * storage){
+		if(storage->pendingJobs == NULL){
+			puts("[ Alerta roja, la cola de un storage esta en null, cagamos! ]");
+			exit(1);
+		}
+
+		return storage->pendingJobs->size * PRAID_BALANCER_WEIGHT_PENDING_REQUEST
+				+ storage->pendingResponses * PRAID_BALANCER_WEIGHT_PENDING_RESPONSE;
+	}
 
 
 	PPDConnectionStorage * praid_balancer_selectStorage(){
@@ -20,19 +36,19 @@
 
 		Iterator * storages = commons_iterator_buildIterator(praid_state_getPpdStorages());
 
-		uint32_t minimumPendingResponsesCount = 0;
+		uint32_t minimumRanking = 0;
 		PPDConnectionStorage * selected = NULL;
 
 		while( commons_iterator_hasMoreElements( storages ) ){
 
 			PPDConnectionStorage * storage = commons_iterator_next(storages);
 
-			if( selected == NULL || (storage->pendingResponses < minimumPendingResponsesCount) ){
+			if( selected == NULL || (praid_balancer_storageRanking(storage) < minimumRanking) ){
 
-				minimumPendingResponsesCount = storage->pendingResponses;
+				minimumRanking = praid_balancer_storageRanking(storage);
 				selected = storage;
 
-				if(selected->pendingResponses == 0)
+				if(praid_balancer_storageRanking(storage) == 0)
 					break;
 			}
 		}

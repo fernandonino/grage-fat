@@ -51,8 +51,11 @@
 
 
 		praid_utils_printLines();
-		puts("[ Ejecutando PUT ]");
-		printf("[ Se escribira sobre los PPD's con los siguientes ID: ");
+
+		if(commons_console_logging_isDefault()){
+			puts("[ Ejecutando PUT ]");
+			printf("[ Se escribira sobre los PPD's con los siguientes ID: ");
+		}
 
 		Iterator * storages = commons_iterator_buildIterator(praid_state_getPpdStorages());
 
@@ -62,13 +65,16 @@
 
 			praid_storage_queue_put(storage->pendingJobs , message);
 
-			printf("%i " , storage->id);
+			if(commons_console_logging_isDefault()){
+				printf("%i " , storage->id);
 
-			if(commons_iterator_hasMoreElements(storages))
-				printf(" , ");
+				if(commons_iterator_hasMoreElements(storages))
+					printf(" , ");
+			}
 		}
 
-		printf("\n");
+		if(commons_console_logging_isDefault())
+			printf("\n");
 
 
 		free(storages);
@@ -79,11 +85,13 @@
 
 		praid_utils_printLines();
 
-		puts("[ Ejecutando GET ]");
+		if(commons_console_logging_isDefault())
+			puts("[ Ejecutando GET ]");
 
 		PPDConnectionStorage * storage = praid_balancer_selectStorage();
 
-		printf("[ Se leera del PPD: %i ]\n" , storage->id);
+		if(commons_console_logging_isDefault())
+			printf("[ Se leera del PPD: %i ]\n" , storage->id);
 
 		praid_storage_queue_put(storage->pendingJobs , message);
 

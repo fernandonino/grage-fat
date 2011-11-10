@@ -85,11 +85,13 @@
 
 		praid_utils_printLines();
 
-		printf("[ Se ha desconectado el PPD %i ]\n" , storage->id);
-		printf("[ Eliminando PPD con Id %i tras desconexion ]\n" , storage->id);
+		if(commons_console_logging_isDefault()){
+			printf("[ Se ha desconectado el PPD %i ]\n" , storage->id);
+			printf("[ Eliminando PPD con Id %i tras desconexion ]\n" , storage->id);
+		}
 
-		//TODO: probar este metodo que tira segmentation fault!!
-		//praid_ppd_checkIfContinueDenegatingRequests(storage->id);
+		//TODO: probar esto, tiene bugs
+		praid_ppd_checkIfContinueDenegatingRequests(storage->id);
 
 		praid_state_removePddStorage(storage);
 
@@ -129,9 +131,11 @@
 
 		SyncProcessState state = praid_sync_getSyncProcessState();
 
-		if(state.source->id == ppdid || state.destiny->id == ppdid)
+		if( (state.source != NULL && state.source->id == ppdid)
+				|| (state.destiny != NULL && state.destiny->id == ppdid)){
 			if( praid_sync_isReplicationActive())
 				praid_sync_setReplicationStatusActive(FALSE);
+		}
 	}
 
 

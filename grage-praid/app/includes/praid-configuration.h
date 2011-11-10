@@ -18,7 +18,7 @@
 //#define PRAIND_DEFAULT_LOG_FILE 				"/opt/grage-repository/logs/grage-praid.log"
 
 #define PRAID_CONF_DEVICE_PORT						"praid.device.port"
-#define PRAID_CONF_CONSOLE_STATUS 					"praid.enable.console"
+#define PRAID_CONF_CONSOLE_LEVEL 					"praid.console.level"
 #define PRAID_CONF_ENABLE_REPLICATION				"praid.enable.replication"
 
 #define PRAID_CONF_VALUE_TRUE						"true"
@@ -26,13 +26,10 @@
 
 
 
-
 	char * praid_configuration_getDevicePort(void);
-	Boolean praid_configuration_getConsoleStatus(void);
 	Boolean praid_configuration_getEnableReplication(void);
 
 	void praid_configuration_setDevicePort(char * devAddress);
-	void praid_configuration_setConsoleStatus(Boolean);
 	void praid_configuration_setEnableReplication(Boolean);
 
 	void praid_configuration_setup();
