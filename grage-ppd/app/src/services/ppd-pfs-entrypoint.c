@@ -19,9 +19,9 @@
 
 	void ppd_entrypoint_launchPfsPpdEntrypoint(){
 
-		while(TRUE){
+		puts("[ Quedando en escucha de conexiones PFS] ");
 
-			puts("[ Quedando en escucha de conexiones PFS] ");
+		while(TRUE){
 
 			ListenSocket pfsSocket = commons_socket_acceptConnection(ppd_state_getPfsConnection());
 
@@ -46,11 +46,15 @@
 
 		if(message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 
+			puts("[ Recibiendo peticion GET Sectores ]");
+
 			message.payload.pfsSocket = *pfsSocket;
 
 			ppd_entrypoint_executeGetSector(message);
 
 		}else if(message.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
+
+			puts("[ Recibiendo peticion PUT Sectores ]");
 
 			message.payload.pfsSocket = *pfsSocket;
 

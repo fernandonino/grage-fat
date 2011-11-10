@@ -34,10 +34,7 @@
 
 	void ppd_launcher_exit();
 
-
-	extern pthread_t jobsThread;
 	extern pthread_t ppdConsoleThread;
-
 
 
 	void ppd_launcher_console(){
@@ -91,9 +88,9 @@
 
 	void ppd_launcher_doLaunch(){
  		ppd_launcher_launchConnections();
+		ppd_planifier_worker_doJobs();
 		ppd_entrypoint_launch();
 		//ppd_launcher_console();
-		ppd_planifier_worker_doJobs();
 	}
 
 

@@ -21,13 +21,14 @@
 #include "ppd-entrypoint.h"
 #include "ppd-configuration.h"
 #include "ppd-endpoint.h"
+
+
+
 	void ppd_planifier_worker_doJob(void * arg);
 
 
-	pthread_t jobsThread;
-
-
 	void ppd_planifier_worker_doJobs(){
+		pthread_t jobsThread;
 		pthread_create(&jobsThread , NULL , (void * (*)(void *)) ppd_planifier_worker_doJob , NULL);
 	}
 
