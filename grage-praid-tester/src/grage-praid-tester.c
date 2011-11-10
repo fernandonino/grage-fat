@@ -113,12 +113,10 @@
 		char * port = PRAID_PORT;
 		ListenSocket lsocket = commons_socket_openClientConnection(host, port);
 
-		RuntimeErrorValidator * validator = commons_errors_buildSuccessValidator();
-		nipc_sendHandshake(lsocket, NIPC_PROCESS_ID_PFS, validator);
-		NipcMessage message = nipc_receiveHandshake(lsocket, validator);
+		nipc_sendHandshake(lsocket, NIPC_PROCESS_ID_PFS);
+		NipcMessage message = nipc_receiveHandshake(lsocket);
 
-		if (message.header.responseCode == NIPC_RESPONSE_CODE_ERROR
-				|| commons_errors_hasError(validator)){
+		if (message.header.responseCode == NIPC_RESPONSE_CODE_ERROR){
 
 			puts("error en el response code");
 			exit(1);
@@ -149,12 +147,10 @@
 		char * port = PRAID_PORT;
 		ListenSocket lsocket = commons_socket_openClientConnection(host, port);
 
-		RuntimeErrorValidator * validator = commons_errors_buildSuccessValidator();
-		nipc_sendHandshake(lsocket, NIPC_PROCESS_ID_PFS, validator);
-		NipcMessage message = nipc_receiveHandshake(lsocket, validator);
+		nipc_sendHandshake(lsocket, NIPC_PROCESS_ID_PFS);
+		NipcMessage message = nipc_receiveHandshake(lsocket);
 
-		if (message.header.responseCode == NIPC_RESPONSE_CODE_ERROR
-				|| commons_errors_hasError(validator)){
+		if (message.header.responseCode == NIPC_RESPONSE_CODE_ERROR){
 
 			puts("error en el response code");
 			exit(1);
