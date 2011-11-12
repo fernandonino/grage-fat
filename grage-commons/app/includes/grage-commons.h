@@ -94,4 +94,10 @@
 
 	DiskSector commons_buildDiskSector();
 
+	//DEFINE DE PPD Y SU CONSOLA
+	#define MESSAGE_ID_POSICION_ACTUAL 					17
+	#define MESSAGE_ID_SECTOR_SOLICITADO 				18
+	#define MESSAGE_ID_SECTORES_RECORRIDOS 				19
+	#define MESSAGE_ID_TIEMPO_CONSUMIDO 				20
+
 #endif /* GRAGE_COMMONS_H_ */
