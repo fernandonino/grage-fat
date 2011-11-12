@@ -40,7 +40,7 @@
 		LongDirEntry longEntry;
 		DirEntry sDirEntry;
 
-		int16_t offset = 0;
+		int16_t offset;
 
 		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v ,
 				v->root);
@@ -58,6 +58,8 @@
 
 			originalSector = diskSector.sectorNumber;
 
+			offset = 0;
+
 			char * token = commons_iterator_next(ite);
 
 			while (longEntry.LDIR_Ord != FAT_32_ENDOFDIR
@@ -68,7 +70,7 @@
 				if (offset < v->bps) {
 
 					memcpy(&longEntry,
-							diskSector.sectorContent + FAT_32_BLOCK_ENTRY_SIZE,
+							diskSector.sectorContent + offset,
 							FAT_32_DIR_ENTRY_SIZE);
 
 					utf8name = pfs_fat_utils_getFileName(&longEntry);
@@ -80,7 +82,7 @@
 						sector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);
 						diskSector = pfs_endpoint_callGetSector(sector);
 						next = pfs_fat32_utils_getNextClusterInChain(v , next);
-						offset = -64;  //Porque si es un cluster que continua cuando sumo 64 al ppio del while me salteo 1 directorio
+						offset = -FAT_32_BLOCK_ENTRY_SIZE;  //Porque si es un cluster que continua cuando sumo 64 al ppio del while me salteo 1 directorio
 					}else{
 
 						diskSector = pfs_endpoint_callGetSector(++sector);
@@ -92,6 +94,7 @@
 			}
 
 			if (longEntry.LDIR_Ord == FAT_32_ENDOFDIR) {
+				commons_misc_doFreeNull((void **)utf8name);
 				return NULL;
 			} else if (commons_string_equals(utf8name, token)) {
 
@@ -99,15 +102,17 @@
 
 				memcpy(&sDirEntry, diskSector.sectorContent + offset,
 						FAT_32_DIR_ENTRY_SIZE);
-				offset = sector * v->bps + FAT_32_BLOCK_ENTRY_SIZE;
 
 				fatFile->longEntry = longEntry;
 				fatFile->shortEntry = sDirEntry;
 
 				fatFile->source = next;
 				next = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
-				sector = pfs_fat_utils_getFirstSectorOfCluster(v, next);
 
+				if ( commons_iterator_hasMoreElements(ite) ){
+					sector = pfs_fat_utils_getFirstSectorOfCluster(v, next);
+					diskSector = pfs_endpoint_callGetSector(sector);
+				}
 			}
 		}
 
@@ -192,8 +197,9 @@
 
 	void pfs_fat32_unlink(Volume * v , FatFile * fd){
 
-		uint32_t sector = fd->sourceOffset / v->bps;
-		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
+		uint32_t sectorNumberInCluster = fd->sourceOffset / v->bps;
+		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v , fd->source);
+		DiskSector diskSector = pfs_endpoint_callGetSector(sector + sectorNumberInCluster);
 
 		//Borrado de DirEntry
 		pfs_fat32_unlink_dirEntry(v , fd , &diskSector);
@@ -249,13 +255,17 @@
 		sector = pfs_fat_utils_getFatEntrySector(v, fd->nextCluster);
 		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
 		offset = pfs_fat_utils_getFatEntryOffset(v, fd->nextCluster);
+
 		memcpy(&EntryValue, diskSector.sectorContent + offset, sizeof(uint32_t));
 		memcpy(diskSector.sectorContent + offset, &phantomValue, sizeof(uint32_t));
 		pfs_endpoint_callPutSector(diskSector);
+
 		if( FAT_32_ISEOC(EntryValue) )
 			return 0;
-		else
+		else{
+			fd->nextCluster = nextCluster;
 			return 1;
+		}
 	}
 
 

@@ -149,7 +149,7 @@
 	}
 
 	uint32_t pfs_fat32_utils_getDirEntryOffset(uint32_t sectorId , uint32_t os , uint32_t offset){
-		return (sectorId - os) * 512 + offset - FAT_32_BLOCK_ENTRY_SIZE;
+		return (sectorId - os) * 512 + offset - FAT_32_DIR_ENTRY_SIZE;
 	}
 
 	void pfs_fat32_utils_toDirent(struct dirent * de , DirEntry  * direntry , LongDirEntry * ldirentry , Volume * v){

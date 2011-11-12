@@ -122,12 +122,13 @@ void launch_pfs_tests(void);
 
 	void launch_pfs_tests(void){
 		Volume * v = pfs_state_getVolume();
-		FatFile * file = pfs_fat32_open("/src");
+		FatFile * file = pfs_fat32_open("/src/face-02.png");
+		FatFile * directory = pfs_fat32_open("/");
 		struct dirent de;
 		struct stat st;
 		int8_t result;
 
-		while( (result = pfs_fat32_readDirectory(&de , file , v)) == 0 ){
+		while( (result = pfs_fat32_readDirectory(&de , directory , v)) == 0 ){
 			memset(&st, 0, sizeof(st));
 			st.st_ino = de.d_ino;
 			if (de.d_type == DT_DIR) {
@@ -136,6 +137,8 @@ void launch_pfs_tests(void);
 
 			printf("%s\n" , de.d_name);
 		}
+		pfs_fat32_unlink(v , file);
 
 		commons_misc_doFreeNull((void **)file);
+		commons_misc_doFreeNull((void **)directory);
 	}
