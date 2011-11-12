@@ -16,7 +16,15 @@
 #define CONF_LOGS "/opt/grage-repository/logs/ppd-console.log"
 #define SOCK_PATH "/opt/grage-repository/.echo_socket"
 
-uint32 ppd_console_connect(){
+int socketPPD;
+void ppd_console_launcher_setSocketPPD(int ls){
+	socketPPD = ls;
+}
+int ppd_console_launcher_getSocketPPD(){
+	return socketPPD;
+}
+
+int ppd_console_connect(){
 	int s, len;
 	char buffer[400];
 	struct sockaddr_un remote;
@@ -26,7 +34,7 @@ uint32 ppd_console_connect(){
 		return 0;
     }
 
-    printf("Trying to connect...\n");
+    printf("Trying to connect...",s);
 
     remote.sun_family = AF_UNIX;
     strcpy(remote.sun_path, SOCK_PATH);
@@ -36,12 +44,12 @@ uint32 ppd_console_connect(){
         perror("connect");
         return s;
     }
-	return 0;
+	return s;
 }
 
 	void ppd_console_launcher_initialize(){
 		log_create("ppd-console",CONF_LOGS,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
-		ppd_console_connect();
+		ppd_console_launcher_setSocketPPD(ppd_console_connect());
 	}
 
 	void ppd_console_launcher_exit() {

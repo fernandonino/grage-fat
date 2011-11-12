@@ -10,7 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <linux-commons.h>
-
+#include <linux-commons-socket.h>
+#include "ppd_console_launcher.h"
+#include <grage-commons.h>
 uint32 sectores[5];
 
 String ppd_console_parseCMD(char * comando){
@@ -93,6 +95,7 @@ void ppd_console_llenarVector(char * comando, uint32 nro_parametros){
 			}
 			k = 0;
 			sectores[j] = atoi(aux);
+			memset(aux, '\0', sizeof(aux));
 			j++;
 			i++;
 		}
@@ -110,13 +113,18 @@ void ppd_console_clean(uint32 clusterInicial, uint32 clusterFinal){
 }
 
 void ppd_console_trace(uint32 sectorPedido){
+	char buf[1024];
 	puts("console trace");
+	commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),"asd",1024);
+	int receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() , buf , 1024);
+
 	printf("sectorPedido: %d\n", sectorPedido);
 }
 
 void ppd_console_interpreter(){
 
 	char buffer[250];
+
 	String cmd, parameter, parameter2;
 
 	while(!feof(stdin)){
@@ -147,6 +155,7 @@ void ppd_console_interpreter(){
 				ppd_console_trace(sectores[i - 1]);
 				i++;
 			}
+
 		}
 
 		if((strcmp(cmd, "info") && strcmp(cmd, "clean") && strcmp(cmd, "trace")) || buffer[5]== ' ')
