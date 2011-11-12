@@ -12,9 +12,8 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include "linux-commons.h"
-
 #include <linux-commons-socket.h>
-
+#include <grage-commons.h>
 #include "ppd-configuration.h"
 #include "ppd-console-entreypoint.h"
 #include "ppd-launchConsole.h"
@@ -72,7 +71,7 @@
 	}
 
 	uint32 ppd_launchConsole_initialize(){
-
+		puts("FORRO1");
 		pid_t  pid;
 		char *args[0];
 
@@ -88,7 +87,7 @@
 					puts("No se pudo levantar la consola");
 				}else{ ppd_console_entrypoint_setearPosicionCabezal(0,0); }
 			}
-		}
+		}else puts("FORRO");
 		return 0;
 	}
 
@@ -108,18 +107,19 @@
 
 
 	void ppdConsoleServiceThread(){
-
+		puts("recibiendo bytes de la consola");
 		while(TRUE){
 
 			char buffer[1024];
 			bzero(buffer , 1024);
 
-			puts("recibiendo bytes de la consola");
-			int receivedCount = commons_socket_receiveBytes( ppd_state_getPpdConsoleSocket() , buffer , 1024);
 
+			int receivedCount = commons_socket_receiveBytes( ppd_state_getPpdConsoleSocket() , buffer , 1024);
+			printf("Recibi: %s\n",buffer);
 			//hace lo q quieras con el contenido del buffer
 
 			commons_socket_sendBytes(ppd_state_getPpdConsoleSocket()  , buffer , 1024);
+			printf("Envie: %s \n",buffer);
 		}
 	}
 
