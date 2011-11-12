@@ -201,7 +201,7 @@
 			offset += FAT_32_BLOCK_ENTRY_SIZE;
 			memcpy(&lDirEntry, diskSector.sectorContent + offset, sizeof(LongDirEntry));
 
-			if(offset == FAT_32_SECTOR_SIZE){
+			if(offset == v->bps){
 				if(pfs_fat32_utils_isLastSectorFromCluster(v , sector)){
 					if(FAT_32_ISEOC(next)) return 1;
 					sector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);

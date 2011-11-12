@@ -216,8 +216,9 @@
 
 	void pfs_fat32_rmdir(Volume * v , FatFile * fd){
 
-		uint32_t sector = fd->sourceOffset / v->bps;
-		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
+		uint32_t sectorNumberInCluster = fd->sourceOffset / v->bps;
+		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v , fd->source);
+		DiskSector diskSector = pfs_endpoint_callGetSector(sector + sectorNumberInCluster);
 
 		//Borrado de DirEntry
 		pfs_fat32_unlink_dirEntry(v , fd , &diskSector);

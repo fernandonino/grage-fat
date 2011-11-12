@@ -137,8 +137,19 @@ void launch_pfs_tests(void);
 
 			printf("%s\n" , de.d_name);
 		}
-		pfs_fat32_unlink(v , file);
+/*
+		pfs_fat32_unlink(v,file);
 
+		if (directory == NULL || directory->shortEntry.DIR_Attr != FAT_32_ATTR_DIRECTORY){
+			puts("Directorio no exite o no es un directorio.");
+		}
+		if(pfs_fat32_isDirectoryEmpty(v, directory)){
+			pfs_fat32_rmdir(v,directory);
+			puts("Directorio borrado para el CodeMaster que lo mira por TV.");
+		} else {
+			puts("El directorio no esta vacio.");
+		}
+*/
 		commons_misc_doFreeNull((void **)file);
 		commons_misc_doFreeNull((void **)directory);
 	}
