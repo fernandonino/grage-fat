@@ -19,7 +19,7 @@
 		uint32 sectorNumber;
 	}__attribute__((packed)) PistaSector;
 	typedef struct {
-		uint32 menssageID;
+		uint32 messageID;
 		PistaSector pistaSector;
 		uint32 timeInMiliseconds;
 	}__attribute__((packed)) MessageConsolePPD;
