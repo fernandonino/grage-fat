@@ -85,7 +85,7 @@
 				uint32 code = execv("/opt/grage-repository/lib/grage-ppd-console", args);
 				if(code == -1){
 					puts("No se pudo levantar la consola");
-				}else{ ppd_console_entrypoint_setearPosicionCabezal(0,0); }
+				}else{ ppd_console_entrypoint_setearPosicionCabezal(17,54); }
 			}
 		}else puts("FORRO");
 		return 0;
@@ -108,18 +108,27 @@
 
 	void ppdConsoleServiceThread(){
 		puts("recibiendo bytes de la consola");
+		MessageConsolePPD mensaje;
+		PistaSector posicionCabezal;
 		while(TRUE){
 
 			char buffer[1024];
 			bzero(buffer , 1024);
 
 
-			int receivedCount = commons_socket_receiveBytes( ppd_state_getPpdConsoleSocket() , buffer , 1024);
-			printf("Recibi: %s\n",buffer);
+			int receivedCount = commons_socket_receiveBytes( ppd_state_getPpdConsoleSocket() , &mensaje , sizeof mensaje);
+			if (mensaje.menssageID=MESSAGE_ID_POSICION_ACTUAL){
+
+				posicionCabezal = ppd_console_entrypoint_getPosicionCabezal();
+				printf("poscabezalpista: %d poscabezalsector: %d \n",posicionCabezal.pista,posicionCabezal.sectorNumber);
+				mensaje.pistaSector.pista=posicionCabezal.pista;
+				mensaje.pistaSector.sectorNumber=posicionCabezal.sectorNumber;
+
+			}
 			//hace lo q quieras con el contenido del buffer
 
-			commons_socket_sendBytes(ppd_state_getPpdConsoleSocket()  , buffer , 1024);
-			printf("Envie: %s \n",buffer);
+			commons_socket_sendBytes(ppd_state_getPpdConsoleSocket()  , &mensaje , sizeof mensaje);
+
 		}
 	}
 

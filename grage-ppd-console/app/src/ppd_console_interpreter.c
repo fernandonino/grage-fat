@@ -13,6 +13,7 @@
 #include <linux-commons-socket.h>
 #include "ppd_console_launcher.h"
 #include <grage-commons.h>
+#include "ppd-console-utils.h"
 uint32 sectores[5];
 
 String ppd_console_parseCMD(char * comando){
@@ -114,10 +115,21 @@ void ppd_console_clean(uint32 clusterInicial, uint32 clusterFinal){
 
 void ppd_console_trace(uint32 sectorPedido){
 	char buf[1024];
-	puts("console trace");
-	commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),"asd",1024);
-	int receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() , buf , 1024);
 
+	MessageConsolePPD mensaje = armarMensaje(MESSAGE_ID_POSICION_ACTUAL,
+								4,
+								2,
+								-1);
+	puts("console trace");
+
+	commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
+
+	int receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
+	printf("ID: %d \n PISTA: %d \n SECTOR: %d \n TIEMPO: %d \n",
+				mensaje.menssageID,
+				mensaje.pistaSector.pista,
+				mensaje.pistaSector.sectorNumber,
+				mensaje.timeInMiliseconds);
 	printf("sectorPedido: %d\n", sectorPedido);
 }
 

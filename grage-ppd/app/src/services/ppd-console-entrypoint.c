@@ -12,7 +12,9 @@
 
 PistaSector posicionActual;
 MessageConsolePPD messageConsolePPD;
-
+PistaSector ppd_console_entrypoint_getPosicionCabezal(){
+	return posicionActual;
+}
 void ppd_console_entrypoint_setearPosicionCabezal(uint32 pista, uint32 sector){
 	posicionActual.pista=pista;
 	posicionActual.sectorNumber=sector;
