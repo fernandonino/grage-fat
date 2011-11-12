@@ -36,11 +36,11 @@
 	FatFile * pfs_fat32_utils_openNonRootDirectory(const char * path , Volume * v ){
 
 		uint32_t next = v->root;
-		FatFile fatFile;
+		FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
 		LongDirEntry longEntry;
 		DirEntry sDirEntry;
 
-		uint32_t offset = v->fds * v->bps;
+		int16_t offset = 0;
 
 		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v ,
 				v->root);
@@ -65,7 +65,7 @@
 
 				offset += FAT_32_BLOCK_ENTRY_SIZE;
 
-				if (offset < FAT_32_SECTOR_SIZE) {
+				if (offset < v->bps) {
 
 					memcpy(&longEntry,
 							diskSector.sectorContent + FAT_32_BLOCK_ENTRY_SIZE,
@@ -73,20 +73,20 @@
 
 					utf8name = pfs_fat_utils_getFileName(&longEntry);
 
-				} else if (offset == FAT_32_SECTOR_SIZE) {
+				} else if (offset == v->bps) {
 
 					if(pfs_fat32_utils_isLastSectorFromCluster(v , sector)){
 
 						sector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);
 						diskSector = pfs_endpoint_callGetSector(sector);
 						next = pfs_fat32_utils_getNextClusterInChain(v , next);
-
+						offset = -64;  //Porque si es un cluster que continua cuando sumo 64 al ppio del while me salteo 1 directorio
 					}else{
 
 						diskSector = pfs_endpoint_callGetSector(++sector);
+						offset = 0;
 
 					}
-					offset = 0;
 				}
 
 			}
@@ -101,10 +101,10 @@
 						FAT_32_DIR_ENTRY_SIZE);
 				offset = sector * v->bps + FAT_32_BLOCK_ENTRY_SIZE;
 
-				fatFile.longEntry = longEntry;
-				fatFile.shortEntry = sDirEntry;
+				fatFile->longEntry = longEntry;
+				fatFile->shortEntry = sDirEntry;
 
-				fatFile.source = next;
+				fatFile->source = next;
 				next = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
 				sector = pfs_fat_utils_getFirstSectorOfCluster(v, next);
 
@@ -114,14 +114,14 @@
 		commons_misc_doFreeNull((void **)utf8name);
 
 
-		fatFile.sourceOffset = pfs_fat32_utils_getDirEntryOffset(
+		fatFile->sourceOffset = pfs_fat32_utils_getDirEntryOffset(
 				diskSector.sectorNumber , originalSector , offset );
-		fatFile.nextCluster = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
-		fatFile.currentSector.sectorNumber = pfs_fat_utils_getFirstSectorOfCluster(v , fatFile.nextCluster);
-		fatFile.dirEntryOffset = 0;
-		fatFile.dirType = 1;
+		fatFile->nextCluster = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
+		fatFile->currentSector.sectorNumber = pfs_fat_utils_getFirstSectorOfCluster(v , fatFile->nextCluster);
+		fatFile->dirEntryOffset = 0;
+		fatFile->dirType = 1;
 
-		return &fatFile;
+		return fatFile;
 	}
 
 
@@ -144,14 +144,17 @@
 	int8_t pfs_fat32_readDirectory( struct dirent * direntry , FatFile * file , Volume * volume){
 		LongDirEntry lfnentry;
 		DirEntry  sfnentry;
-		uint8_t lfncount = 0;
 
 		DiskSector diskSector = pfs_endpoint_callGetSector(file->currentSector.sectorNumber);
 
 
 		if( file->dirEntryOffset >= volume->bps){
+			if ( file->nextCluster != 0 ){
 			uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(volume , file->nextCluster);
 			file->currentSector = diskSector = pfs_endpoint_callGetSector(sectorId);
+			} else {
+
+			}
 		}
 
 		//lfnentry.LDIR_Ord = 0x00; // Fuerzo la entrada al ciclo
@@ -163,20 +166,23 @@
 				uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(volume , file->nextCluster);
 				diskSector = pfs_endpoint_callGetSector(sectorId);
 			}
-		} while ( FAT_32_DIRENT_ISFREE(lfnentry.LDIR_Ord) );
+		} while ( lfnentry.LDIR_Ord == FAT_32_FREEENT );
 
 		if( FAT_32_LDIR_ISLAST(lfnentry.LDIR_Ord) ){
-			lfncount++;
 			memcpy(&sfnentry , diskSector.sectorContent + file->dirEntryOffset  , sizeof(DirEntry));
 			file->dirEntryOffset += 32;
 
-			pfs_fat32_utils_toDirent(direntry , sfnentry , lfnentry, volume);
+			pfs_fat32_utils_toDirent(direntry , &sfnentry , &lfnentry, volume);
 			return EXIT_SUCCESS;
 
-		} else if ( lfncount == 0 ){ //La entrada es solo DirEntry ( . o ..)
+		} else if ( lfnentry.LDIR_Ord == FAT_32_ENDOFDIR ){
+
+			return EXIT_FAILURE;
+
+		} else { //La entrada es solo DirEntry ( . o ..)
 			memcpy(&sfnentry , diskSector.sectorContent + file->dirEntryOffset - 32 , sizeof(DirEntry));
 
-			pfs_fat32_utils_toDirent(direntry , sfnentry , lfnentry, volume);
+			pfs_fat32_utils_toDirent(direntry , &sfnentry , NULL , volume);
 			return EXIT_SUCCESS;
 
 		}

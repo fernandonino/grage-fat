@@ -122,8 +122,20 @@ void launch_pfs_tests(void);
 
 	void launch_pfs_tests(void){
 		Volume * v = pfs_state_getVolume();
-		FatFile * file = pfs_fat32_open("/");
+		FatFile * file = pfs_fat32_open("/src");
 		struct dirent de;
-		pfs_fat32_readDirectory(&de , file , v);
-		free(file);
+		struct stat st;
+		int8_t result;
+
+		while( (result = pfs_fat32_readDirectory(&de , file , v)) == 0 ){
+			memset(&st, 0, sizeof(st));
+			st.st_ino = de.d_ino;
+			if (de.d_type == DT_DIR) {
+				st.st_mode = S_IFDIR;
+			} else st.st_mode = S_IFREG;
+
+			printf("%s\n" , de.d_name);
+		}
+
+		commons_misc_doFreeNull((void **)file);
 	}

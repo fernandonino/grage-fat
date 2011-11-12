@@ -152,22 +152,37 @@
 		return (sectorId - os) * 512 + offset - FAT_32_BLOCK_ENTRY_SIZE;
 	}
 
-	void pfs_fat32_utils_toDirent(struct dirent * de , DirEntry direntry , LongDirEntry ldirentry , Volume * v){
-		uint8_t length = pfs_fat32_utils_getNameLength(&ldirentry);
+	void pfs_fat32_utils_toDirent(struct dirent * de , DirEntry  * direntry , LongDirEntry * ldirentry , Volume * v){
 
-		uint16_t utf16name[13];
-		pfs_fat32_utils_extractName(&ldirentry,utf16name,length);
+		if ( ldirentry != NULL ) {
+			uint8_t length = pfs_fat32_utils_getNameLength(ldirentry);
 
-		char * utf8name = (char *)calloc(length,sizeof(char));
+			uint16_t utf16name[13];
+			pfs_fat32_utils_extractName(ldirentry,utf16name,length);
 
-		size_t utf8length = 0;
-		unicode_utf16_to_utf8_inbuffer(utf16name , length - 1 , utf8name , &utf8length);
+			char * utf8name = (char *)calloc(length,sizeof(char));
 
-		strcpy(de->d_name,utf8name);
-		de->d_ino = pfs_fat_getFirstClusterFromDirEntry(&direntry);
-		free(utf8name);
+			size_t utf8length = 0;
+			unicode_utf16_to_utf8_inbuffer(utf16name , length - 1 , utf8name , &utf8length);
 
-		if ( direntry.DIR_Attr == FAT_32_ATTR_DIRECTORY ){
+			strcpy(de->d_name,utf8name);
+			free(utf8name);
+		} else {
+
+			memcpy(de->d_name , direntry->DIR_Name , sizeof(uint8_t));
+
+			if( direntry->DIR_Name[1] == '.' ){
+				memcpy(de->d_name + 1 , direntry->DIR_Name + 1 , sizeof(uint8_t));
+				de->d_name[2] = '\0';
+			} else {
+				de->d_name[1] = '\0';
+			}
+
+		}
+
+		de->d_ino = pfs_fat_getFirstClusterFromDirEntry(direntry);
+
+		if ( direntry->DIR_Attr == FAT_32_ATTR_DIRECTORY ){
 			de->d_type = DT_DIR;
 		}
 		else

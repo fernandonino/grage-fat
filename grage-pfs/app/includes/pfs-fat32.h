@@ -122,7 +122,7 @@
 	Boolean pfs_fat32_utils_isLastSectorFromCluster(Volume * v , uint32_t sectorId);
 	uint32_t pfs_fat_getFirstClusterFromDirEntry(DirEntry * D);
 	uint32_t pfs_fat32_utils_getDirEntryOffset(uint32_t sectorId , uint32_t os , uint32_t offset);
-	void pfs_fat32_utils_toDirent(struct dirent * de , DirEntry direntry , LongDirEntry ldirentry , Volume * v);
+	void pfs_fat32_utils_toDirent(struct dirent * de , DirEntry * , LongDirEntry * , Volume * v);
 	uint8_t pfs_fat32_isDirectoryEmpty(Volume * v, FatFile * fd);
 	void pfs_fat32_utils_fileStat(Volume * , FatFile * , struct stat *);
 
