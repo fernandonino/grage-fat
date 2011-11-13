@@ -44,16 +44,25 @@
 
 
 
+
+
 	void ppd_state_initializeVolumeSize(){
 		File * volumeFile = commons_file_openFile(ppd_conf_getDiskPath());
-		if(volumeFile != NULL)
+		if(volumeFile != NULL){
 			ppd_state_setVolumeSize(commons_file_getFileSize(volumeFile));
-		commons_file_closeFile(volumeFile);
+
+			commons_file_closeFile(volumeFile);
+
+		}else if(ppd_state_isListenMode()){
+
+			puts("[ En modo PPD Server debe existir el archivo de datos. Finalizando aplicacion.");
+			exit(EXIT_FAILURE);
+		}
 	}
 
 
 	void ppd_launcher_initialize(){
-		int status = log_create("ppd", PPD_DEFAULT_LOG_FILE ,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
+		int status = log_create("ppd", PPD_DEFAULT_LOG_FILE ,INFO|WARNING|ERROR|DEBUG , M_CONSOLE_DISABLE);
 
 		if(status == 0)
 			puts("[ Log creado con exito ]");
