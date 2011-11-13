@@ -48,6 +48,7 @@
 
 	void ppd_state_initializeVolumeSize(){
 		File * volumeFile = commons_file_openFile(ppd_conf_getDiskPath());
+
 		if(volumeFile != NULL){
 			ppd_state_setVolumeSize(commons_file_getFileSize(volumeFile));
 
@@ -55,7 +56,7 @@
 
 		}else if(ppd_state_isListenMode()){
 
-			puts("[ En modo PPD Server debe existir el archivo de datos. Finalizando aplicacion.");
+			puts("[ En modo PPD Server debe existir el archivo de datos. Finalizando aplicacion. ]");
 			exit(EXIT_FAILURE);
 		}
 	}
