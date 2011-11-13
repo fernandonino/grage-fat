@@ -44,20 +44,11 @@
 
 
 
-	void ppd_launcher_initializeOrVolume(){
-
-		if( ppd_state_isListenMode()){
-			ppd_persistence_mapDevice();
-
-		}else{
-
-			File * volumeFile = commons_file_openFile(ppd_conf_getDiskPath());
-
-			if( volumeFile != NULL){
-				ppd_state_setVolumeSize(commons_file_getFileSize(volumeFile));
-				commons_file_closeFile(volumeFile);
-			}
-		}
+	void ppd_state_initializeVolumeSize(){
+		File * volumeFile = commons_file_openFile(ppd_conf_getDiskPath());
+		if(volumeFile != NULL)
+			ppd_state_setVolumeSize(commons_file_getFileSize(volumeFile));
+		commons_file_closeFile(volumeFile);
 	}
 
 
@@ -76,9 +67,12 @@
 		if( !commons_file_isValidConfValue( ppd_conf_getDiskPath())){
 			puts("[ No existe un path al archivo del volumen ]");
 			exit(EXIT_FAILURE);
-		}else{
-			ppd_launcher_initializeOrVolume();
 		}
+
+		ppd_state_initializeVolumeSize();
+
+		if(ppd_state_getVolumeSize() != 0 )
+			ppd_persistence_mapDevice();
 
 		ppd_queues_initialize();
 	}
@@ -102,7 +96,7 @@
 		 * Desmapeamos el disco solo si fue mapeado
 		 */
 		if( commons_file_isValidConfValue( ppd_conf_getDiskPath()))
-			ppd_persistence_mapDevice();
+			ppd_persistence_unmapDevice();
 
 		log_destroy();
 	}

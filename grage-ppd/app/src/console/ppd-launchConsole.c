@@ -117,7 +117,7 @@
 
 
 			int receivedCount = commons_socket_receiveBytes( ppd_state_getPpdConsoleSocket() , &mensaje , sizeof mensaje);
-			if (mensaje.menssageID=MESSAGE_ID_POSICION_ACTUAL){
+			if (mensaje.messageID=MESSAGE_ID_POSICION_ACTUAL){
 
 				posicionCabezal = ppd_console_entrypoint_getPosicionCabezal();
 				printf("poscabezalpista: %d poscabezalsector: %d \n",posicionCabezal.pista,posicionCabezal.sectorNumber);

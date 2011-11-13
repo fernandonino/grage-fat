@@ -55,8 +55,6 @@
 					ppd_entrypoint_endReplicationProcess();
 
 				}
-			}else{
-				printf(" Entro por aca: %s\n" , m.payload.diskSector.sectorContent);
 			}
 		}
 

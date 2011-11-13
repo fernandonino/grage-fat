@@ -35,16 +35,16 @@
 				ppd_conf_getPraidPort());
 
 		if(praidSocket > 0){
-			puts("Se ha logrado conectar con el PRAID");
+			puts("[ Se ha logrado conectar con el PRAID ]");
 
-			puts("Salvando el estado de la coneccion");
+			puts("[ Salvando el estado de la coneccion ]");
 			ppd_state_setPraidSocket(praidSocket);
 
-			puts("Realizando handshake");
+			puts("[ Realizando handshake ]");
 			Boolean status = ppd_connections_handshake(praidSocket);
 
 			if(!status){
-				puts("El proceso RAID denego la coneccion del proceso PPD, vuelva a intentarlo mas tarde");
+				puts("[ El proceso RAID denego la coneccion del proceso PPD, vuelva a intentarlo mas tarde ]");
 				exit(1);
 			}
 
@@ -70,8 +70,16 @@
 
 		NipcMessage message;
 
-		if(commons_string_equals( ppd_conf_getPpdMode() ,
-				PPD_CONFIGURATION_MODE_CONNECT)){
+		if( ppd_state_isListenMode()){
+
+			message = nipc_receiveHandshake(theSocket );
+
+			if(message.header.processHandshakeId == NIPC_PROCESS_ID_PFS)
+				nipc_sendHandshake(theSocket , NIPC_PROCESS_ID_PPD);
+
+			return TRUE;
+
+		}else{
 
 			uint8_t ppdId = atoi(ppd_conf_getPpdIdDisk());
 
@@ -85,14 +93,6 @@
 				return TRUE;
 			}
 
-		}else{
-
-			message = nipc_receiveHandshake(theSocket );
-
-			if(message.header.processHandshakeId == NIPC_PROCESS_ID_PFS)
-				nipc_sendHandshake(theSocket , NIPC_PROCESS_ID_PPD);
-
-			return TRUE;
 		}
 	}
 

@@ -45,6 +45,10 @@
 				PPD_CONFIGURATION_MODE_LISTEN));
 	}
 
+	Boolean ppd_state_isConnectMode(){
+		return !ppd_state_isListenMode();
+	}
+
 	/*
 
 	ListenSocket ppd_state_getPraidSocket(){
@@ -108,7 +112,7 @@
 	}
 
 
-
+/*
 	Boolean workerRunning = FALSE;
 
 	Boolean ppd_state_isWorkerRunning(){
@@ -117,7 +121,7 @@
 	void ppd_state_setWorkerRunning(Boolean status){
 		workerRunning = status;
 	}
-
+*/
 
 
 	Boolean replicationProcessActive = FALSE;

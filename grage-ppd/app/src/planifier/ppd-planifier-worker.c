@@ -56,14 +56,13 @@
 
 				ppd_planifier_worker_applyDelayForWrite();
 
-				ppd_persistence_writeSector( m.payload.diskSector , ppd_state_getDiskStartAddress() );
+				ppd_persistence_writeSector( m.payload.diskSector );
 
 			} else if ( m.header.operationId == NIPC_OPERATION_ID_GET_SECTORS ) {
 
 				ppd_planifier_worker_applyDelayForRead();
 
-				DiskSector disk = ppd_persistence_readSector(m.payload.diskSector.sectorNumber
-						, ppd_state_getDiskStartAddress());
+				DiskSector disk = ppd_persistence_readSector(m.payload.diskSector.sectorNumber);
 
 				m = nipc_mbuilder_addDiskSector( m , disk);
 				m = nipc_mbuilder_addResponseCode(m , NIPC_RESPONSE_CODE_SUCCESS);

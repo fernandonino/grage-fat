@@ -91,25 +91,30 @@
 		 */
 		if(ppd_state_isReplicationProcessActive()){
 
-			File * file = ppd_state_getReplicationDiskVolume();
-			fclose(file);
+			fclose(ppd_state_getReplicationDiskVolume());
+
 			ppd_state_setReplicationDiskVolume(NULL);
+
+
+			if(ppd_state_getDiskStartAddress() == NULL && ppd_state_getVolumeSize() != 0){
+
+				ppd_state_initializeVolumeSize();
+
+				ppd_persistence_mapDevice();
+
+			}else if(ppd_state_getDiskStartAddress() != NULL){
+
+				ppd_persistence_unmapDevice();
+
+				ppd_state_initializeVolumeSize();
+
+				ppd_persistence_mapDevice();
+
+			}
 
 			ppd_state_setReplicationProcessActive(FALSE);
 		}
 
-		/*
-		 * Si aun no esta corriendo el worker del PPD
-		 * se lo levanta
-		 */
-		if(!ppd_state_isWorkerRunning()){
-
-			ppd_persistence_mapDevice();
-
-			ppd_planifier_worker_doJobs();
-
-			ppd_state_setWorkerRunning(TRUE);
-		}
 	}
 
 

@@ -36,6 +36,7 @@
 	void ppd_state_setReplicationProcessActive(Boolean s);
 
 	Boolean ppd_state_isListenMode();
+	Boolean ppd_state_isConnectMode();
 
 
 #endif /* PPD_STATE_H_ */
