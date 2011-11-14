@@ -120,22 +120,28 @@ void imprimirPosicionActual(){
 }
 void imprimirSectoresRecorridos(uint32 pistaRequerida, uint32 sectorRequerido){
 	MessageConsolePPD mensaje = armarMensaje(MESSAGE_ID_SECTORES_RECORRIDOS, pistaRequerida,sectorRequerido,-1);
-	puts("COMIENZA A RECORRER2");
 	commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
 	int receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
 	printf("Sectores Recorridos: ");
 	while(mensaje.messageID == MESSAGE_ID_SECTORES_RECORRIDOS){
 		printf("%d:%d ",mensaje.pistaSector.pista,mensaje.pistaSector.sectorNumber);
 		commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
-		int receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
+		receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
 	}
 	printf("\n Tiempo consumido: %dms \n",mensaje.timeInMiliseconds);
+}
+void obtenerSectoresPorCilindro(){
+	MessageConsolePPD mensaje = armarMensaje(MESSAGE_ID_SECTORES_POR_CILINDRO, -1, -1,-1);
+	commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
+	int receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
+	ppd_console_utils_set_cantidadSectoresPorCilindro(mensaje.pistaSector.sectorNumber);
 }
 void ppd_console_trace(uint32 sectorPedido){
 	puts("console trace");
 	imprimirPosicionActual(ppd_console_launcher_getSocketPPD());
+	obtenerSectoresPorCilindro();
 	printf("Sector Solicitado: %d:%d \n", ppd_console_utils_get_cilinder_from_sector(sectorPedido),ppd_console_utils_get_sectorofcilinder_from_sector(sectorPedido));
-	puts("COMIENZA A RECORRER");
+
 	imprimirSectoresRecorridos(ppd_console_utils_get_cilinder_from_sector(sectorPedido),ppd_console_utils_get_sectorofcilinder_from_sector(sectorPedido));
 }
 
@@ -171,6 +177,8 @@ void ppd_console_interpreter(){
 			ppd_console_llenarVector(buffer, nro_parametros);
 			while(i <= nro_parametros){
 				ppd_console_trace(sectores[i - 1]);
+				if (i+1>nro_parametros) puts("Próximo Sector: ..");
+				else printf("Próximo Sector: %d:%d\n",ppd_console_utils_get_cilinder_from_sector(sectores[i]),ppd_console_utils_get_sectorofcilinder_from_sector(sectores[i]));
 				i++;
 			}
 

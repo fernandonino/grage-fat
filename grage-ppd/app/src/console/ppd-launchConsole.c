@@ -118,15 +118,19 @@
 			bzero(buffer , 1024);
 
 
-			int receivedCount = commons_socket_receiveBytes( ppd_state_getPpdConsoleSocket() , &mensaje , sizeof mensaje);
-			if (mensaje.messageID=MESSAGE_ID_POSICION_ACTUAL){
+			commons_socket_receiveBytes( ppd_state_getPpdConsoleSocket() , &mensaje , sizeof mensaje);
+			if (mensaje.messageID == MESSAGE_ID_SECTORES_POR_CILINDRO ){
+				mensaje.pistaSector.sectorNumber=atoi(getPpdDiskSector());
+			}
+
+			if (mensaje.messageID == MESSAGE_ID_POSICION_ACTUAL){
 
 				posicionCabezal = ppd_console_entrypoint_getPosicionCabezal();
 				mensaje.pistaSector.pista=posicionCabezal.pista;
 				mensaje.pistaSector.sectorNumber=posicionCabezal.sectorNumber;
 
 			}
-			if (mensaje.messageID=MESSAGE_ID_SECTORES_RECORRIDOS){
+			if (mensaje.messageID==MESSAGE_ID_SECTORES_RECORRIDOS){
 				mensaje.timeInMiliseconds=ppd_console_entrypoint_TiempoConsumido(mensaje.pistaSector.pista,mensaje.pistaSector.sectorNumber);
 				mensaje.messageID=MESSAGE_ID_TIEMPO_CONSUMIDO;
 			}

@@ -9,7 +9,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <grage-commons.h>
-
+int cantidadSectoresPorCilindro;
+void ppd_console_utils_set_cantidadSectoresPorCilindro(int cant){
+	cantidadSectoresPorCilindro=cant;
+}
+int ppd_console_utils_get_cantidadSectoresPorCilindro(){
+	return cantidadSectoresPorCilindro;
+}
 MessageConsolePPD armarMensaje(uint32 messageID, uint32 pista, uint32 sector, uint32 timeMiliSeconds){
 	MessageConsolePPD mensaje;
 	mensaje.messageID=messageID;
@@ -19,14 +25,11 @@ MessageConsolePPD armarMensaje(uint32 messageID, uint32 pista, uint32 sector, ui
 	return mensaje;
 }
 int ppd_console_utils_get_cilinder_from_sector(int sector){
-	int cantidadSectoresPorCilindro;
-	return (sector%cantidadSectoresPorCilindro)-1;
+	return (sector/cantidadSectoresPorCilindro);
 }
 int ppd_console_utils_get_sectorofcilinder_from_sector(int sector){
-	int cantidadSectoresPorCilindro;
-	return sector-(sector%cantidadSectoresPorCilindro)*cantidadSectoresPorCilindro;
+	return (sector-(sector/cantidadSectoresPorCilindro)*cantidadSectoresPorCilindro)-1;
 }
 int ppd_console_utils_get_sector_from_sectorofcilinder(int sector, int cilinder){
-	int cantidadSectoresPorCilindro;
 	return (cilinder*cantidadSectoresPorCilindro)+sector;
 }

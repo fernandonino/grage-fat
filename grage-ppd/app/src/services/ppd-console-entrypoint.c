@@ -78,7 +78,7 @@ float ppd_console_entrypoint_TiempoConsumido(uint32 pistaSolicitada, uint32 sect
 		commons_socket_receiveBytes( ppd_state_getPpdConsoleSocket() , &mensaje , sizeof mensaje);
 		tiempoSectores = tiempoSectores + costoSector;
 	}
-
+	ppd_console_entrypoint_setearPosicionCabezal(pistaActual,sectorActual);
 	tiempoTotal = tiempoPistas + tiempoSectores;
 	return tiempoTotal;
 }
