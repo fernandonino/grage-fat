@@ -44,19 +44,16 @@
 
 
 	void ppd_launcher_initialize(){
-		int status = log_create("ppd", PPD_DEFAULT_LOG_FILE ,INFO|WARNING|ERROR|DEBUG , M_CONSOLE_DISABLE);
 
-		if(status == 0)
-			puts("[ Log creado con exito ]");
-		else{
-			puts("[ Fallo la creacion del log ]");
+		if(log_create("ppd", PPD_DEFAULT_LOG_FILE ,INFO|WARNING|ERROR|DEBUG , M_CONSOLE_DISABLE)){
+			puts("[ Fallo la creacion del log. Finalizando aplicacion. ]");
 			exit(EXIT_FAILURE);
 		}
 
 		ppd_configuration_setup();
 
 		if( !commons_file_isValidConfValue( ppd_conf_getDiskPath())){
-			puts("[ No existe un path al archivo del volumen ]");
+			puts("[ No existe un path al archivo del volumen. Finalizando aplicacion. ]");
 			exit(EXIT_FAILURE);
 		}
 

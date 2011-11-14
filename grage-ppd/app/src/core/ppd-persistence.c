@@ -55,18 +55,18 @@
 
 		int32_t fd =  open(diskId , O_RDWR);
 		if (fd == -1){
-			puts("[ Error en open del disco al tratar de mapearlo ]");
+			puts("[ Error en open del disco al tratar de mapearlo. Finalizando aplicacion. ]");
 			exit(EXIT_FAILURE);
 		}
 
 		char * map = mmap((caddr_t)0 , ppd_state_getVolumeSize() , PROT_WRITE , MAP_SHARED , fd , 0);
 		if( map == MAP_FAILED ){
-			puts("[ Error al mapear el disco ]");
+			puts("[ Error al mapear el disco. Finalizando aplicacion. ]");
 			exit(EXIT_FAILURE);
 		}
 
 		if( posix_madvise(map , ppd_state_getVolumeSize() , POSIX_MADV_SEQUENTIAL) ){
-			puts("[ Error en posix_madvise ]");
+			puts("[ Error en posix_madvise. Finalizando aplicacion. ]");
 			exit(EXIT_FAILURE);
 		}
 
@@ -81,14 +81,14 @@
 
 		int32_t fd =  open(diskId , O_RDONLY);
 		if (fd == -1){
-			puts("[ Error en open del disco al tratar de desmapearlo ]");
+			puts("[ Error en open del disco al tratar de desmapearlo. Finalizando aplicacion. ]");
 			exit(EXIT_FAILURE);
 		}
 
 		msync(ppd_state_getDiskStartAddress() , ppd_state_getVolumeSize() , MS_SYNC );
 
 		if( munmap(ppd_state_getDiskStartAddress() , ppd_state_getVolumeSize() ) ){
-			puts("[ Error al desmapear el disco ]");
+			puts("[ Error al desmapear el disco. Finalizando aplicacion. ]");
 			exit(EXIT_FAILURE);
 		}
 
