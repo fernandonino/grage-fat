@@ -88,6 +88,8 @@
 		uint32_t root;			// cluster number of root directory
 
 		int32_t disk;			// disk file descriptor - solo ese usa en los tests
+
+		uint32_t nextFreeCluster;
 	} __attribute__((packed)) Volume;
 
 
