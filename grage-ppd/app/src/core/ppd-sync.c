@@ -96,21 +96,27 @@
 			ppd_state_setReplicationDiskVolume(NULL);
 
 
-			if(ppd_state_getDiskStartAddress() == NULL && ppd_state_getVolumeSize() != 0){
+			/*
+			 * Inicializamos de nuevo el size del volumen
+			 * utilizado durante el mapeo del disco y durante
+			 * el proceso de persistencia
+			 */
+			ppd_state_initializeVolumeSize();
 
-				ppd_state_initializeVolumeSize();
-
-				ppd_persistence_mapDevice();
-
-			}else if(ppd_state_getDiskStartAddress() != NULL){
-
+			/*
+			 * Si se mapeó en algun momento el disco lo desmapeamos
+			 * (esto puede deberse a que el ppd actual es un master en la replicacion
+			 * o es un slave que termino de replicarse pero que al iniciarse tenia algún
+			 * contenido en su volumen de datos)
+			 */
+			if(ppd_state_getDiskStartAddress() == NULL )
 				ppd_persistence_unmapDevice();
 
-				ppd_state_initializeVolumeSize();
+			/*
+			 * Mapeamos el disco
+			 */
+			ppd_persistence_mapDevice();
 
-				ppd_persistence_mapDevice();
-
-			}
 
 			ppd_state_setReplicationProcessActive(FALSE);
 		}

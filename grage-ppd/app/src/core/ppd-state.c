@@ -5,11 +5,15 @@
  *      Author: gonzalo
  */
 
-#include "ppd-configuration.h"
-#include "grage-commons.h"
+#include <stdlib.h>
+
 #include "linux-commons.h"
 #include "linux-commons-socket.h"
 #include "linux-commons-strings.h"
+
+#include "grage-commons.h"
+
+#include "ppd-configuration.h"
 #include "ppd-state.h"
 #include "ppd-persistance.h"
 
@@ -49,21 +53,7 @@
 		return !ppd_state_isListenMode();
 	}
 
-	/*
 
-	ListenSocket ppd_state_getPraidSocket(){
-		if(connectionStatusActive )
-			if(commons_string_equals( ppd_conf_getPpdMode() ,
-							PPD_CONFIGURATION_MODE_CONNECT)){
-				return ppd_state_getPraidSocket();
-			}else{
-				return ppd_state_getPfsConnection()->listenSocket;
-			}
-		else
-			return 0;
-	}
-
-	*/
 
 
 
@@ -111,17 +101,23 @@
 		return volumeSize;
 	}
 
+	void ppd_state_initializeVolumeSize(){
+		File * volumeFile = commons_file_openFile(ppd_conf_getDiskPath());
 
-/*
-	Boolean workerRunning = FALSE;
+		if(volumeFile != NULL){
+			ppd_state_setVolumeSize(commons_file_getFileSize(volumeFile));
 
-	Boolean ppd_state_isWorkerRunning(){
-		return workerRunning;
+			commons_file_closeFile(volumeFile);
+
+		}else if(ppd_state_isListenMode()){
+
+			puts("[ En modo PPD Server debe existir el archivo de datos. Finalizando aplicacion. ]");
+			exit(EXIT_FAILURE);
+		}
 	}
-	void ppd_state_setWorkerRunning(Boolean status){
-		workerRunning = status;
-	}
-*/
+
+
+
 
 
 	Boolean replicationProcessActive = FALSE;
