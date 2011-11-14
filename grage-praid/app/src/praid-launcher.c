@@ -21,9 +21,7 @@
 
 	void praid_launcher_initialize(){
 
-		int error = log_create("praid", PRAIND_DEFAULT_LOG_FILE ,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
-
-		if(error){
+		if(log_create("praid", PRAIND_DEFAULT_LOG_FILE ,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE)){
 			puts("[ Falló la inicialización del log ]");
 			exit(EXIT_FAILURE);
 		}

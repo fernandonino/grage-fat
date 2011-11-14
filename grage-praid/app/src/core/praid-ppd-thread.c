@@ -84,8 +84,6 @@
 			}
 		}
 
-		praid_utils_printLines();
-
 		if(commons_console_logging_isDefault()){
 			printf("[ Se ha desconectado el PPD %i ]\n" , storage->id);
 			printf("[ Eliminando PPD con Id %i tras desconexion ]\n" , storage->id);

@@ -27,9 +27,10 @@
 
 
 	void praid_utils_printSynchingInformation(SyncProcessState state){
-		if(commons_console_logging_isAll())
+		if(commons_console_logging_isAll()){
 			printf("[ Sincronizados %i bytes de un total de %i ]\n" ,
 					state.bytesSynchronized, state.source->volumeSize);
+		}
 	}
 
 
@@ -39,8 +40,6 @@
 		if(commons_console_logging_isDefault()){
 
 			commons_misc_lockThreadMutex(&listingMutex);
-
-			praid_utils_printLines();
 
 			puts("[ Replicacion finalizada ]");
 

@@ -44,17 +44,25 @@
 
 		if(praid_ppd_sync_isValidReplication()) {
 
+
 			if(commons_console_logging_isDefault())
-				puts("[ Comenzando la replicacion de datos ]");
+				puts("[ Comenzando la replicación de datos ]");
+
+			praid_utils_printLines();
 
 			sleep(3);
 
+			if(commons_console_logging_isDefault())
+				puts("[ Replicación en proceso .... ]");
+
 			praid_ppd_sync_synchronize(storage);
+
+			praid_utils_printLines();
 
 		} else {
 
 			if(commons_console_logging_isDefault())
-				puts("[ No se realiza replicacion de datos ]");
+				puts("[ No se realiza replicación de datos ]");
 
 			praid_endpoint_ppd_callProcessJobs(storage->connection);
 
