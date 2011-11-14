@@ -9,7 +9,7 @@
 #include "grage-commons.h"
 #include "ppd-configuration.h"
 #include "ppd-utils.h"
-
+#include "ppd-state.h"
 PistaSector posicionActual;
 MessageConsolePPD messageConsolePPD;
 PistaSector ppd_console_entrypoint_getPosicionCabezal(){
@@ -37,7 +37,7 @@ uint32 nuevoSectorActual(float sector, float ms, uint32 cantidadSectoresPista){
 	}
 
 }
-void ppd_console_entrypoint_TiempoConsumido(uint32 pistaSolicitada, uint32 sectorSolicitado){
+float ppd_console_entrypoint_TiempoConsumido(uint32 pistaSolicitada, uint32 sectorSolicitado){
 
 	uint32 sectorActual = posicionActual.sectorNumber;
 	uint32 pistaActual=posicionActual.pista;
@@ -49,7 +49,9 @@ void ppd_console_entrypoint_TiempoConsumido(uint32 pistaSolicitada, uint32 secto
 	float tiempoPistas = 0;
 	float tiempoSectores = 0;
 	float tiempoTotal;
-
+	MessageConsolePPD mensaje;
+	mensaje.messageID=MESSAGE_ID_SECTORES_RECORRIDOS;
+	mensaje.timeInMiliseconds=-1;
 	while (!(pistaActual == pistaSolicitada))
 	{
 		if (pistaActual < pistaSolicitada)
@@ -70,12 +72,15 @@ void ppd_console_entrypoint_TiempoConsumido(uint32 pistaSolicitada, uint32 secto
 		{
 			sectorActual = 0;
 		}
-		printf("%d:%d ",pistaActual, sectorActual);
+		mensaje.pistaSector.sectorNumber=sectorActual;
+		mensaje.pistaSector.pista=pistaActual;
+		commons_socket_sendBytes(ppd_state_getPpdConsoleSocket()  , &mensaje , sizeof mensaje);
+		commons_socket_receiveBytes( ppd_state_getPpdConsoleSocket() , &mensaje , sizeof mensaje);
 		tiempoSectores = tiempoSectores + costoSector;
 	}
 
 	tiempoTotal = tiempoPistas + tiempoSectores;
-	printf("\nTiempo Consumido: %f ms\n\n" , tiempoTotal);
+	return tiempoTotal;
 }
 
 

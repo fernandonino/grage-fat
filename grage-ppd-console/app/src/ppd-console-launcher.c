@@ -50,6 +50,7 @@ int ppd_console_connect(){
 	void ppd_console_launcher_initialize(){
 		log_create("ppd-console",CONF_LOGS,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 		ppd_console_launcher_setSocketPPD(ppd_console_connect());
+
 	}
 
 	void ppd_console_launcher_exit() {

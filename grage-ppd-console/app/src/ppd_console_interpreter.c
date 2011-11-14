@@ -112,25 +112,31 @@ void ppd_console_clean(uint32 clusterInicial, uint32 clusterFinal){
 	printf("clusterInicial %d\n", clusterInicial);
 	printf("clusterFinal %d\n", clusterFinal);
 }
-
-void ppd_console_trace(uint32 sectorPedido){
-	char buf[1024];
-
-	MessageConsolePPD mensaje = armarMensaje(MESSAGE_ID_POSICION_ACTUAL,
-								4,
-								2,
-								-1);
-	puts("console trace");
-
+void imprimirPosicionActual(){
+	MessageConsolePPD mensaje = armarMensaje(MESSAGE_ID_POSICION_ACTUAL, -1,-1,-1);
 	commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
-
 	int receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
-	printf("ID: %d \n PISTA: %d \n SECTOR: %d \n TIEMPO: %d \n",
-				mensaje.menssageID,
-				mensaje.pistaSector.pista,
-				mensaje.pistaSector.sectorNumber,
-				mensaje.timeInMiliseconds);
-	printf("sectorPedido: %d\n", sectorPedido);
+	printf("Posición actual: %d:%d\n",mensaje.pistaSector.pista,mensaje.pistaSector.sectorNumber);
+}
+void imprimirSectoresRecorridos(uint32 pistaRequerida, uint32 sectorRequerido){
+	MessageConsolePPD mensaje = armarMensaje(MESSAGE_ID_SECTORES_RECORRIDOS, pistaRequerida,sectorRequerido,-1);
+	puts("COMIENZA A RECORRER2");
+	commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
+	int receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
+	printf("Sectores Recorridos: ");
+	while(mensaje.messageID == MESSAGE_ID_SECTORES_RECORRIDOS){
+		printf("%d:%d ",mensaje.pistaSector.pista,mensaje.pistaSector.sectorNumber);
+		commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
+		int receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
+	}
+	printf("\n Tiempo consumido: %dms \n",mensaje.timeInMiliseconds);
+}
+void ppd_console_trace(uint32 sectorPedido){
+	puts("console trace");
+	imprimirPosicionActual(ppd_console_launcher_getSocketPPD());
+	printf("Sector Solicitado: %d:%d \n", ppd_console_utils_get_cilinder_from_sector(sectorPedido),ppd_console_utils_get_sectorofcilinder_from_sector(sectorPedido));
+	puts("COMIENZA A RECORRER");
+	imprimirSectoresRecorridos(ppd_console_utils_get_cilinder_from_sector(sectorPedido),ppd_console_utils_get_sectorofcilinder_from_sector(sectorPedido));
 }
 
 void ppd_console_interpreter(){

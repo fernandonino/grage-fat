@@ -10,9 +10,9 @@
 #include <string.h>
 #include <grage-commons.h>
 
-MessageConsolePPD armarMensaje(uint32 messageID, uint32 sector, uint32 pista, uint32 timeMiliSeconds){
+MessageConsolePPD armarMensaje(uint32 messageID, uint32 pista, uint32 sector, uint32 timeMiliSeconds){
 	MessageConsolePPD mensaje;
-	mensaje.menssageID=messageID;
+	mensaje.messageID=messageID;
 	mensaje.pistaSector.sectorNumber=sector;
 	mensaje.pistaSector.pista=pista;
 	mensaje.timeInMiliseconds=timeMiliSeconds;

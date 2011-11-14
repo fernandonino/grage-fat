@@ -83,9 +83,10 @@
 			{
 				puts("Iniciando consola");
 				uint32 code = execv("/opt/grage-repository/lib/grage-ppd-console", args);
+				printf("CODE: %d \n",code);
 				if(code == -1){
 					puts("No se pudo levantar la consola");
-				}else{ ppd_console_entrypoint_setearPosicionCabezal(17,54); }
+				}
 			}
 		}else puts("FORRO");
 		return 0;
@@ -110,6 +111,7 @@
 		puts("recibiendo bytes de la consola");
 		MessageConsolePPD mensaje;
 		PistaSector posicionCabezal;
+		ppd_console_entrypoint_setearPosicionCabezal(0,0);
 		while(TRUE){
 
 			char buffer[1024];
@@ -120,10 +122,13 @@
 			if (mensaje.messageID=MESSAGE_ID_POSICION_ACTUAL){
 
 				posicionCabezal = ppd_console_entrypoint_getPosicionCabezal();
-				printf("poscabezalpista: %d poscabezalsector: %d \n",posicionCabezal.pista,posicionCabezal.sectorNumber);
 				mensaje.pistaSector.pista=posicionCabezal.pista;
 				mensaje.pistaSector.sectorNumber=posicionCabezal.sectorNumber;
 
+			}
+			if (mensaje.messageID=MESSAGE_ID_SECTORES_RECORRIDOS){
+				mensaje.timeInMiliseconds=ppd_console_entrypoint_TiempoConsumido(mensaje.pistaSector.pista,mensaje.pistaSector.sectorNumber);
+				mensaje.messageID=MESSAGE_ID_TIEMPO_CONSUMIDO;
 			}
 			//hace lo q quieras con el contenido del buffer
 
