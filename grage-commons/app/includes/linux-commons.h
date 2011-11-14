@@ -4,8 +4,11 @@
 *  Created on: 29/05/2011
 *      Author: gonzalo
 */
-#include <pthread.h>
+
 #include <stdio.h>
+#include <sys/time.h>
+#include <time.h>
+#include <pthread.h>
 #include <dirent.h>
 #include <stdint.h>
 
