@@ -6,6 +6,7 @@
  */
 
 #include <linux-commons.h>
+#include <linux-commons-console-logging.h>
 
 #include "praid-utils.h"
 
@@ -47,10 +48,11 @@
 			printf("[ Replicados %i de %i bytes ]\n" ,
 					 state.bytesSynchronized , state.source->volumeSize);
 
-			//Time currentTime = commons_misc_getCurrentTime();
-			//Time diffTime = commons_misc_getTimeDiff( &currentTime , &state.startTime );
+			Time currentTime = commons_misc_getCurrentTime();
+			Time diffTime = commons_misc_getTimeDiff( &currentTime , &state.startTime );
 
-			//printf("[ Tiempo insumido: %i segundos, %i milisegundos ]\n" , diffTime.tv_sec , diffTime.tv_usec);
+			printf("[ Tiempo insumido: %i minutos, %i segundos, %i milisegundos ]\n"
+					, (int)(diffTime.tv_sec/60) , (int)(diffTime.tv_sec%60) , (int)(diffTime.tv_usec/1000) );
 
 			commons_misc_unlockThreadMutex(&listingMutex);
 		}

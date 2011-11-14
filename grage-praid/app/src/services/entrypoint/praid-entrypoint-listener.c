@@ -7,15 +7,17 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "linux-commons-socket.h"
+#include <linux-commons-socket.h>
+#include <linux-commons-console-logging.h>
 
-#include "nipc-messaging.h"
+#include <nipc-messaging.h>
 
 #include "praid-configuration.h"
 #include "praid-entrypoint.h"
 #include "praid-endpoint.h"
 #include "praid-state.h"
 #include "praid-sync.h"
+#include "praid-utils.h"
 
 
 
@@ -28,9 +30,8 @@
 
 		uint8_t ppdId = message.header.operationId;
 
-		PPDConnectionStorage * storage = praid_state_buildPPDConnectionStorageFromId(listenSocket , ppdId);
-
-		storage->volumeSize = message.header.responseCode;
+		PPDConnectionStorage * storage = praid_state_buildPPDConnectionStorageFromId(
+				listenSocket , ppdId ,  message.header.responseCode);
 
 		praid_state_addPpdStorage(storage);
 

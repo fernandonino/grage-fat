@@ -9,8 +9,9 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <stdint.h>
-#include "grage-commons.h"
 #include <linux-commons.h>
+#include "grage-commons.h"
+
 #include "praid-state.h"
 
 #ifndef PRAID_SYNC_H_
@@ -27,6 +28,8 @@
 
 		PPDConnectionStorage * source;
 		PPDConnectionStorage * destiny;
+
+		Time startTime;
 
 	} SyncProcessState;
 

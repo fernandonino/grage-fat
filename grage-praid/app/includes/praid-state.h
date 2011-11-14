@@ -42,7 +42,7 @@
 	void praid_state_addPpdStorage(PPDConnectionStorage * aState);
 
 	PPDConnectionStorage * praid_state_buildPPDConnectionStorage(ListenSocket aSocket);
-	PPDConnectionStorage * praid_state_buildPPDConnectionStorageFromId(ListenSocket ls , uint8_t ppdId);
+	PPDConnectionStorage * praid_state_buildPPDConnectionStorageFromId(ListenSocket ls , uint8_t ppdId , uint32_t size);
 	PPDConnectionStorage * praid_balancer_selectStorage();
 
 	void praid_state_removePddStorage(PPDConnectionStorage * storage);
@@ -54,8 +54,9 @@
 	Boolean praid_state_storage_isConnected(PPDConnectionStorage * s);
 
 	Boolean praid_sync_isReplicationActive();
-	void praid_sync_setReplicationStatus(Boolean status);
+	void praid_sync_setReplicationStatusActive(Boolean status);
 
 	Boolean praid_state_isThereAnyPpdConnected();
+
 
 #endif /* PRAID_STATE_H_ */

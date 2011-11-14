@@ -7,8 +7,10 @@
 
 #include <unistd.h>
 
-#include "linux-commons-socket.h"
-#include "linux-commons-queue.h"
+#include <linux-commons.h>
+#include <linux-commons.h>
+#include <linux-commons-socket.h>
+#include <linux-commons-queue.h>
 
 #include "praid-state.h"
 #include "praid-queue.h"
@@ -56,9 +58,10 @@
 		return storage;
 	}
 
-	PPDConnectionStorage * praid_state_buildPPDConnectionStorageFromId(ListenSocket ls , uint8_t ppdId){
+	PPDConnectionStorage * praid_state_buildPPDConnectionStorageFromId(ListenSocket ls , uint8_t ppdId , uint32_t size){
 		PPDConnectionStorage * storage = praid_state_buildPPDConnectionStorage(ls);
 		storage->id = ppdId;
+		storage->volumeSize = size;
 		return storage;
 	}
 
@@ -87,7 +90,7 @@
 		void removingStorage(PPDConnectionStorage * s){
 			//remover la cola del storage
 			close(s->connection);
-			commons_misc_doFreeNull(s);
+			commons_misc_doFreeNull((void**)s);
 		}
 
 		commons_list_removeNode(ppdStorages , storage , (void (*)(Object)) removingStorage);

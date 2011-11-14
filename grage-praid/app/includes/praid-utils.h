@@ -11,10 +11,13 @@
 #ifndef PRAID_UTILS_H_
 #define PRAID_UTILS_H_
 
+	void praid_utils_printClusterInformation();
 
 	void praid_utils_printSynchingInformation(SyncProcessState state);
 
 	void praid_utils_printEndSynchingInformation(SyncProcessState state);
 
+
+	void praid_utils_printLines();
 
 #endif /* PRAID_UTILS_H_ */

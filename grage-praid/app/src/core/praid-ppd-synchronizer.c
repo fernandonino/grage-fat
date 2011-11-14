@@ -5,8 +5,8 @@
  *      Author: gonzalo
  */
 
+#include <linux-commons.h>
 #include <linux-commons-list.h>
-
 
 #include "praid-sync.h"
 #include "praid-queue.h"
@@ -54,6 +54,7 @@
 		syncProcess.bytesSynchronized = 0;
 		syncProcess.source = src;
 		syncProcess.destiny = dest;
+		syncProcess.startTime = commons_misc_getCurrentTime();
 
 		return syncProcess;
 	}

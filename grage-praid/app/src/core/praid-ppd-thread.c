@@ -8,8 +8,9 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#include "linux-commons.h"
-#include "linux-commons-errors.h"
+#include <linux-commons.h>
+#include <linux-commons-errors.h>
+#include <linux-commons-console-logging.h>
 
 #include "nipc-messaging.h"
 
