@@ -32,11 +32,15 @@
 
 		printf("Clusters totales: %u.\n" , v->clusters);
 
+		DiskSector sector = pfs_endpoint_callGetSector(b->BPB_FSInfo);
+		memcpy( &(v->nextFreeCluster) , sector.sectorContent + 492 , sizeof(uint32_t));
+
 		if ( v->clusters < 65525 ) {
 			return NULL;
 		} else {
 			return v;
 		}
+
 	}
 
 
@@ -352,5 +356,7 @@
 		}
 	}
 
-
+	uint32_t pfs_fat32_utils_getNextFreeCluster(){
+		return 0;
+	}
 
