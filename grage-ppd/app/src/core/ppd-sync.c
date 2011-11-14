@@ -109,7 +109,7 @@
 			 * o es un slave que termino de replicarse pero que al iniciarse tenia algún
 			 * contenido en su volumen de datos)
 			 */
-			if(ppd_state_getDiskStartAddress() == NULL )
+			if(ppd_state_getDiskStartAddress() != NULL )
 				ppd_persistence_unmapDevice();
 
 			/*
