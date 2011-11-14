@@ -18,7 +18,7 @@
 #include "pfs-fat32.h"
 
 	struct fuse_operations grage_oper = {
-	  .getattr = pfs_fuse_getattr,			//Terminada?
+	  .getattr = pfs_fuse_getattr,			//Terminada
 	  .mkdir = pfs_fuse_mkdir,				//Pendiente
 	  .unlink = pfs_fuse_unlink,			//Terminada
 	  .rmdir = pfs_fuse_rmdir,				//Terminada

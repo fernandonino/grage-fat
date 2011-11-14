@@ -104,6 +104,11 @@
 		return firstSector;
 	}
 
+	uint32_t pfs_fat_utils_getClusterBySector(Volume * v , uint32_t sector){
+		uint32_t cluster = ((sector - v->fds) / v->spc) + 2;
+		return cluster;
+	}
+
 	uint32_t pfs_fat32_utils_getNextClusterInChain(Volume * v , uint32_t clusterId){
 		uint32_t nextCluster;
 
@@ -291,7 +296,7 @@
 		//Revisar en el caso que de 0
 		f->fileClusterNumber = offset / v->bpc + 1;
 		f->fileSectorNumberOfCluster = offset % v->bpc / v->bps + 1;
-		f->sectorByteOffset = offset % v->bpc;
+		f->sectorByteOffset = offset % v->bps;
 
 		return EXIT_SUCCESS;
 	}

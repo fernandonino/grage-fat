@@ -117,6 +117,7 @@
 	uint32_t pfs_fat_utils_getFatEntrySector(Volume * v , uint32_t cluster);
 	uint32_t pfs_fat_utils_getFatEntryOffset(Volume * v , uint32_t cluster);
 	uint32_t pfs_fat_utils_getFirstSectorOfCluster(Volume * v , uint32_t cluster);
+	uint32_t pfs_fat_utils_getClusterBySector(Volume * , uint32_t);
 	uint32_t pfs_fat32_utils_getNextClusterInChain(Volume * v , uint32_t clusterId);
 	uint32_t pfs_fat32_utils_getFirstSectorFromNextClusterInChain(Volume * v , uint32_t clusterId);
 	Boolean pfs_fat32_utils_isLastSectorFromCluster(Volume * v , uint32_t sectorId);

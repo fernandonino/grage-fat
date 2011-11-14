@@ -26,6 +26,9 @@
 #include "pfs-fat32.h"
 #include "pfs-fuse.h"
 
+void createTmpFile(uint16_t, uint32_t);
+void estoyProbandoComoMierdaSeLeeUnArchivo(Volume * , FatFile * , uint16_t , uint32_t);
+
 void launch_pfs_tests(void);
 
 	/*
@@ -126,7 +129,7 @@ void launch_pfs_tests(void);
 		FatFile * directory = pfs_fat32_open("/");
 		struct dirent de;
 		struct stat st;
-		int8_t result;
+		int16_t result;
 
 
 		/* Modificando la fecha y hora del archivo "file" */
@@ -171,6 +174,44 @@ void launch_pfs_tests(void);
 		}
 */
 
+
+		/* Borrando un archivo y un directorio "file" y "directory", respectivamente */
+		estoyProbandoComoMierdaSeLeeUnArchivo(v , file , 512, 265044);
+
 		commons_misc_doFreeNull((void **)file);
 		commons_misc_doFreeNull((void **)directory);
+	}
+
+	void createTmpFile(uint16_t size, uint32_t offset){
+
+		char buffer[size];
+		int photo = open("/vfs/face-01.png" , O_RDONLY);
+		lseek(photo, offset, SEEK_SET);
+		read(photo , buffer , size);
+		FILE * forro = fopen("/vfs/face-01-1024.png" , "w");
+		fwrite(buffer , 1 , size , forro);
+		close(photo);
+		fclose(forro);
+	}
+
+	void estoyProbandoComoMierdaSeLeeUnArchivo(Volume * v , FatFile * file , uint16_t size, uint32_t offset){
+
+		createTmpFile(size, offset);
+
+		char buffer[size];
+
+		uint32_t filesize = file->shortEntry.DIR_FileSize;
+		if ( (offset + size) > filesize )
+			size = filesize - offset;
+
+		uint16_t result = pfs_fat32_utils_seek(v , file , offset , filesize);
+		if ( result == EXIT_FAILURE )
+			return;
+
+		uint16_t read = pfs_fat32_read(v , file , buffer , size);
+		printf("Se leyeron %d\n" , read);
+
+		FILE * forro = fopen("/vfs/face-01-1024-test.png" , "w");
+		fwrite(buffer , 1 , size , forro);
+		fclose(forro);
 	}

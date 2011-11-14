@@ -285,15 +285,13 @@
 			bytesLeft -= bytesRead;
 		}
 
-		uint32_t nextNeededCluster = f->fileAbsoluteClusterNumber;
+		uint32_t current = f->fileAbsoluteClusterNumber;
 
-
-		// El siguiente algoritmo alcanza para leer un sector + 1 cluster entero
-		// Si el size es suficientemente grande como para abarcar mas de un cluster, entonces falla.
 		while( bytesRead < size ){
 
 			if( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) ){
-				uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , nextNeededCluster);
+				uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , current);
+				current = pfs_fat_utils_getClusterBySector(v , sectorId);
 				sector = pfs_endpoint_callGetSector(sectorId);
 			} else {
 				sector = pfs_endpoint_callGetSector(sector.sectorNumber + 1);
@@ -301,7 +299,7 @@
 
 			if ( bytesLeft <= v->bps ){
 				bytesToRead = bytesLeft;
-			} else if ( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) && FAT_32_ISEOC(nextNeededCluster) ){
+			} else if ( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) && FAT_32_ISEOC(current) ){
 				bytesToRead = bytesLeft; //Verificar el uso de FAT_32_ISEOC ---> creo que habria que preguntar por el siguiente cluster
 			} else {
 				bytesToRead = v->bps;
