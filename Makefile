@@ -21,8 +21,6 @@ build:
 
 clean:
 	make clean -C grage-commons
-	make clean -C grage-linux-testing-integration
-	make clean -C grage-linux-testing-unit
 	make clean -C grage-pfs
 	make clean -C grage-praid
 	make clean -C grage-ppd
