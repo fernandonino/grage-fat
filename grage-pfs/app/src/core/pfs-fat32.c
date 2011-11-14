@@ -162,7 +162,6 @@
 			}
 		}
 
-		//lfnentry.LDIR_Ord = 0x00; // Fuerzo la entrada al ciclo
 		do {
 			memcpy(&lfnentry , diskSector.sectorContent + file->dirEntryOffset , sizeof(LongDirEntry));
 			file->dirEntryOffset += 32;

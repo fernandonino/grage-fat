@@ -263,11 +263,11 @@
 		uint16_t bmask2=0x01FF;
 		uint16_t bmask1=0x001F;
 
-		gmtime_r(&actualTime, &time);
+		localtime_r(&actualTime, &time);
 
 		date = (uint16_t) time.tm_mday;
 		date &= bmask1; // to set 0 first 11 bits;
-		date |= ((uint16_t) time.tm_mon) << 5;
+		date |= ((uint16_t) time.tm_mon + 1) << 5;
 		date &= bmask2; // to set 0 first 6 bits;
 		date |= (((uint16_t) ((time.tm_year + 1900) -1980)) << 9);
 
@@ -277,8 +277,8 @@
 		tim &= bmask3;
 		tim |= (((uint16_t) (time.tm_hour)) << 11);
 
-		*d = tim;
-		*t = date;
+		*d = date;
+		*t = tim;
 		return 0;
 	}
 

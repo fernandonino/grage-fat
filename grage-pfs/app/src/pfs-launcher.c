@@ -122,11 +122,28 @@ void launch_pfs_tests(void);
 
 	void launch_pfs_tests(void){
 		Volume * v = pfs_state_getVolume();
-		FatFile * file = pfs_fat32_open("/src/face-02.png");
+		FatFile * file = pfs_fat32_open("/face-01.png");
 		FatFile * directory = pfs_fat32_open("/");
 		struct dirent de;
 		struct stat st;
 		int8_t result;
+
+
+		/* Modificando la fecha y hora del archivo "file" */
+
+		time_t currentTime = time(NULL);
+
+		pfs_fat32_utils_fillTime( &(file->shortEntry.DIR_CrtDate) , &(file->shortEntry.DIR_CrtTime) , currentTime);
+		pfs_fat32_utils_fillTime( &(file->shortEntry.DIR_WrtDate) , &(file->shortEntry.DIR_WrtTime) , currentTime);
+
+		uint32_t sectorNumber = pfs_fat_utils_getFirstSectorOfCluster(v , file->source);
+		DiskSector sector = pfs_endpoint_callGetSector(sectorNumber);
+		memcpy(sector.sectorContent + file->sourceOffset + 32 , &(file->shortEntry) , FAT_32_DIR_ENTRY_SIZE);
+
+		pfs_endpoint_callPutSector(sector);
+
+
+		/* Listando el directorio "directory" */
 
 		while( (result = pfs_fat32_readDirectory(&de , directory , v)) == 0 ){
 			memset(&st, 0, sizeof(st));
@@ -137,6 +154,9 @@ void launch_pfs_tests(void);
 
 			printf("%s\n" , de.d_name);
 		}
+
+
+		/* Borrando un archivo y un directorio "file" y "directory", respectivamente */
 /*
 		pfs_fat32_unlink(v,file);
 
@@ -150,6 +170,7 @@ void launch_pfs_tests(void);
 			puts("El directorio no esta vacio.");
 		}
 */
+
 		commons_misc_doFreeNull((void **)file);
 		commons_misc_doFreeNull((void **)directory);
 	}
