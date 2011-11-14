@@ -34,14 +34,9 @@
 	} SyncProcessState;
 
 
-
-	void praid_ppd_sync_synchronizeStorage(PPDConnectionStorage * source ,
-				PPDConnectionStorage * dest);
-
-	void praid_ppd_sync_synchronize(PPDConnectionStorage * storage);
+	void praid_ppd_sync_fireSynchronization(PPDConnectionStorage * , PPDConnectionStorage * );
 
 	Boolean praid_ppd_sync_isValidReplication();
-
 
 	void praid_sync_setSyncProcessState(SyncProcessState s);
 	SyncProcessState praid_sync_getSyncProcessState();

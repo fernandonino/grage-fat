@@ -78,6 +78,8 @@
 	void praid_ppd_sync_fireSynchronization(PPDConnectionStorage * source ,
 			PPDConnectionStorage * dest){
 
+		praid_sync_setReplicationStatusActive(TRUE);
+
 		SyncProcessState syncProcess = praid_sync_buildSyncProcessState( source , dest);
 		praid_sync_setSyncProcessState(syncProcess);
 
@@ -85,11 +87,4 @@
 	}
 
 
-	void praid_ppd_sync_synchronize(PPDConnectionStorage * destiny){
-
-		praid_sync_setReplicationStatusActive(TRUE);
-
-		PPDConnectionStorage * master = praid_ppd_sync_selectMasterStorage();
-		praid_ppd_sync_fireSynchronization(master , destiny);
-	}
 

@@ -30,10 +30,12 @@
 
 		uint8_t ppdId = message.header.operationId;
 
-		PPDConnectionStorage * storage = praid_state_buildPPDConnectionStorageFromId(
+		PPDConnectionStorage * destiny = praid_state_buildPPDConnectionStorageFromId(
 				listenSocket , ppdId ,  message.header.responseCode);
 
-		praid_state_addPpdStorage(storage);
+		PPDConnectionStorage * master = praid_balancer_selectStorage();
+
+		praid_state_addPpdStorage(destiny);
 
 		praid_utils_printLines();
 
@@ -45,17 +47,17 @@
 		if(praid_ppd_sync_isValidReplication()) {
 
 
-			if(commons_console_logging_isDefault())
+			if(commons_console_logging_isDefault()){
 				puts("[ Comenzando la replicación de datos ]");
-
-			praid_utils_printLines();
+				printf("[ Volumen a replicar: %.3f MiB ]\n" , (float)((float) master->volumeSize /(1024*1024)));
+			}
 
 			sleep(3);
 
 			if(commons_console_logging_isDefault())
 				puts("[ Replicación en proceso .... ]");
 
-			praid_ppd_sync_synchronize(storage);
+			praid_ppd_sync_fireSynchronization(master , destiny);
 
 			praid_utils_printLines();
 
@@ -64,11 +66,11 @@
 			if(commons_console_logging_isDefault())
 				puts("[ No se realiza replicación de datos ]");
 
-			praid_endpoint_ppd_callProcessJobs(storage->connection);
+			praid_endpoint_ppd_callProcessJobs(destiny->connection);
 
 		}
 
-		praid_ppd_thread_launchNewSlaveThread(storage);
+		praid_ppd_thread_launchNewSlaveThread(destiny);
 	}
 
 
