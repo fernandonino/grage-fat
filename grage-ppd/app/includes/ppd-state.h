@@ -29,14 +29,12 @@
 	void ppd_state_setVolumeSize(uint32_t v);
 	uint32_t ppd_state_getVolumeSize();
 
-	Boolean ppd_state_isWorkerRunning();
-	void ppd_state_setWorkerRunning(Boolean status);
-
 	Boolean ppd_state_isReplicationProcessActive();
 	void ppd_state_setReplicationProcessActive(Boolean s);
 
 	Boolean ppd_state_isListenMode();
 	Boolean ppd_state_isConnectMode();
 
+	void ppd_state_initializeVolumeSize();
 
 #endif /* PPD_STATE_H_ */

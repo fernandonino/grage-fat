@@ -34,9 +34,6 @@
 
 	void ppd_launcher_exit();
 
-	extern pthread_t ppdConsoleThread;
-
-
 	void ppd_launcher_console(){
 		ppd_launchConsole_initialize();
 		ppd_launchConsole_launchSlaveThread();
@@ -44,21 +41,6 @@
 
 
 
-
-
-	void ppd_state_initializeVolumeSize(){
-		File * volumeFile = commons_file_openFile(ppd_conf_getDiskPath());
-		if(volumeFile != NULL){
-			ppd_state_setVolumeSize(commons_file_getFileSize(volumeFile));
-
-			commons_file_closeFile(volumeFile);
-
-		}else if(ppd_state_isListenMode()){
-
-			puts("[ En modo PPD Server debe existir el archivo de datos. Finalizando aplicacion.]");
-			exit(EXIT_FAILURE);
-		}
-	}
 
 
 	void ppd_launcher_initialize(){
