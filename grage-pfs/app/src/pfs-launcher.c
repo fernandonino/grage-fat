@@ -31,7 +31,9 @@ void estoyProbandoComoMierdaSeLeeUnArchivo(Volume * , FatFile * , uint16_t , uin
 
 void launch_pfs_tests(void);
 
-	/*
+
+/*
+
 	void pfs_launcher_launchConnections(){
 
 		char * host = pfs_configuration_getDeviceAddress();
@@ -41,9 +43,7 @@ void launch_pfs_tests(void);
 
 		pfs_state_setDataSocket(dataSocket);
 
-		RuntimeErrorValidator * validator = commons_errors_buildSuccessValidator();
-
-		nipc_sendHandshake(dataSocket , NIPC_PROCESS_ID_PFS , validator);
+		nipc_sendHandshake(dataSocket , NIPC_PROCESS_ID_PFS);
 
 		NipcMessage message =  nipc_receiveHandshake(pfs_state_getDataSocket());
 
@@ -53,8 +53,7 @@ void launch_pfs_tests(void);
 		}
 
 	}
-	*/
-
+*/
 
 
 
@@ -66,7 +65,7 @@ void launch_pfs_tests(void);
 
 		//pfs_launcher_launchConnections();
 		//pfs_console_initialize();
-		ppd_initializeDisk();
+		//ppd_initializeDisk();
 	}
 
 
@@ -101,9 +100,9 @@ void launch_pfs_tests(void);
 
 		pfs_launcher_initializeBPB();
 
-		//pfs_fuse_launchFuse(argc,argv);
+		pfs_fuse_launchFuse(argc,argv);
 
-		launch_pfs_tests();
+		//launch_pfs_tests();
 
 	}
 
@@ -132,7 +131,7 @@ void launch_pfs_tests(void);
 		int16_t result;
 
 
-		/* Modificando la fecha y hora del archivo "file" */
+		/* Modificando la fecha y hora del archivo "file"
 
 		time_t currentTime = time(NULL);
 
@@ -144,6 +143,8 @@ void launch_pfs_tests(void);
 		memcpy(sector.sectorContent + file->sourceOffset + 32 , &(file->shortEntry) , FAT_32_DIR_ENTRY_SIZE);
 
 		pfs_endpoint_callPutSector(sector);
+
+		*/
 
 
 		/* Listando el directorio "directory" */
@@ -176,7 +177,7 @@ void launch_pfs_tests(void);
 
 
 		/* Borrando un archivo y un directorio "file" y "directory", respectivamente */
-		estoyProbandoComoMierdaSeLeeUnArchivo(v , file , 512, 265044);
+		//estoyProbandoComoMierdaSeLeeUnArchivo(v , file , 512, 265044);
 
 		commons_misc_doFreeNull((void **)file);
 		commons_misc_doFreeNull((void **)directory);

@@ -18,36 +18,69 @@
 
 #include <linux-commons-errors.h>
 
-#include "pfs-endpoint.h"
 #include "nipc-messaging.h"
+
+#include "pfs-endpoint.h"
+#include "pfs-state.h"
+
+
+
+
+
+
+	ListenSocket pfs_endpoint_doHandshake(){
+
+		char * host = pfs_configuration_getDeviceAddress();
+		char * port = pfs_configuration_getDevicePort();
+
+		ListenSocket dataSocket = commons_socket_openClientConnection(host , port);
+
+		nipc_sendHandshake(dataSocket , NIPC_PROCESS_ID_PFS);
+
+		NipcMessage message =  nipc_receiveHandshake(dataSocket);
+
+		if(message.header.responseCode == NIPC_RESPONSE_CODE_ERROR){
+			puts("Fallo el handshake");
+			exit(1);
+		}
+
+		return dataSocket;
+	}
+
+
+
 
 	void pfs_endpoint_callPutSector( DiskSector diskSector){
 
-		uint32_t offset = diskSector.sectorNumber * SECTOR_SIZE;
-		char * start = ppd_state_getDiskStartAddress();
+		ListenSocket ds = pfs_endpoint_doHandshake();
 
-		char * validator = memcpy(start + offset , diskSector.sectorContent , SECTOR_SIZE );
-        if (validator == NULL){
-        	perror("Error en memcpy");
-        }
+		NipcMessage message = nipc_mbuilder_buildNipcMessage();
+		message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_PUT_SECTORS);
+		message = nipc_mbuilder_addDiskSector(message , diskSector);
 
-        msync(start , SECTOR_SIZE , MS_SYNC );
+		nipc_messaging_send(ds , message );
+
+		close(ds);
 	}
 
 
 	DiskSector pfs_endpoint_callGetSector(uint32_t sectorNumber){
+
+		ListenSocket ds = pfs_endpoint_doHandshake();
+
 		DiskSector diskSector;
 
-		uint32_t offset = sectorNumber * SECTOR_SIZE;
-		char * start = ppd_state_getDiskStartAddress();
+		NipcMessage message = nipc_mbuilder_buildNipcMessage();
+		message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_GET_SECTORS);
+		message = nipc_mbuilder_addDiskSectorId(message , sectorNumber);
 
-		char * validator = memcpy(diskSector.sectorContent , start + offset , SECTOR_SIZE );
-        if (validator == NULL){
-        	perror("Error en memcpy");
-        }
+		nipc_messaging_send(ds , message);
 
-        diskSector.sectorNumber = sectorNumber;
-		return diskSector;
+		message = nipc_messaging_receive(ds);
+
+		close(ds);
+
+		return message.payload.diskSector;
 	}
 
 
@@ -106,6 +139,8 @@
 		return NULL;
 	}
 
+
+
 	char * diskStartAddress;
 
 	char * ppd_state_getDiskStartAddress(){
@@ -117,13 +152,12 @@
 	}
 
 	void ppd_initializeDisk(){
-		ppd_state_setDiskStartAddress( ppd_persistance_mapDisk("/vfs/fat32.disk.0") );
+		ppd_state_setDiskStartAddress( ppd_persistance_mapDisk("/vfs/fat32.disk.1") );
 	}
 
 
 	/*
 	DiskSector pfs_endpoint_callGetSector(uint32_t sectorNumber){
-		RuntimeErrorValidator * v = commons_errors_buildSuccessValidator();
 
 		if(commons_errors_hasError(v)){
 			puts(v->errorDescription);
@@ -131,4 +165,5 @@
 		DiskSector d;
 		return d;
 	}
+
 	*/

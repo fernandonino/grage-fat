@@ -273,14 +273,13 @@
 		uint32_t bytesRead = 0;
 		uint32_t bytesLeft = size;
 		uint32_t bytesToRead;
-		uint32_t phantomCounter = 0;
 
 		DiskSector sector = pfs_fat32_utils_getSectorFromNthCluster(f);
 
-		if ( f->sectorByteOffset + size <= v->bps ){				// Lo que se pide para leer + el offset caen dentro de un sector
+		if ( f->sectorByteOffset + size <= v->bps ){	// Lo que se pide para leer + el offset caen dentro de un sector
 			memcpy(buf , sector.sectorContent + f->sectorByteOffset , size);
 			return bytesRead += size;
-		} else {													// El contenido de un sector no alcanza; se lee lo necesario y se sigue
+		} else {										// El contenido de un sector no alcanza; se lee lo necesario y se sigue
 			memcpy(buf , sector.sectorContent + f->sectorByteOffset , v->bps - f->sectorByteOffset);
 			bytesRead += v->bps - f->sectorByteOffset;
 			bytesLeft -= bytesRead;
@@ -309,10 +308,6 @@
 			memcpy( buf + bytesRead , sector.sectorContent , bytesToRead);
 			bytesRead += bytesToRead;
 			bytesLeft -= bytesToRead;
-			phantomCounter++;
-			if (phantomCounter == 126 )
-				printf("Siii esta");
-			printf("Counter %d\n",phantomCounter);
 		}
 
 		return bytesRead;
