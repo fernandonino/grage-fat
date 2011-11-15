@@ -46,7 +46,8 @@
 
 		if(message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 
-			puts("[ Recibiendo peticion GET Sectores ]");
+//			puts("[ Recibiendo peticion GET Sectores ]");
+//			printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
 
 			message.payload.pfsSocket = *pfsSocket;
 
@@ -54,7 +55,8 @@
 
 		}else if(message.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
 
-			puts("[ Recibiendo peticion PUT Sectores ]");
+//			puts("[ Recibiendo peticion PUT Sectores ]");
+//			printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
 
 			message.payload.pfsSocket = *pfsSocket;
 

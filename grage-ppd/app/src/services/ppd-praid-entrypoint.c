@@ -64,7 +64,8 @@
 		/*
 		 * Matamos el proceso consola para q no quede pooleando
 		 */
-		kill( ppd_launch_console_getChildProcessId() , SIGKILL);
+		if(ppd_launch_console_getChildProcessId() != -1)
+			kill( ppd_launch_console_getChildProcessId() , SIGKILL);
 
 		exit(1);
 	}

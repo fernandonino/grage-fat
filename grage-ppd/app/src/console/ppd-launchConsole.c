@@ -26,13 +26,13 @@ pthread_t ppdConsoleThread;
 
 
 
-	pid_t childProcessId;
+	pid_t childProcessId = -1;
 
 	void ppd_launch_console_setChildProcessId(pid_t p){
 		childProcessId = p;
 	}
 	pid_t ppd_launch_console_getChildProcessId(){
-		childProcessId;
+		return childProcessId;
 	}
 
 
