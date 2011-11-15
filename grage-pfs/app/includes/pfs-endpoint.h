@@ -22,4 +22,6 @@
 	void ppd_initializeDisk(void);
 
 
+	ListenSocket pfs_endpoint_doHandshake();
+
 #endif /* PFS_ENDPOINT_H_ */
