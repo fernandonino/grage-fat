@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-
+#include <signal.h>
 #include <nipc-messaging.h>
 
 #include "ppd-entrypoint.h"
@@ -60,6 +60,12 @@
 
 		puts("[ Finalizando la aplicacion por desconexion del PRAID ]");
 		close(ppd_state_getPraidSocket());
+
+		/*
+		 * Matamos el proceso consola para q no quede pooleando
+		 */
+		kill( ppd_launch_console_getChildProcessId() , SIGKILL);
+
 		exit(1);
 	}
 
