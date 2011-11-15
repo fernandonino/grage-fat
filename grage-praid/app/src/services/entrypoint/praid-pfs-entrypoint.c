@@ -88,13 +88,11 @@
 
 		praid_utils_printLines();
 
-		if(commons_console_logging_isDefault())
-			puts("[ Ejecutando GET ]");
-
 		PPDConnectionStorage * storage = praid_balancer_selectStorage();
 
 		if(commons_console_logging_isDefault())
-			printf("[ Se leera del PPD: %i ]\n" , storage->id);
+			printf("[ Se realizará un GET (PPD: %i , SectorId: %i) ]\n"
+					, storage->id , message.payload.diskSector.sectorNumber);
 
 		praid_storage_queue_put(storage->pendingJobs , message);
 
