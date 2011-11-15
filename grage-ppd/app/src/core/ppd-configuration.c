@@ -201,6 +201,13 @@
 		if(commons_string_equals(key , PPD_CONFIGURATION_DISK_PATH)){
 			ppd_conf_setDiskPath(value);
 		}
+		if(commons_string_equals(key , PPD_CONFIGURATION_POOLED_CONNECTIONS_ENABLED)){
+			if( commons_string_equals(value , "true")){
+				ppd_conf_setPooledConnections(TRUE);
+			}else if(commons_string_equals(value , "false")){
+				ppd_conf_setPooledConnections(FALSE);
+			}
+		}
 	}
 
 	/*
@@ -227,3 +234,16 @@
 		commons_file_loadConfiguration(file , ppd_configuration_processEntries);
 		commons_file_closeFile(file);
 	}
+
+
+
+
+	Boolean pooledConnections = FALSE;
+
+	void ppd_conf_setPooledConnections(Boolean s){
+		pooledConnections = s;
+	}
+	Boolean ppd_conf_isPooledConnections(){
+		return pooledConnections;
+	}
+

@@ -14,7 +14,11 @@
 #include "ppd-state.h"
 #include "ppd-connection.h"
 
+
+
 	void ppd_pfs_entrypoint_serviceThread(ListenSocket * pfsSocket);
+	void ppd_pfs_entrypoint_processRequest(NipcMessage message);
+
 
 
 	void ppd_entrypoint_launchPfsPpdEntrypoint(){
@@ -42,8 +46,22 @@
 
 	void ppd_pfs_entrypoint_serviceThread(ListenSocket * pfsSocket){
 
-		NipcMessage message = nipc_messaging_receive(*pfsSocket);
+		if( ppd_conf_isPooledConnections()){
 
+			while(TRUE){
+
+				NipcMessage message = nipc_messaging_receive(*pfsSocket);
+
+				ppd_pfs_entrypoint_processRequest(message);
+			}
+		}else{
+
+			ppd_pfs_entrypoint_processRequest(message);
+		}
+	}
+
+
+	void ppd_pfs_entrypoint_processRequest(NipcMessage message){
 		if(message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 
 //			puts("[ Recibiendo peticion GET Sectores ]");
@@ -63,7 +81,6 @@
 			ppd_entrypoint_executePutSector(message);
 		}
 	}
-
 
 
 

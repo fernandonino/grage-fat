@@ -36,6 +36,7 @@
 #define PPD_CONFIGURATION_PRAID_PORT		"ppd.configuration.praid.port"
 #define PPD_CONFIGURATION_PRAID_HOST		"ppd.configuration.praid.host"
 #define PPD_CONFIGURATION_DISK_PATH			"ppd.configuration.disk.volume.path"
+#define PPD_CONFIGURATION_POOLED_CONNECTIONS_ENABLED			"ppd.configuration.pooled.connections.enabled"
 
 	void ppd_configuration_setup();
 	void ppd_configuration_setConfigurationFile(char * s);
@@ -79,6 +80,12 @@
 	char * getPpdWriteDelay();
 
 	char * ppd_conf_getDiskPath();
+
+
+
+	void ppd_conf_setPooledConnections(Boolean s);
+	Boolean ppd_conf_isPooledConnections();
+
 
 #endif /* PFS_CONFIGURATION_H_ */
 
