@@ -178,8 +178,13 @@
 		int status = log_create("praid-tester", "/opt/grage-repository/logs/praid-tester.log" ,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE);
 
 		printf("status: %i" , status);
-		integ_pfs_integrateFlowPut();
+		//integ_pfs_integrateFlowPut();
+		//integ_pfs_integrateFlowGet();
+
 		integ_pfs_integrateFlowGet();
+		integ_pfs_integrateFlowGet();
+		integ_pfs_integrateFlowGet();
+	//	integ_pfs_integrateFlowPut();
 
 		log_destroy();
 
