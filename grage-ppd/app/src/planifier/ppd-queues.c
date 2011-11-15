@@ -31,6 +31,11 @@
 					(Boolean (*)(void *, void *))ppd_queues_isTheSameJob ,
 					(Boolean (*)(void *, void *))ppd_alg_planif_strategy_look);
 		}
+		if(commons_string_equals(getPpdAlgoritmo() , "sstf")){
+				jobsQueue = commons_queue_buildQueueWithSortingCriteria(
+						(Boolean (*)(void *, void *))ppd_queues_isTheSameJob ,
+						(Boolean (*)(void *, void *))ppd_alg_planif_strategy_sstf);
+			}
 	}
 
 

@@ -59,7 +59,7 @@ uint32 ppd_console_obtenerNroParametros(char * comando){
 		if(comando[i] == ' ') cant++;
 		i++;
 	}
-	printf("AAAAAAAAAAa %d\n", cant);
+
 	if(cant > 0 && cant < 5 &&comando[6] != ' ') {
 		cant++;
 		return cant;
