@@ -22,7 +22,7 @@ void ppd_console_entrypoint_setearPosicionCabezal(uint32 pista, uint32 sector){
 uint32 nuevoSectorActual(float sector, float ms, uint32 cantidadSectoresPista){
 	uint32 sectorFinal;
 	uint32 sectoresMovidos;
-	float  sectoresPostaMovidos;
+	float sectoresPostaMovidos;
 
 	sectoresMovidos = (ms / atoi(getPpdReadTimeMs())) + 1;
 	sectoresPostaMovidos = sectoresMovidos % cantidadSectoresPista;
@@ -41,8 +41,6 @@ float ppd_console_entrypoint_TiempoConsumido(uint32 pistaSolicitada, uint32 sect
 
 	uint32 sectorActual = posicionActual.sectorNumber;
 	uint32 pistaActual=posicionActual.pista;
-	//char * a = (char *)malloc(3);
-	//a=getPpdDiskSector();
 	uint32 cantidadSectoresPista = atoi(getPpdDiskSector());
 	uint32 costoPista = atoi(getPpdSaltoPistaMs());
 	uint32 costoSector =60*1000/atoi(getPpdRpm())/cantidadSectoresPista;

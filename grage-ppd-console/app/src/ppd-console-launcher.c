@@ -34,7 +34,7 @@ int ppd_console_connect(){
 		return 0;
     }
 
-    printf("Trying to connect...",s);
+    //printf("Trying to connect...");
 
     remote.sun_family = AF_UNIX;
     strcpy(remote.sun_path, SOCK_PATH);
@@ -58,7 +58,7 @@ int ppd_console_connect(){
 	}
 
 	int main(int argc, char *args[]){
-		puts("Consola iniciada");
+		puts("[ Consola iniciada ]");
 		ppd_console_launcher_initialize();
 		ppd_console_interpreter();
 		ppd_console_launcher_exit();

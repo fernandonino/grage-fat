@@ -15,7 +15,7 @@
 #include <grage-commons.h>
 #include "ppd-console-utils.h"
 uint32 sectores[5];
-
+int receivedCount;
 String ppd_console_parseCMD(char * comando){
 	uint32 i=0;
 	uint32 j=0;
@@ -105,6 +105,7 @@ void ppd_console_llenarVector(char * comando, uint32 nro_parametros){
 
 void ppd_console_info(){
 	puts("console info");
+	imprimirPosicionActual();
 }
 
 void ppd_console_clean(uint32 clusterInicial, uint32 clusterFinal){
@@ -115,30 +116,30 @@ void ppd_console_clean(uint32 clusterInicial, uint32 clusterFinal){
 void imprimirPosicionActual(){
 	MessageConsolePPD mensaje = armarMensaje(MESSAGE_ID_POSICION_ACTUAL, -1,-1,-1);
 	commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
-	int receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
+	receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
 	printf("Posición actual: %d:%d\n",mensaje.pistaSector.pista,mensaje.pistaSector.sectorNumber);
 }
 void imprimirSectoresRecorridos(uint32 pistaRequerida, uint32 sectorRequerido){
 	MessageConsolePPD mensaje = armarMensaje(MESSAGE_ID_SECTORES_RECORRIDOS, pistaRequerida,sectorRequerido,-1);
 	commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
-	int receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
+	receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
 	printf("Sectores Recorridos: ");
 	while(mensaje.messageID == MESSAGE_ID_SECTORES_RECORRIDOS){
 		printf("%d:%d ",mensaje.pistaSector.pista,mensaje.pistaSector.sectorNumber);
 		commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
 		receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
 	}
-	printf("\n Tiempo consumido: %dms \n",mensaje.timeInMiliseconds);
+	printf("\nTiempo consumido: %dms \n",mensaje.timeInMiliseconds);
 }
 void obtenerSectoresPorCilindro(){
 	MessageConsolePPD mensaje = armarMensaje(MESSAGE_ID_SECTORES_POR_CILINDRO, -1, -1,-1);
 	commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
-	int receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
+	receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
 	ppd_console_utils_set_cantidadSectoresPorCilindro(mensaje.pistaSector.sectorNumber);
 }
 void ppd_console_trace(uint32 sectorPedido){
 	puts("console trace");
-	imprimirPosicionActual(ppd_console_launcher_getSocketPPD());
+	imprimirPosicionActual();
 	obtenerSectoresPorCilindro();
 	printf("Sector Solicitado: %d:%d \n", ppd_console_utils_get_cilinder_from_sector(sectorPedido),ppd_console_utils_get_sectorofcilinder_from_sector(sectorPedido));
 
@@ -150,8 +151,9 @@ void ppd_console_interpreter(){
 	char buffer[250];
 
 	String cmd, parameter, parameter2;
-
-	while(!feof(stdin)){
+	receivedCount = 1;
+	sleep(2);
+	while(!feof(stdin) && receivedCount > 0){
 		printf(">");
 		fgets(buffer, 250, stdin);
 		cmd = ppd_console_parseCMD(buffer);
@@ -169,7 +171,7 @@ void ppd_console_interpreter(){
 			}
 			else puts("Indique clusters a limpiar");
 		}
-		//TRACE
+		//TR++ACE
 		if(!strcmp(cmd, "trace") && buffer[5]!= ' '){
 			uint32 nro_parametros;
 			uint32 i = 1;
@@ -178,7 +180,7 @@ void ppd_console_interpreter(){
 			while(i <= nro_parametros){
 				ppd_console_trace(sectores[i - 1]);
 				if (i+1>nro_parametros) puts("Próximo Sector: ..");
-				else printf("Próximo Sector: %d:%d\n",ppd_console_utils_get_cilinder_from_sector(sectores[i]),ppd_console_utils_get_sectorofcilinder_from_sector(sectores[i]));
+				else printf("Próximo Sector: %d:%d\n\n",ppd_console_utils_get_cilinder_from_sector(sectores[i]),ppd_console_utils_get_sectorofcilinder_from_sector(sectores[i]));
 				i++;
 			}
 
