@@ -36,8 +36,7 @@
 
 
 
-	void pfs_fuse_launchFuse(int argc , char * argv[] ){
-		struct fuse_operations grage_oper;
+	void pfs_fuse_launchFuse( int argc , char * argv[] ){
 		fuse_main(argc, argv, &grage_oper);
 	}
 
@@ -58,6 +57,7 @@
 			return EXIT_SUCCESS;
 		} else
 			return -ENOENT;
+
 	}
 
 	int pfs_fuse_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi){
@@ -73,7 +73,7 @@
 		if ( result == EXIT_FAILURE )
 			return -ESPIPE;
 
-		uint16_t read = pfs_fat32_read(volume , file , buf , size);
+		uint32_t read = pfs_fat32_read(volume , file , buf , size);
 
 		return read;
 	}
@@ -88,6 +88,10 @@
 	}
 
 	int pfs_fuse_release(const char *path, struct fuse_file_info *fi){
+		/*
+		FatFile * file = (FatFile *)fi->fh;
+		commons_misc_doFreeNull((void**)file);
+		*/
 		return EXIT_SUCCESS;
 	}
 
@@ -169,3 +173,4 @@
 	int pfs_fuse_rename(const char * path, const char * newpath){
 		return EXIT_SUCCESS;
 	}
+

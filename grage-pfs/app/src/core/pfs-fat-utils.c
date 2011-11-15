@@ -340,7 +340,6 @@
 			st->st_mode = S_IFDIR | S_IRWXU;
 			st->st_size = 0;
 			st->st_blocks=0;
-			//Hay que ver por que y como solucionar esto
 			st->st_ctim.tv_sec = st->st_atim.tv_sec = st->st_mtim.tv_sec = 0;
 		} else {
 			st->st_ino = pfs_fat_getFirstClusterFromDirEntry(&(fatFile->shortEntry));
@@ -357,6 +356,6 @@
 	}
 
 	uint32_t pfs_fat32_utils_getNextFreeCluster(){
-		return 0;
+
 	}
 

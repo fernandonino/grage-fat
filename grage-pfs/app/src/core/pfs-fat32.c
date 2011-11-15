@@ -269,10 +269,11 @@
 	}
 
 
-	uint16_t pfs_fat32_read(Volume * v , FatFile * f , char * buf , size_t size){
-		uint16_t bytesRead = 0;
-		uint16_t bytesLeft = size;
-		uint16_t bytesToRead;
+	uint32_t pfs_fat32_read(Volume * v , FatFile * f , char * buf , size_t size){
+		uint32_t bytesRead = 0;
+		uint32_t bytesLeft = size;
+		uint32_t bytesToRead;
+		uint32_t phantomCounter = 0;
 
 		DiskSector sector = pfs_fat32_utils_getSectorFromNthCluster(f);
 
@@ -297,10 +298,10 @@
 				sector = pfs_endpoint_callGetSector(sector.sectorNumber + 1);
 			}
 
-			if ( bytesLeft <= v->bps ){
+			if ( (bytesLeft <= v->bps) || FAT_32_ISEOC(current) ){
 				bytesToRead = bytesLeft;
-			} else if ( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) && FAT_32_ISEOC(current) ){
-				bytesToRead = bytesLeft; //Verificar el uso de FAT_32_ISEOC ---> creo que habria que preguntar por el siguiente cluster
+			//} else if ( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) && FAT_32_ISEOC(current) ){
+			//	bytesToRead = bytesLeft; //Verificar el uso de FAT_32_ISEOC ---> creo que habria que preguntar por el siguiente cluster
 			} else {
 				bytesToRead = v->bps;
 			}
@@ -308,6 +309,10 @@
 			memcpy( buf + bytesRead , sector.sectorContent , bytesToRead);
 			bytesRead += bytesToRead;
 			bytesLeft -= bytesToRead;
+			phantomCounter++;
+			if (phantomCounter == 126 )
+				printf("Siii esta");
+			printf("Counter %d\n",phantomCounter);
 		}
 
 		return bytesRead;
