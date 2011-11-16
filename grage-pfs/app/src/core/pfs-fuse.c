@@ -27,21 +27,16 @@
 	  .read = pfs_fuse_read,
 	  .write = pfs_fuse_write,				//Pendiente
 	  .flush = pfs_fuse_flush,				//Pendiente
-	  .release = pfs_fuse_release,			//Pendiente - ultima prioridad
+	  .release = pfs_fuse_release,			//Falta testing!
 	  .readdir = pfs_fuse_readdir,
 	  .mknod = pfs_fuse_mknod,				//Pendiente
 	  .truncate = pfs_fuse_truncate,		//Pendiente
 	};
 
 
-
-
 	void pfs_fuse_launchFuse( int argc , char * argv[] ){
 		fuse_main(argc, argv, &grage_oper);
 	}
-
-
-
 
 
 	int pfs_fuse_mknod(const char *path, mode_t mode, dev_t dev){
@@ -88,10 +83,10 @@
 	}
 
 	int pfs_fuse_release(const char *path, struct fuse_file_info *fi){
-		/*
+
 		FatFile * file = (FatFile *)fi->fh;
 		commons_misc_doFreeNull((void**)file);
-		*/
+
 		return EXIT_SUCCESS;
 	}
 
@@ -162,7 +157,7 @@
 
 		FatFile * file = pfs_fat32_open(path);
 		if (file == NULL){
-			return EXIT_FAILURE;
+			return -ENOENT;
 		}
 
 		pfs_fat32_utils_fileStat(v , file , statbuf);
