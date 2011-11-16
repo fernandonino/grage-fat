@@ -24,4 +24,6 @@
 	Volume * pfs_state_getVolume();
 
 
+	Boolean pfs_state_isPooledConnectionsEnabled();
+
 #endif /* PFS_STATE_H_ */

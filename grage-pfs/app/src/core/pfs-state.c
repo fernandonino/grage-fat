@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include "pfs-state.h"
+#include "pfs-configuration.h"
 
 
 	ListenSocket dataSocket;
@@ -38,4 +39,12 @@
 	}
 	Volume * pfs_state_getVolume(){
 		return volume;
+	}
+
+
+
+
+
+	Boolean pfs_state_isPooledConnectionsEnabled(){
+		return (pfs_configuration_getMaxConnections() > 0);
 	}
