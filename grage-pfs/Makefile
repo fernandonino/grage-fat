@@ -9,8 +9,7 @@ BUILD_SOURCE_CONSOLE=app/src/console/*
 BUILD_SOURCE_SERVICES=app/src/services/*
 
 
-
-
+<zx<zx<zx<zx<zx<x
 
 ##
 ##Compilacion de la aplicacin (app)
