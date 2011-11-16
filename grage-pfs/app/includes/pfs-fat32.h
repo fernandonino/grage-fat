@@ -106,6 +106,8 @@
 	void pfs_fat32_unlink(Volume * v , FatFile * fd);
 	void pfs_fat32_rmdir(Volume * v , FatFile * fd);
 	uint32_t pfs_fat32_read(Volume * , FatFile * , char * , size_t);
+	int8_t pfs_fat32_mkdir(Volume *  , FatFile *  , char * );
+	int8_t pfs_fat32_mknod(Volume *  , FatFile *  , char * );
 
 //UTILS
 	Volume * pfs_fat_utils_loadVolume( BPB * b );
@@ -114,6 +116,8 @@
 	void pfs_fat32_utils_extractName( LongDirEntry * d, uint16_t * dest, int8_t length);
 	int pfs_fat32_unicode_utf16_to_utf8_inbuffer(const uint16_t *src_utf16, const size_t src_utf16size, char* dest_utf8, size_t *dest_utf8size);
 	char *  pfs_fat_utils_getFileName(LongDirEntry * l);
+	void pfs_fat32_utils_getDirNameFromPath(const char *path, char *dest);
+	void pfs_fat32_utils_getFileNameFromPath(const char *path, char *dest);
 	uint32_t pfs_fat_utils_getFatEntrySector(Volume * v , uint32_t cluster);
 	uint32_t pfs_fat_utils_getFatEntryOffset(Volume * v , uint32_t cluster);
 	uint32_t pfs_fat_utils_getFirstSectorOfCluster(Volume * v , uint32_t cluster);
@@ -133,6 +137,11 @@
 
 	int8_t pfs_fat32_utils_seek(Volume * , FatFile * , off_t , uint32_t);
 	DiskSector pfs_fat32_utils_getSectorFromNthCluster(FatFile *);
+
+	uint32_t pfs_fat32_utils_getNextFreeCluster(void);
+	void pfs_fat32_utils_setNextFreeCluster(uint32_t);
+
+	void pfs_fat32_utils_allocateNewCluster(void);
 
 #endif /* PFS_FAT32_H_ */
 
