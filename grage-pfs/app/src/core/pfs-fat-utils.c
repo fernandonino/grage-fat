@@ -7,9 +7,81 @@
 
 #include <stdlib.h>
 #include <time.h>
-
+#include "pfs-configuration.h"
+#include "pfs-cache.h"
 #include "pfs-fat32.h"
+#include "pfs-fat-utils.h"
 
+CacheSectorRecord cacheSectores[atoi(pfs_configuration_getCacheSize())*1024/512];
+
+
+	void pfs_fat_utils_cache_sectores_initialize()
+	{
+		int i;
+		for (i=0;i<256;i++)
+		{
+			cacheSectores[i].sector.sectorNumber=-1;
+		}
+	}
+	void pfs_fat_utils_cache_sectores_registrar_acceso()
+	{
+		int i;
+		for(i=0;i<256;i++)
+		{
+			if (cacheSectores[i].sector.sectorNumber!=-1) cacheSectores[i].estado++;
+		}
+	}
+	uint32_t pfs_fat_utils_cache_sectores_tiene_sector(uint32_t sectorBuscado)
+	{
+		int i;
+		for(i=0;i<256;i++)
+		{
+			if (cacheSectores[i].sector.sectorNumber==sectorBuscado) return i;
+		}
+		return -1;
+	}
+	DiskSector pfs_fat_utils_cache_get_sectores(uint32_t sectorBuscado){
+		uint32_t posicion;
+		DiskSector sectorReturn;
+
+		sectorReturn.sectorNumber="-1";
+		posicion=pfs_fat_utils_cache_sectores_tiene_sector(sectorBuscado);
+		if (posicion!=-1)
+		{
+			pfs_fat_utils_cache_sectores_registrar_acceso();
+			cacheSectores[posicion].estado=0;
+
+			return cacheSectores[posicion].sector;
+		}
+		return sectorReturn;
+	}
+
+	void pfs_fat_utils_cache_put_sectores(DiskSector sector)
+	{
+		int aux,i,variable_LRU;
+		variable_LRU = -1;
+		if (pfs_fat_utils_cache_sectores_tiene_sector(sector.sectorNumber)==-1){
+			for(i=0;i<256;i++)
+			{
+				if (cacheSectores[i].sector.sectorNumber==-1)
+				{
+					aux=i;
+					break;
+				}
+				else
+				{
+					if (variable_LRU<cacheSectores[i].estado)
+					{
+						aux=i;
+						variable_LRU=cacheSectores[i].estado;
+					}
+				}
+			}
+
+			pfs_fat_utils_cache_sectores_registrar_acceso();
+			cacheSectores[aux].sector=sector;
+		}
+	}
 
 	Volume * pfs_fat_utils_loadVolume( BPB * b ){
 

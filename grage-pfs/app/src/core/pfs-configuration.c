@@ -18,7 +18,7 @@
 	char * deviceAddress = NULL;
 	char * devicePort = NULL;
 	char * maxConnections = NULL;
-	char * cacheSize = NULL;
+	uint32 cacheSize = 0;
 	char * configurationFile = NULL;
 
 	char * pfs_configuration_getDeviceAddress(void){
@@ -45,14 +45,12 @@
 		maxConnections = numberOfConnections;
 	}
 
-	char * pfs_configuration_getCacheSize(void){
-		if (cacheSize == NULL)
-			return "0";
+	uint32 pfs_configuration_getCacheSize(void){
 		return cacheSize;
 	}
 
 	void pfs_configuration_setCacheSize(char * sizeOfCache){
-		cacheSize = sizeOfCache;
+		cacheSize = atoi(sizeOfCache);
 	}
 
 	/*
