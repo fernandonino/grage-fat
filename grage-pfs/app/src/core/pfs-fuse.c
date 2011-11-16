@@ -40,6 +40,24 @@
 
 
 	int pfs_fuse_mknod(const char *path, mode_t mode, dev_t dev){
+		char filename[16];
+		char basedir[128];
+		Volume * v = pfs_state_getVolume();
+
+		pfs_fat32_utils_getDirNameFromPath(path,basedir);
+		pfs_fat32_utils_getFileNameFromPath(path,filename);
+
+		FatFile * destination = pfs_fat32_open(path);
+
+		if( strlen(filename) > 13 || destination != NULL ) //Si no es NULL, ya existe un archivo con ese nombre
+			return -EXIT_FAILURE;
+
+		destination = pfs_fat32_open(basedir);
+		if ( destination->shortEntry.DIR_Attr != FAT_32_ATTR_DIRECTORY ) //Intenta crear un archivo adentro de otro
+			return -EXIT_FAILURE;
+
+		pfs_fat32_mknod(v , destination , filename);
+
 		return EXIT_SUCCESS;
 	}
 
@@ -108,6 +126,22 @@
 	}
 
 	int pfs_fuse_mkdir(const char *path, mode_t mode){
+		char dirname[16];
+		char basedir[128];
+		Volume * v = pfs_state_getVolume();
+
+		pfs_fat32_utils_getDirNameFromPath(path,basedir);
+		pfs_fat32_utils_getFileNameFromPath(path,dirname);
+
+		FatFile * destination = pfs_fat32_open(path);
+
+		if( strlen(dirname) > 13 || destination != NULL ) //Si no es NULL, ya existe un directorio con ese nombre
+			return -EXIT_FAILURE;
+
+		destination = pfs_fat32_open(basedir);
+
+		pfs_fat32_mkdir(v , destination , dirname);
+
 		return EXIT_SUCCESS;
 	}
 

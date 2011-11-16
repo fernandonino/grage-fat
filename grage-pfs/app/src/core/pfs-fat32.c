@@ -313,6 +313,79 @@
 		return bytesRead;
 	}
 
+	int8_t pfs_fat32_mknod(Volume * v , FatFile * destination , char * filename){
+		DirEntry shortEntry;
+		LongDirEntry longEntry , auxEntry;
+		uint16_t offset = 0;
+		uint8_t freeCount = 0;
+
+		/* Completamos los campos del nombre */
+
+		/* Completamos los campos de fecha y hora */
+		time_t tim = time(NULL);
+		pfs_fat32_utils_fillTime(&(shortEntry.DIR_WrtDate), &(shortEntry.DIR_WrtTime), tim);
+		pfs_fat32_utils_fillTime(&(shortEntry.DIR_CrtDate), &(shortEntry.DIR_CrtTime), tim);
+		shortEntry.DIR_LstAccDate = shortEntry.DIR_CrtDate;
+
+		/* Completamos el resto de los atributos */
+		shortEntry.DIR_Attr = 0; 								 //Archivo comun y silvestre
+		shortEntry.DIR_FileSize = 0; 							 //Por ahora esta vacio
+		shortEntry.DIR_FstClusHI = shortEntry.DIR_FstClusLO = 0; //Como esta vacio, no tiene contenido
+
+		/* Buscamos 64 bytes contiguos libres dentro del cluster
+		 * 32 para el LongDirEntry y 32 para el DirEntry
+		 */
+
+		DiskSector sector = pfs_endpoint_callGetSector(destination->currentSector.sectorNumber);
+
+		while( freeCount < 2 ) {
+			do {
+				memcpy(&auxEntry , sector.sectorContent + offset , FAT_32_DIR_ENTRY_SIZE);
+				offset += 32;
+
+				if ( auxEntry.LDIR_Ord == FAT_32_FREEENT ){
+					freeCount++;
+				}
+
+				if( offset >= v->bps ){
+					if ( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) ) {
+						if ( FAT_32_ISEOC(destination->nextCluster)){
+							pfs_fat32_utils_allocateNewCluster();
+						} else {
+							uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , destination->nextCluster);
+							sector = pfs_endpoint_callGetSector(sectorId);
+						}
+					} else {
+						sector = pfs_endpoint_callGetSector(sector.sectorNumber + 1);
+					}
+				}
+			} while ( FAT_32_DIRENT_ISFREE(auxEntry.LDIR_Ord) ); //Sale cuando encontro 32 bytes libres
+
+			memcpy(&auxEntry , sector.sectorContent + offset , FAT_32_DIR_ENTRY_SIZE); //Se buscan los siguientes 32 bytes libres
+			offset += 32;
+
+			if ( FAT_32_DIRENT_ISFREE(auxEntry.LDIR_Ord) )
+				freeCount++; //Listo, tenemos 64 bytes contiguos libres
+			else
+				freeCount = 0; // Solo se encontraron 32 bytes libres - hay que empezar de nuevo
+		}
+
+		/* Escribimos los entries en el sector y lo mandamos a escribir en el disco */
+
+		uint16_t longOffset = offset - FAT_32_BLOCK_ENTRY_SIZE;
+		uint16_t shortOffset = offset - FAT_32_DIR_ENTRY_SIZE;
+
+		memcpy(sector.sectorContent + longOffset , &longEntry , FAT_32_DIR_ENTRY_SIZE);
+		memcpy(sector.sectorContent + shortOffset , &shortEntry , FAT_32_DIR_ENTRY_SIZE);
+
+		pfs_endpoint_callPutSector(sector);
+
+		return EXIT_SUCCESS;
+	}
+
+	int8_t pfs_fat32_mkdir(Volume * v , FatFile * destination , char * filename){
+		return EXIT_SUCCESS;
+	}
 
 
 

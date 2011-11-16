@@ -356,6 +356,32 @@
 	}
 
 	uint32_t pfs_fat32_utils_getNextFreeCluster(){
+		Volume * v = pfs_state_getVolume();
+		return v->nextFreeCluster;
+	}
+
+	void pfs_fat32_utils_setNextFreeCluster(uint32_t next){
+		Volume * v = pfs_state_getVolume();
+		v->nextFreeCluster = next;
+	}
+
+	void pfs_fat32_utils_getDirNameFromPath(const char *path, char *dest) {
+		char *slash;
+		strcpy(dest, path);
+		slash = strrchr(dest, 0x2F); // 0x2F = "/"
+		if (slash == &(dest[0]))
+			dest[1] = 0;			 // root dir
+		*slash  = 0;
+	}
+
+	void pfs_fat32_utils_getFileNameFromPath(const char *path, char *dest) {
+		char *slash;
+		slash = strrchr(path, 0x2F); // 0x2F = "/"
+		slash++;
+		strcpy(dest, slash);
+	}
+
+	void pfs_fat32_utils_allocateNewCluster(){
 
 	}
 
