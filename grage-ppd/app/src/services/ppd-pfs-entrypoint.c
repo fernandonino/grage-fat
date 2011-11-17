@@ -17,7 +17,7 @@
 
 
 	void ppd_pfs_entrypoint_serviceThread(ListenSocket * pfsSocket);
-	void ppd_pfs_entrypoint_processRequest(NipcMessage message);
+	void ppd_pfs_entrypoint_processRequest(ListenSocket * pfsSocket);
 
 
 
