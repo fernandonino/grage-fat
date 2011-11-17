@@ -49,19 +49,18 @@
 		if( ppd_conf_isPooledConnections()){
 
 			while(TRUE){
-
-				NipcMessage message = nipc_messaging_receive(*pfsSocket);
-
-				ppd_pfs_entrypoint_processRequest(message);
+				ppd_pfs_entrypoint_processRequest(pfsSocket);
 			}
 		}else{
-
-			ppd_pfs_entrypoint_processRequest(message);
+			ppd_pfs_entrypoint_processRequest(pfsSocket);
 		}
 	}
 
 
-	void ppd_pfs_entrypoint_processRequest(NipcMessage message){
+	void ppd_pfs_entrypoint_processRequest(ListenSocket * pfsSocket){
+
+		NipcMessage message = nipc_messaging_receive(*pfsSocket);
+
 		if(message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 
 //			puts("[ Recibiendo peticion GET Sectores ]");
