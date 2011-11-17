@@ -23,7 +23,7 @@
 
 		v->fatQty = b->BPB_NumFATs;
 		v->fatSize = b->BPB_FATSz32;
-		v->fatStartSector = v->rsv;
+		v->fatStartSector = b->BPB_ResvdSecCnt;
 
 		v->root = b->BPB_RootClus;
 		v->sectors = b->BPB_TotSec32;
@@ -398,8 +398,40 @@
 		strcpy(dest, slash);
 	}
 
-	uint32_t pfs_fat32_utils_allocateNewCluster(){
-		return EXIT_SUCCESS;
+	uint32_t pfs_fat32_utils_allocateNewCluster(Volume * v){
+		uint32_t entry;
+		uint8_t flag = 0; //Para verificar si dimos una vuelta entera y la fat
+		uint32_t currentFree = v->nextFreeCluster;
+		uint32_t sectorId = pfs_fat_utils_getFatEntrySector(v , currentFree + 1);
+		uint32_t offset = pfs_fat_utils_getFatEntryOffset(v , currentFree + 1);
+
+		DiskSector sector = pfs_endpoint_callGetSector(sectorId);
+
+		do {
+			memcpy(&entry , sector.sectorContent + offset , sizeof(uint32_t));
+			offset += 32;
+
+			if ( offset >= v->bps ){
+				if( sectorId < v->fatStartSector + v->fatSize ){
+					if (flag == 1 && currentFree == entry) {
+						return -EXIT_FAILURE; //No hay mas clusters disponibles... disco lleno!
+					} else {
+						offset = 0;
+						sectorId++;
+					}
+				} else {
+					flag = 1;
+					offset = 0;
+					sectorId = v->fatStartSector;
+				}
+				sector = pfs_endpoint_callGetSector(sectorId);
+			}
+
+		} while ( ! FAT_32_ISFREE(entry) );
+
+		v->nextFreeCluster = entry;
+
+		return currentFree;
 	}
 
 	void pfs_fat32_utils_loadLongEntryFilename(LongDirEntry * lde , char * utf8name){

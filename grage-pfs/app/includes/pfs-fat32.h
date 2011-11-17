@@ -128,6 +128,7 @@
 	uint32_t pfs_fat32_utils_getNextClusterInChain(Volume * v , uint32_t clusterId);
 	uint32_t pfs_fat32_utils_getFirstSectorFromNextClusterInChain(Volume * v , uint32_t clusterId);
 	Boolean pfs_fat32_utils_isLastSectorFromCluster(Volume * v , uint32_t sectorId);
+
 	uint32_t pfs_fat_getFirstClusterFromDirEntry(DirEntry * D);
 	uint8_t pfs_fat_setFirstClusterToDirEntry(DirEntry * , uint32_t);
 	uint32_t pfs_fat32_utils_getDirEntryOffset(uint32_t sectorId , uint32_t os , uint32_t offset);
@@ -144,7 +145,7 @@
 
 	uint32_t pfs_fat32_utils_getNextFreeCluster(void);
 	void pfs_fat32_utils_setNextFreeCluster(uint32_t);
-	uint32_t pfs_fat32_utils_allocateNewCluster(void);
+	uint32_t pfs_fat32_utils_allocateNewCluster(Volume *);
 
 	void pfs_fat32_utils_fillDotEntry(DirEntry * , DirEntry *);
 	void pfs_fat32_utils_fillDotDotEntry(DirEntry * , DirEntry *);

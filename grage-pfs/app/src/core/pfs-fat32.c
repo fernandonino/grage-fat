@@ -355,7 +355,7 @@
 				if( offset >= v->bps ){
 					if ( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) ) {
 						if ( FAT_32_ISEOC(destination->nextCluster)){
-							pfs_fat32_utils_allocateNewCluster();
+							pfs_fat32_utils_allocateNewCluster(v);
 						} else {
 							uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , destination->nextCluster);
 							sector = pfs_endpoint_callGetSector(sectorId);
@@ -409,7 +409,7 @@
 
 
 		/* Completamos el resto de los atributos */
-		uint32_t newCluster = pfs_fat32_utils_allocateNewCluster(); 	//TODO: DESARROLLAR ESTA FUNCION
+		uint32_t newCluster = pfs_fat32_utils_allocateNewCluster(v); 	//TODO: DESARROLLAR ESTA FUNCION
 		pfs_fat_setFirstClusterToDirEntry(&shortEntry , newCluster);	//Seteamos LO + HI
 		shortEntry.DIR_Attr = FAT_32_ATTR_DIRECTORY; 			 		//Es un directorio
 		shortEntry.DIR_FileSize = 0; 							 		//Los directorios siempre estan en 0
@@ -435,7 +435,7 @@
 				if( offset >= v->bps ){
 					if ( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) ) {
 						if ( FAT_32_ISEOC(destination->nextCluster)){
-							pfs_fat32_utils_allocateNewCluster(); //TODO: -------> Hay que desarrollar esta funcion!!!
+							pfs_fat32_utils_allocateNewCluster(v); //TODO: -------> Hay que desarrollar esta funcion!!!
 						} else {
 							uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , destination->nextCluster);
 							sector = pfs_endpoint_callGetSector(sectorId);
