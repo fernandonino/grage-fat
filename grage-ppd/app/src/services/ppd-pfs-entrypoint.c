@@ -13,11 +13,12 @@
 #include "ppd-entrypoint.h"
 #include "ppd-state.h"
 #include "ppd-connection.h"
+#include "ppd-configuration.h"
 
 
 
 	void ppd_pfs_entrypoint_serviceThread(ListenSocket * pfsSocket);
-	void ppd_pfs_entrypoint_processRequest(ListenSocket * pfsSocket);
+	Boolean ppd_pfs_entrypoint_processRequest(ListenSocket * pfsSocket);
 
 
 
@@ -39,6 +40,8 @@
 				*newPfsSocket = pfsSocket;
 
 				pthread_create( &newPfsThread , NULL , (void* (*) (void*))ppd_pfs_entrypoint_serviceThread , newPfsSocket);
+
+				puts("Se creo un hilo");
 			}
 		}
 	}
@@ -48,23 +51,24 @@
 
 		if( ppd_conf_isPooledConnections()){
 
-			while(TRUE){
-				ppd_pfs_entrypoint_processRequest(pfsSocket);
-			}
+			while(ppd_pfs_entrypoint_processRequest(pfsSocket));
+
 		}else{
 			ppd_pfs_entrypoint_processRequest(pfsSocket);
 		}
+
+		puts("Se murio un hilo");
 	}
 
 
-	void ppd_pfs_entrypoint_processRequest(ListenSocket * pfsSocket){
+	Boolean ppd_pfs_entrypoint_processRequest(ListenSocket * pfsSocket){
 
 		NipcMessage message = nipc_messaging_receive(*pfsSocket);
 
 		if(message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 
-//			puts("[ Recibiendo peticion GET Sectores ]");
-//			printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
+			puts("[ Recibiendo peticion GET Sectores ]");
+			printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
 
 			message.payload.pfsSocket = *pfsSocket;
 
@@ -72,13 +76,19 @@
 
 		}else if(message.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
 
-//			puts("[ Recibiendo peticion PUT Sectores ]");
-//			printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
+			puts("[ Recibiendo peticion PUT Sectores ]");
+			printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
 
 			message.payload.pfsSocket = *pfsSocket;
 
 			ppd_entrypoint_executePutSector(message);
+
+		}else if(nipc_mbuilder_isBlanckMessage(message)){
+
+			return FALSE;
 		}
+
+		return TRUE;
 	}
 
 
