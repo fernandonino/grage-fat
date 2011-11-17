@@ -19,7 +19,7 @@
 
 	struct fuse_operations grage_oper = {
 	  .getattr = pfs_fuse_getattr,
-	  .mkdir = pfs_fuse_mkdir,				//Pendiente
+	  .mkdir = pfs_fuse_mkdir,
 	  .unlink = pfs_fuse_unlink,
 	  .rmdir = pfs_fuse_rmdir,
 	  .rename = pfs_fuse_rename,			//Pendiente
@@ -29,7 +29,7 @@
 	  .flush = pfs_fuse_flush,				//Pendiente
 	  .release = pfs_fuse_release,			//Falta testing!
 	  .readdir = pfs_fuse_readdir,
-	  .mknod = pfs_fuse_mknod,				//Pendiente
+	  .mknod = pfs_fuse_mknod,
 	  .truncate = pfs_fuse_truncate,		//Pendiente
 	};
 
@@ -40,7 +40,7 @@
 
 
 	int pfs_fuse_mknod(const char *path, mode_t mode, dev_t dev){
-		char filename[16];
+		char filename[14];
 		char basedir[128];
 		Volume * v = pfs_state_getVolume();
 
@@ -53,7 +53,7 @@
 			return -EXIT_FAILURE;
 
 		destination = pfs_fat32_open(basedir);
-		if ( destination->shortEntry.DIR_Attr != FAT_32_ATTR_DIRECTORY ) //Intenta crear un archivo adentro de otro
+		if ( destination->dirType != 0 && destination->shortEntry.DIR_Attr != FAT_32_ATTR_DIRECTORY ) //Intenta crear un archivo adentro de otro
 			return -EXIT_FAILURE;
 
 		pfs_fat32_mknod(v , destination , filename);
@@ -126,7 +126,7 @@
 	}
 
 	int pfs_fuse_mkdir(const char *path, mode_t mode){
-		char dirname[16];
+		char dirname[14];
 		char basedir[128];
 		Volume * v = pfs_state_getVolume();
 
@@ -135,10 +135,12 @@
 
 		FatFile * destination = pfs_fat32_open(path);
 
-		if( strlen(dirname) > 13 || destination != NULL ) //Si no es NULL, ya existe un directorio con ese nombre
+		if( strlen(dirname) > 13 || destination != NULL ) //Si no es NULL, ya existe un archivo con ese nombre
 			return -EXIT_FAILURE;
 
 		destination = pfs_fat32_open(basedir);
+		if ( destination->shortEntry.DIR_Attr != FAT_32_ATTR_DIRECTORY || destination == NULL) //Intenta crear un archivo dentro de otro
+			return -EXIT_FAILURE;																// o el directorio "padre" no existe
 
 		pfs_fat32_mkdir(v , destination , dirname);
 

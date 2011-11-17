@@ -111,13 +111,16 @@
 
 //UTILS
 	Volume * pfs_fat_utils_loadVolume( BPB * b );
+
 	uint32_t pfs_fat32_utils_fetchChar(LongDirEntry *D, int8_t n);
 	int8_t pfs_fat32_utils_getNameLength(LongDirEntry * ldirentry);
 	void pfs_fat32_utils_extractName( LongDirEntry * d, uint16_t * dest, int8_t length);
-	int pfs_fat32_unicode_utf16_to_utf8_inbuffer(const uint16_t *src_utf16, const size_t src_utf16size, char* dest_utf8, size_t *dest_utf8size);
 	char *  pfs_fat_utils_getFileName(LongDirEntry * l);
 	void pfs_fat32_utils_getDirNameFromPath(const char *path, char *dest);
 	void pfs_fat32_utils_getFileNameFromPath(const char *path, char *dest);
+	void pfs_fat32_utils_loadLongEntryFilename(LongDirEntry * , char * );
+	uint8_t pfs_fat32_utils_loadEntryFilename(DirEntry * , char *);
+
 	uint32_t pfs_fat_utils_getFatEntrySector(Volume * v , uint32_t cluster);
 	uint32_t pfs_fat_utils_getFatEntryOffset(Volume * v , uint32_t cluster);
 	uint32_t pfs_fat_utils_getFirstSectorOfCluster(Volume * v , uint32_t cluster);
@@ -126,6 +129,7 @@
 	uint32_t pfs_fat32_utils_getFirstSectorFromNextClusterInChain(Volume * v , uint32_t clusterId);
 	Boolean pfs_fat32_utils_isLastSectorFromCluster(Volume * v , uint32_t sectorId);
 	uint32_t pfs_fat_getFirstClusterFromDirEntry(DirEntry * D);
+	uint8_t pfs_fat_setFirstClusterToDirEntry(DirEntry * , uint32_t);
 	uint32_t pfs_fat32_utils_getDirEntryOffset(uint32_t sectorId , uint32_t os , uint32_t offset);
 	void pfs_fat32_utils_toDirent(struct dirent * de , DirEntry * , LongDirEntry * , Volume * v);
 	uint8_t pfs_fat32_isDirectoryEmpty(Volume * v, FatFile * fd);
@@ -140,8 +144,10 @@
 
 	uint32_t pfs_fat32_utils_getNextFreeCluster(void);
 	void pfs_fat32_utils_setNextFreeCluster(uint32_t);
+	uint32_t pfs_fat32_utils_allocateNewCluster(void);
 
-	void pfs_fat32_utils_allocateNewCluster(void);
+	void pfs_fat32_utils_fillDotEntry(DirEntry * , DirEntry *);
+	void pfs_fat32_utils_fillDotDotEntry(DirEntry * , DirEntry *);
 
 #endif /* PFS_FAT32_H_ */
 

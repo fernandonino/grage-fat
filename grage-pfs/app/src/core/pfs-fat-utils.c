@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <ctype.h>
 
 #include "pfs-fat32.h"
 
@@ -137,7 +138,23 @@
 		return ((v->bps * (1 + sectorId) % v->bpc) == 0);
 	}
 
+	uint8_t pfs_fat_setFirstClusterToDirEntry(DirEntry * d , uint32_t cluster) {
+		if (d == NULL)
+			return EXIT_FAILURE;
 
+		char *src = (char *) &cluster;
+		char *dst = (char *) &(d->DIR_FstClusLO);
+
+		dst[0] = src[0];
+		dst[1] = src[1];
+
+		//if (V->FatType == FAT32) {
+		dst = (char *) &(d->DIR_FstClusHI);
+		dst[0] = src[2];
+		dst[1] = src[3];
+
+		return EXIT_SUCCESS;
+	}
 
 	uint32_t pfs_fat_getFirstClusterFromDirEntry(DirEntry * D) {
 		if ( D == NULL )
@@ -276,7 +293,7 @@
 
 		date = (uint16_t) time.tm_mday;
 		date &= bmask1; // to set 0 first 11 bits;
-		date |= ((uint16_t) time.tm_mon + 1) << 5;
+		date |= ((uint16_t) time.tm_mon ) << 5;
 		date &= bmask2; // to set 0 first 6 bits;
 		date |= (((uint16_t) ((time.tm_year + 1900) -1980)) << 9);
 
@@ -381,7 +398,115 @@
 		strcpy(dest, slash);
 	}
 
-	void pfs_fat32_utils_allocateNewCluster(){
-
+	uint32_t pfs_fat32_utils_allocateNewCluster(){
+		return EXIT_SUCCESS;
 	}
 
+	void pfs_fat32_utils_loadLongEntryFilename(LongDirEntry * lde , char * utf8name){
+		uint16_t utf16name[13];
+		size_t utf16length = 0;
+		uint8_t utf8length = strlen(utf8name);
+		uint8_t i , j;
+
+		// Carga:
+
+		unicode_utf8_to_utf16_inbuffer(utf8name , utf8length , utf16name , &utf16length);
+
+		for ( i = 0 ; i < utf8length ; i++){
+		    j = (i % 13);
+
+		    if ( j <= 4  ) lde->LDIR_Name1[j] = utf16name[i];
+		    else if ( j <= 10 ) lde->LDIR_Name2[j-5] = utf16name[i];
+		    else if ( j <= 12 ) lde->LDIR_Name3[j-11] = utf16name[i];
+		}
+
+		for( i = utf8length ; i < 13 ; i++ ){
+			j = (i % 13);
+
+		    if ( j <= 4  ) lde->LDIR_Name1[j] = 0;
+		    else if ( j <= 10 ) lde->LDIR_Name2[j-5] = 0;
+		    else if ( j <= 12 ) lde->LDIR_Name3[j-11] = 0;
+		}
+	}
+
+	uint8_t pfs_fat32_utils_loadEntryFilename(DirEntry * de , char * utf8name){
+		char * name = name = strtok(utf8name , ".");
+		char * extension = strtok(NULL , ".");
+		uint8_t i;
+
+		//Falta hacer el chequeo de nombres (no puede comenzar con espacio, por ejemplo
+		//Quizas no sea necesario segun pagina 28/29, titulo "Consideraciones"
+
+		uint8_t length = strlen(name);
+		if ( length == 8 ) {			//Cabe justo en el espacio
+
+			for(i = 0 ; i < length ; i++ )
+				de->DIR_Name[i] = toupper(utf8name[i]);
+
+		} else if (length < 8) {		//Rellenamos los espacios
+
+			for(i = 0 ; i < length ; i++ )
+				de->DIR_Name[i] = toupper(utf8name[i]);
+			for( i = length ; i < 8 ; i++ )
+				de->DIR_Name[i] = 0x20;
+
+		} else {						//Hay que crearle un nombre raro
+
+			for(i = 0 ; i < 6 ; i++ )
+				de->DIR_Name[i] = toupper(utf8name[i]);
+				de->DIR_Name[6] = '~';
+				de->DIR_Name[7] = '1';
+				//Hay que buscar si ya existe, y cambiar el 1 en caso afirmativo
+				//pfs_fat32_utils_findEntryByShortEntry();
+		}
+
+		for(i = 0 ; i < 3 ; i++ )
+			de->DIR_Name[i+8] = toupper(extension[i]);
+
+		return EXIT_SUCCESS;
+	}
+
+	void pfs_fat32_utils_fillDotEntry(DirEntry * dot , DirEntry * actual){
+		/* Fechas y horas */
+		dot->DIR_CrtDate = actual->DIR_CrtDate;
+		dot->DIR_CrtTime = actual->DIR_CrtTime;
+		dot->DIR_WrtDate = actual->DIR_WrtDate;
+		dot->DIR_WrtTime = actual->DIR_WrtTime;
+		dot->DIR_LstAccDate = actual->DIR_LstAccDate;
+		dot->DIR_CrtTimeTenth = actual->DIR_CrtTimeTenth;
+
+		/* Comienzo de contenidos y atributos */
+		dot->DIR_FstClusHI = actual->DIR_FstClusHI;
+		dot->DIR_FstClusLO = actual->DIR_FstClusLO;
+		dot->DIR_FileSize = actual->DIR_FileSize;
+		dot->DIR_Attr = actual->DIR_Attr;
+
+		/* Nombre */
+		uint8_t i;
+		dot->DIR_Name[0] = '.';
+		for( i = 0 ; i < 10 ; i++ )
+			dot->DIR_Name[i+1] = 0x20;
+	}
+
+	void pfs_fat32_utils_fillDotDotEntry(DirEntry * dotdot , DirEntry * parent){
+		/* Fechas y horas */
+		dotdot->DIR_CrtDate = parent->DIR_CrtDate;
+		dotdot->DIR_CrtTime = parent->DIR_CrtTime;
+		dotdot->DIR_WrtDate = parent->DIR_WrtDate;
+		dotdot->DIR_WrtTime = parent->DIR_WrtTime;
+		dotdot->DIR_LstAccDate = parent->DIR_LstAccDate;
+		dotdot->DIR_CrtTimeTenth = parent->DIR_CrtTimeTenth;
+
+		/* Comienzo de contenidos y atributos */
+		dotdot->DIR_FstClusHI = parent->DIR_FstClusHI;
+		dotdot->DIR_FstClusLO = parent->DIR_FstClusLO;
+		dotdot->DIR_FileSize = parent->DIR_FileSize;
+		dotdot->DIR_Attr = parent->DIR_Attr;
+
+		/* Nombre */
+		uint8_t i;
+		dotdot->DIR_Name[0] = '.';
+		dotdot->DIR_Name[1] = '.';
+		for( i = 0 ; i < 9 ; i++ )
+			dotdot->DIR_Name[i+2] = 0x20;
+	}
