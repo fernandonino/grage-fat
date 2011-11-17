@@ -6,13 +6,15 @@
  */
 
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <linux-commons.h>
 #include <linux-commons-socket.h>
 #include <linux-commons-list.h>
 
 #include "pfs-connection-pool.h"
-
+#include "pfs-configuration.h"
+#include "pfs-endpoint.h"
 
 
 	PooledConnection * pfs_pool_getPooledConnection();
@@ -26,7 +28,7 @@
 
 
 
-	List pooledConnections;
+	List pooledConnections = NULL;
 
 	List pfs_pool_getPooledConnections(){
 		return pooledConnections;
@@ -62,10 +64,39 @@
 
 
 
+
+	void pfs_pool_initialize(){
+      	pfs_pool_setPooledConnectionsMaxCount(pfs_configuration_getMaxConnections());
+
+      	Boolean eq(void * c1 , void * c2){
+      		PooledConnection * p1 = (PooledConnection *) c1;
+      		PooledConnection * p2 = (PooledConnection *) c2;
+      		return p1->listenSocket == p2->listenSocket;
+      	}
+
+
+      	pooledConnections = commons_list_buildList(NULL , eq ,
+      			commons_list_ORDER_ALWAYS_FIRST );
+	}
+
+
+
 	/*
 	 * Se obtiene la conexion
 	 */
 	PooledConnection * pfs_pool_getConection(){
+
+
+		if(pfs_state_isPooledConnectionsEnabled()
+				&& pfs_pool_getPooledConnections() == NULL){
+			pfs_pool_initialize();
+		}else if (pfs_configuration_getMaxConnections() == 0){
+			puts("[ No se esta trabajando con un pool de conexiones habilitado pero aun asi se quiere acceder a una conexion pooleada ]");
+			exit(EXIT_FAILURE);
+			return NULL;
+		}
+
+
 		PooledConnection * conn = NULL;
 
 		while(conn == NULL){
@@ -138,6 +169,10 @@
 
 		if(pooledConnections->size < pooledConnectionsMaxCount)
 			conn = pfs_pool_buildAndAddPooledConnection();
+		else
+			conn = NULL;
+
+		free(conns);
 
 		commons_misc_unlockThreadMutex(&poolingConnectionsMutex);
 

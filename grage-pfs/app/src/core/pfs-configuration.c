@@ -71,7 +71,6 @@
         	pfs_configuration_setDevicePort(value);
         }else if(!strcmp(key , PFS_MAX_CONNECTIONS)){
         	pfs_configuration_setMaxConnections((uint32_t)atoi(value));
-        	pfs_pool_setPooledConnectionsMaxCount(pfs_configuration_getMaxConnections());
         }else if(!strcmp(key , PFS_CACHE_SIZE)){
         	pfs_configuration_setCacheSize(value);
         }

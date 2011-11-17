@@ -25,35 +25,12 @@
 #include "pfs-state.h"
 #include "pfs-fat32.h"
 #include "pfs-fuse.h"
+#include "pfs-connection-pool.h"
 
 void createTmpFile(uint16_t, uint32_t);
 void estoyProbandoComoMierdaSeLeeUnArchivo(Volume * , FatFile * , uint16_t , uint32_t);
 
 void launch_pfs_tests(void);
-
-
-/*
-
-	void pfs_launcher_launchConnections(){
-
-		char * host = pfs_configuration_getDeviceAddress();
-		char * port = pfs_configuration_getDevicePort();
-
-		ListenSocket dataSocket = commons_socket_openClientConnection(host , port);
-
-		pfs_state_setDataSocket(dataSocket);
-
-		nipc_sendHandshake(dataSocket , NIPC_PROCESS_ID_PFS);
-
-		NipcMessage message =  nipc_receiveHandshake(pfs_state_getDataSocket());
-
-		if(message.header.responseCode == NIPC_RESPONSE_CODE_ERROR){
-			puts("Fallo el handshake");
-			exit(1);
-		}
-
-	}
-*/
 
 
 
@@ -94,15 +71,54 @@ void launch_pfs_tests(void);
 
 
 
+	void thread(char * name){
+
+
+		puts(commons_string_concat(name , " - Creando conexion" ));
+
+		pfs_endpoint_callGetSector(5);
+
+	}
+
+
 
 	void pfs_launcher_launch(int argc, char *argv[]) {
 
 
-		pfs_launcher_initializeBPB();
+		//pfs_launcher_initializeBPB();
 
-		pfs_fuse_launchFuse(argc,argv);
+		//pfs_fuse_launchFuse(argc,argv);
 
 		//launch_pfs_tests();
+
+
+		int i;
+		for(i=0 ; i<3 ; i++){
+
+		pthread_t thread1;
+		pthread_t thread2;
+		pthread_t thread3;
+		pthread_t thread4;
+		pthread_t thread5;
+		pthread_t thread6;
+
+		pthread_create(&thread1 , NULL , thread , "1");
+		pthread_create(&thread2 , NULL , thread , "2");
+		pthread_create(&thread3 , NULL , thread , "3");
+		pthread_create(&thread4 , NULL , thread , "4");
+		pthread_create(&thread5 , NULL , thread , "5");
+		pthread_create(&thread6 , NULL , thread , "6");
+
+		pthread_join(thread1 , NULL);
+		pthread_join(thread2 , NULL);
+		pthread_join(thread3 , NULL);
+		pthread_join(thread4 , NULL);
+		pthread_join(thread5 , NULL);
+		pthread_join(thread6 , NULL);
+
+
+		}
+
 
 	}
 
