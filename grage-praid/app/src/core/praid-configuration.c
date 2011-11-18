@@ -49,6 +49,12 @@
 			}else if (!strcmp(value , PRAID_CONF_VALUE_TRUE)){
 				praid_configuration_setEnableReplication(TRUE);
 			}
+		}else if(commons_string_equals(key , PRAID_CONF_POOLED_CONNECTIONS_ENABLED)){
+			if( commons_string_equals(value , "true")){
+				praid_conf_setPooledConnections(TRUE);
+			}else if(commons_string_equals(value , "false")){
+				praid_conf_setPooledConnections(FALSE);
+			}
 		}
 	}
 
@@ -79,3 +85,16 @@
 		if(commons_console_logging_isDefault())
 			puts("[ Se ha cargado la configuracion ]");
 	}
+
+
+
+
+	Boolean pooledConnections = FALSE;
+
+	void praid_conf_setPooledConnections(Boolean s){
+		pooledConnections = s;
+	}
+	Boolean praid_conf_isPooledConnections(){
+		return pooledConnections;
+	}
+
