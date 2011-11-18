@@ -90,6 +90,8 @@
 		int32_t disk;			// disk file descriptor - solo ese usa en los tests
 
 		uint32_t nextFreeCluster;
+
+		pthread_mutex_t fatLock;
 	} __attribute__((packed)) Volume;
 
 
