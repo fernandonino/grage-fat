@@ -43,18 +43,24 @@
 		pthread_create(&pfsSlaveThread , NULL , (void * (*)(void *))praid_pfs_entrypoint_receiveInvocation , theSocket);
 	}
 
+
+
+
 	void praid_pfs_entrypoint_receiveInvocation(ListenSocket * ls){
+
+		puts("Se abrio una nueva conexion");
 
 		if( praid_conf_isPooledConnections()){
 
 			while(praid_pfs_entrypoint_processRequest(ls));
-
 		}else{
+
+			puts("Seba se la come");
+
 			praid_pfs_entrypoint_processRequest(ls);
 		}
 
 		puts("Se murio un hilo");
-
 	}
 
 
@@ -133,12 +139,11 @@
 		praid_utils_printLines();
 
 		PPDConnectionStorage * storage = praid_balancer_selectStorage();
-
+/*
 		if(commons_console_logging_isDefault())
 			printf("[ Se realizará un GET (PPD: %i , SectorId: %i) ]\n"
 					, storage->id , message.payload.diskSector.sectorNumber);
-
+*/
 		praid_storage_queue_put(storage->pendingJobs , message);
-
-
 	}
+

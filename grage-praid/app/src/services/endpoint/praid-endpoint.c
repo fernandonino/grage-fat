@@ -23,7 +23,7 @@
 
 	void praid_endpoint_pfs_responseAndClose(ListenSocket ls , NipcMessage m){
 		praid_endpoint_pfs_responseGetSectors(ls , m);
-		close(ls);
+		//close(ls);
 	}
 
 
