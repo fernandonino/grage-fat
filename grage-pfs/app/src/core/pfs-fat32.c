@@ -316,6 +316,7 @@
 	int8_t pfs_fat32_mknod(Volume * v , FatFile * destination , char * filename){
 		DirEntry shortEntry;
 		LongDirEntry longEntry , auxEntry;
+		uint32_t sectorId;
 		uint16_t offset = 0;
 		uint8_t freeCount = 0;
 
@@ -355,7 +356,11 @@
 				if( offset >= v->bps ){
 					if ( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) ) {
 						if ( FAT_32_ISEOC(destination->nextCluster)){
-							pfs_fat32_utils_allocateNewCluster(v);
+							uint32_t newCluster = pfs_fat32_utils_allocateNewCluster(v , destination->nextCluster);
+							sectorId = pfs_fat_utils_getFirstSectorOfCluster(v , newCluster);
+							sector = pfs_endpoint_callGetSector(sectorId);
+							freeCount = 2;
+							break;
 						} else {
 							uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , destination->nextCluster);
 							sector = pfs_endpoint_callGetSector(sectorId);
@@ -391,6 +396,7 @@
 	int8_t pfs_fat32_mkdir(Volume * v , FatFile * destination , char * filename){
 		DirEntry shortEntry;
 		LongDirEntry longEntry , auxEntry;
+		uint32_t sectorId;
 		uint16_t offset = 0;
 		uint8_t freeCount = 0;
 
@@ -409,11 +415,10 @@
 
 
 		/* Completamos el resto de los atributos */
-		uint32_t newCluster = pfs_fat32_utils_allocateNewCluster(v); 	//TODO: DESARROLLAR ESTA FUNCION
+		uint32_t newCluster = pfs_fat32_utils_assignCluster(v);
 		pfs_fat_setFirstClusterToDirEntry(&shortEntry , newCluster);	//Seteamos LO + HI
 		shortEntry.DIR_Attr = FAT_32_ATTR_DIRECTORY; 			 		//Es un directorio
 		shortEntry.DIR_FileSize = 0; 							 		//Los directorios siempre estan en 0
-		shortEntry.DIR_FstClusHI = shortEntry.DIR_FstClusLO = 0; 		//Como esta vacio, no tiene contenido
 
 
 		/* Buscamos 64 bytes contiguos libres dentro del cluster
@@ -435,9 +440,11 @@
 				if( offset >= v->bps ){
 					if ( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) ) {
 						if ( FAT_32_ISEOC(destination->nextCluster)){
-							pfs_fat32_utils_allocateNewCluster(v); //TODO: -------> Hay que desarrollar esta funcion!!!
+							uint32_t newCluster = pfs_fat32_utils_allocateNewCluster(v,destination->nextCluster);
+							sectorId = pfs_fat_utils_getFirstSectorOfCluster(v , newCluster);
+							sector = pfs_endpoint_callGetSector(sectorId);
 						} else {
-							uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , destination->nextCluster);
+							sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , destination->nextCluster);
 							sector = pfs_endpoint_callGetSector(sectorId);
 						}
 					} else {
@@ -468,13 +475,17 @@
 
 		/* Por ultimo, creamos entradas . y .. */
 		DirEntry punto , puntoPunto;
-		uint32_t sectorId = pfs_fat_utils_getFirstSectorOfCluster(v , newCluster);
+		sectorId = pfs_fat_utils_getFirstSectorOfCluster(v , newCluster);
 		sector = pfs_endpoint_callGetSector(sectorId);
 
 		pfs_fat32_utils_fillDotEntry(&punto , &shortEntry);
-		memcpy( &punto , sector.sectorContent , FAT_32_DIR_ENTRY_SIZE);
-		pfs_fat32_utils_fillDotDotEntry(&puntoPunto , &(destination->shortEntry));
-		memcpy( &puntoPunto , sector.sectorContent + 32 , FAT_32_DIR_ENTRY_SIZE);
+		memcpy( sector.sectorContent ,  &punto , FAT_32_DIR_ENTRY_SIZE);
+
+		if (destination->dirType == 0)
+			pfs_fat32_utils_fillDotDotEntry(&puntoPunto , NULL);
+		else
+			pfs_fat32_utils_fillDotDotEntry(&puntoPunto , &(destination->shortEntry));
+		memcpy( sector.sectorContent + 32, &puntoPunto , FAT_32_DIR_ENTRY_SIZE);
 
 		pfs_endpoint_callPutSector(sector);
 

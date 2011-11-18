@@ -27,7 +27,7 @@
 	  .read = pfs_fuse_read,
 	  .write = pfs_fuse_write,				//Pendiente
 	  .flush = pfs_fuse_flush,				//Pendiente
-	  .release = pfs_fuse_release,			//Falta testing!
+	  .release = pfs_fuse_release,
 	  .readdir = pfs_fuse_readdir,
 	  .mknod = pfs_fuse_mknod,
 	  .truncate = pfs_fuse_truncate,		//Pendiente
@@ -139,10 +139,13 @@
 			return -EXIT_FAILURE;
 
 		destination = pfs_fat32_open(basedir);
-		if ( destination->shortEntry.DIR_Attr != FAT_32_ATTR_DIRECTORY || destination == NULL) //Intenta crear un archivo dentro de otro
+		if ( destination->dirType == 0 ){
+			pfs_fat32_mkdir(v , destination , dirname);
+		} else if ( destination->shortEntry.DIR_Attr != FAT_32_ATTR_DIRECTORY || destination == NULL){ //Intenta crear un archivo dentro de otro
 			return -EXIT_FAILURE;																// o el directorio "padre" no existe
-
-		pfs_fat32_mkdir(v , destination , dirname);
+		} else {
+			pfs_fat32_mkdir(v , destination , dirname);
+		}
 
 		return EXIT_SUCCESS;
 	}

@@ -38,6 +38,7 @@
 	#define FAT_32_ATTR_ARCHIVE 								0x20
 	#define FAT_32_ATTR_LONG_NAME ( FAT_32_ATTR_READ_ONLY | FAT_32_ATTR_HIDDEN | FAT_32_ATTR_SYSTEM | FAT_32_ATTR_VOLUME_ID )
 	#define FAT_32_FAT_FREE_ENTRY								0x00000000
+	#define FAT_32_FAT_EOC										0x0FFFFFF8
 
 	#define FAT_32_ISEOC(FatEntryValue)  (((FatEntryValue) & 0x0FFFFFFF) >= 0x0FFFFFF8)
 	#define FAT_32_ISFREE(FatEntryValue) (((FatEntryValue) & 0x0FFFFFFF) == 0x00000000)
@@ -145,7 +146,10 @@
 
 	uint32_t pfs_fat32_utils_getNextFreeCluster(void);
 	void pfs_fat32_utils_setNextFreeCluster(uint32_t);
-	uint32_t pfs_fat32_utils_allocateNewCluster(Volume *);
+	uint32_t pfs_fat32_utils_allocateNewCluster(Volume * , uint32_t);
+	uint32_t pfs_fat32_utils_assignCluster(Volume * v);
+	void pfs_fat32_utils_markEndOfChain(Volume * , uint32_t);
+	void pfs_fat32_utils_expandChain(Volume * , uint32_t , uint32_t);
 
 	void pfs_fat32_utils_fillDotEntry(DirEntry * , DirEntry *);
 	void pfs_fat32_utils_fillDotDotEntry(DirEntry * , DirEntry *);

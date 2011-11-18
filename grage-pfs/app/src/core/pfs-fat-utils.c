@@ -35,6 +35,11 @@
 
 		DiskSector sector = pfs_endpoint_callGetSector(b->BPB_FSInfo);
 		memcpy( &(v->nextFreeCluster) , sector.sectorContent + 492 , sizeof(uint32_t));
+		v->nextFreeCluster++; //No sé por qué, siempre atrasa uno!
+		//En un disco en blanco, el nextFree es el 2. Si le creo un directorio adentro al dos,
+		//y tengo que reservar un dir para su contendio, me devuelve el dos... error!
+
+		pthread_mutex_init( &(v->fatLock) , NULL);
 
 		if ( v->clusters < 65525 ) {
 			return NULL;
@@ -42,6 +47,13 @@
 			return v;
 		}
 
+	}
+
+	void pfs_fat_utils_unloadVolume(Volume * v){
+		DiskSector sector = pfs_endpoint_callGetSector(1);
+		uint32_t nextFree = v->nextFreeCluster - 1;
+		memcpy( sector.sectorContent + 492 , &(nextFree) , sizeof(uint32_t));
+		pfs_endpoint_callPutSector(sector);
 	}
 
 
@@ -398,9 +410,60 @@
 		strcpy(dest, slash);
 	}
 
-	uint32_t pfs_fat32_utils_allocateNewCluster(Volume * v){
+	/* Para nuevos directorios */
+	uint32_t pfs_fat32_utils_assignCluster(Volume * v){
 		uint32_t entry;
-		uint8_t flag = 0; //Para verificar si dimos una vuelta entera y la fat
+		uint8_t flag = 0; //Para verificar si dimos una vuelta entera a la fat
+
+		pthread_mutex_lock( &(v->fatLock) );
+
+		uint32_t currentFree = v->nextFreeCluster;
+		uint32_t next = currentFree + 1;
+		uint32_t sectorId = pfs_fat_utils_getFatEntrySector(v , next);
+		uint32_t offset = pfs_fat_utils_getFatEntryOffset(v , next);
+
+		DiskSector sector = pfs_endpoint_callGetSector(sectorId);
+
+		for( ; next < v->clusters; next++){
+			memcpy(&entry , sector.sectorContent + offset , sizeof(uint32_t));
+			offset += 4;
+
+			if( FAT_32_ISFREE(entry) )
+				break;
+
+			if ( offset >= v->bps ){
+				if( sector.sectorNumber < v->fatStartSector + v->fatSize ){
+					if (flag == 1 && currentFree == entry) {
+						return -EXIT_FAILURE; //No hay mas clusters disponibles... disco lleno!
+					} else {
+						offset = 0;
+						sector.sectorNumber++;
+					}
+				} else {
+					flag = 1;
+					offset = 0;
+					sector.sectorNumber = v->fatStartSector;
+				}
+				sector = pfs_endpoint_callGetSector(sectorId);
+			}
+		}
+
+		pfs_fat32_utils_markEndOfChain(v , currentFree);
+
+		v->nextFreeCluster = next;
+
+		pthread_mutex_unlock( &(v->fatLock) );
+
+		return currentFree;
+	}
+
+	/* Para archivos o directorios que necesiten expandirse */
+	uint32_t pfs_fat32_utils_allocateNewCluster(Volume * v , uint32_t currentLast){
+		uint32_t entry;
+		uint8_t flag = 0; //Para verificar si dimos una vuelta entera a la fat
+
+		pthread_mutex_lock( &(v->fatLock) );
+
 		uint32_t currentFree = v->nextFreeCluster;
 		uint32_t sectorId = pfs_fat_utils_getFatEntrySector(v , currentFree + 1);
 		uint32_t offset = pfs_fat_utils_getFatEntryOffset(v , currentFree + 1);
@@ -409,7 +472,7 @@
 
 		do {
 			memcpy(&entry , sector.sectorContent + offset , sizeof(uint32_t));
-			offset += 32;
+			offset += 4;
 
 			if ( offset >= v->bps ){
 				if( sectorId < v->fatStartSector + v->fatSize ){
@@ -429,9 +492,32 @@
 
 		} while ( ! FAT_32_ISFREE(entry) );
 
+		pfs_fat32_utils_markEndOfChain(v , currentFree);
+
+		pfs_fat32_utils_expandChain(v , currentLast , currentFree);
+
 		v->nextFreeCluster = entry;
 
+		pthread_mutex_unlock( &(v->fatLock) );
+
 		return currentFree;
+	}
+
+	void pfs_fat32_utils_markEndOfChain(Volume * v , uint32_t assignedCluser){
+		uint32_t endOfChain = FAT_32_FAT_EOC;
+		uint32_t sectorId = pfs_fat_utils_getFatEntrySector(v , assignedCluser);
+		uint32_t offset = pfs_fat_utils_getFatEntryOffset(v , assignedCluser);
+		DiskSector sector = pfs_endpoint_callGetSector(sectorId);
+		memcpy(sector.sectorContent + offset , &endOfChain , sizeof(uint32_t));
+		pfs_endpoint_callPutSector(sector);
+	}
+
+	void pfs_fat32_utils_expandChain(Volume * v , uint32_t last , uint32_t free){
+		uint32_t sectorId = pfs_fat_utils_getFatEntrySector(v , last);
+		uint16_t   offset = pfs_fat_utils_getFatEntryOffset(v , last);
+		DiskSector sector = pfs_endpoint_callGetSector(sectorId);
+		memcpy(sector.sectorContent + offset , &free , sizeof(uint32_t));
+		pfs_endpoint_callPutSector(sector);
 	}
 
 	void pfs_fat32_utils_loadLongEntryFilename(LongDirEntry * lde , char * utf8name){
@@ -462,7 +548,7 @@
 	}
 
 	uint8_t pfs_fat32_utils_loadEntryFilename(DirEntry * de , char * utf8name){
-		char * name = name = strtok(utf8name , ".");
+		char * name = strtok(utf8name , ".");
 		char * extension = strtok(NULL , ".");
 		uint8_t i;
 
@@ -492,8 +578,13 @@
 				//pfs_fat32_utils_findEntryByShortEntry();
 		}
 
-		for(i = 0 ; i < 3 ; i++ )
-			de->DIR_Name[i+8] = toupper(extension[i]);
+		if ( extension == NULL ){
+			for(i = 0 ; i < 3 ; i++ )
+				de->DIR_Name[i+8] = 0x20;
+		} else {
+			for(i = 0 ; i < 3 ; i++ )
+				de->DIR_Name[i+8] = toupper(extension[i]);
+		}
 
 		return EXIT_SUCCESS;
 	}
@@ -522,18 +613,33 @@
 
 	void pfs_fat32_utils_fillDotDotEntry(DirEntry * dotdot , DirEntry * parent){
 		/* Fechas y horas */
-		dotdot->DIR_CrtDate = parent->DIR_CrtDate;
-		dotdot->DIR_CrtTime = parent->DIR_CrtTime;
-		dotdot->DIR_WrtDate = parent->DIR_WrtDate;
-		dotdot->DIR_WrtTime = parent->DIR_WrtTime;
-		dotdot->DIR_LstAccDate = parent->DIR_LstAccDate;
-		dotdot->DIR_CrtTimeTenth = parent->DIR_CrtTimeTenth;
+		if (parent != NULL){
+			dotdot->DIR_CrtDate = parent->DIR_CrtDate;
+			dotdot->DIR_CrtTime = parent->DIR_CrtTime;
+			dotdot->DIR_WrtDate = parent->DIR_WrtDate;
+			dotdot->DIR_WrtTime = parent->DIR_WrtTime;
+			dotdot->DIR_LstAccDate = parent->DIR_LstAccDate;
+			dotdot->DIR_CrtTimeTenth = parent->DIR_CrtTimeTenth;
 
-		/* Comienzo de contenidos y atributos */
-		dotdot->DIR_FstClusHI = parent->DIR_FstClusHI;
-		dotdot->DIR_FstClusLO = parent->DIR_FstClusLO;
-		dotdot->DIR_FileSize = parent->DIR_FileSize;
-		dotdot->DIR_Attr = parent->DIR_Attr;
+			/* Comienzo de contenidos y atributos */
+			dotdot->DIR_FstClusHI = parent->DIR_FstClusHI;
+			dotdot->DIR_FstClusLO = parent->DIR_FstClusLO;
+			dotdot->DIR_FileSize = parent->DIR_FileSize;
+			dotdot->DIR_Attr = parent->DIR_Attr;
+		} else {
+			dotdot->DIR_CrtDate = 0;
+			dotdot->DIR_CrtTime = 0;
+			dotdot->DIR_WrtDate = 0;
+			dotdot->DIR_WrtTime = 0;
+			dotdot->DIR_LstAccDate = 0;
+			dotdot->DIR_CrtTimeTenth = 0;
+
+			/* Comienzo de contenidos y atributos */
+			dotdot->DIR_FstClusHI = 0;
+			dotdot->DIR_FstClusLO = 2;
+			dotdot->DIR_FileSize = 0;
+			dotdot->DIR_Attr = 0x10;
+		}
 
 		/* Nombre */
 		uint8_t i;
@@ -542,3 +648,4 @@
 		for( i = 0 ; i < 9 ; i++ )
 			dotdot->DIR_Name[i+2] = 0x20;
 	}
+
