@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include <linux-commons-logging.h>
 #include <linux-commons-socket.h>
@@ -18,7 +19,7 @@
 #include <linux-commons.h>
 
 #include "nipc-messaging.h"
-
+#include "pfs-cache.h"
 #include "pfs-endpoint.h"
 #include "pfs-configuration.h"
 #include "pfs-console.h"
@@ -31,6 +32,11 @@ void estoyProbandoComoMierdaSeLeeUnArchivo(Volume * , FatFile * , uint16_t , uin
 
 void launch_pfs_tests(void);
 
+
+
+
+
+	extern pthread_t fuckingThread;
 
 /*
 
@@ -64,7 +70,7 @@ void launch_pfs_tests(void);
 		pfs_configuration_initialize();
 
 		//pfs_launcher_launchConnections();
-		//pfs_console_initialize();
+		pfs_console_initialize();
 		//ppd_initializeDisk();
 	}
 
@@ -102,6 +108,9 @@ void launch_pfs_tests(void);
 
 		pfs_fuse_launchFuse(argc,argv);
 
+
+
+
 		//launch_pfs_tests();
 
 	}
@@ -114,7 +123,11 @@ void launch_pfs_tests(void);
 
 		pfs_launcher_initialize();
 
-		pfs_launcher_launch(argc , argv);
+		//pfs_launcher_launch(argc , argv);
+
+
+		pthread_join(fuckingThread , NULL);
+
 
 		pfs_launcher_exit();
 

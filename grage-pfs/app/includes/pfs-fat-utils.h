@@ -9,22 +9,19 @@
 #define PFS_FAT_UTILS_H_
 #include "grage-commons.h"
 #include "pfs-fat32.h"
+#include "pfs-cache.h"
 
-	typedef struct {
-		uint8_t estado;
-		DiskSector sector;
-	}CacheSectorRecord;
 
 	typedef struct Node {
 		uint32_t Cluster;
 		struct Node * Next;
 	} rsvCluster;
 
-	void pfs_fat_utils_cache_sectores_initialize();
-	void pfs_fat_utils_cache_put_sectores(DiskSector sector);
-	DiskSector pfs_fat_utils_cache_get_sectores(uint32_t sectorBuscado);
-	uint32_t pfs_fat_utils_cache_sectores_tiene_sector(uint32_t sectorBuscado);
-	void pfs_fat_utils_cache_sectores_registrar_acceso();
+//	void pfs_fat_utils_cache_sectores_initialize();
+//	void pfs_fat_utils_cache_put_sectores(DiskSector sector);
+//	DiskSector pfs_fat_utils_cache_get_sectores(uint32_t sectorBuscado);
+//	uint32_t pfs_fat_utils_cache_sectores_tiene_sector(uint32_t sectorBuscado);
+//	void pfs_fat_utils_cache_sectores_registrar_acceso();
 
 	//Ejemplifico abajo de cada una, como invocar a cada funcion
 	void pfs_fat_utils_CreateList(rsvCluster **);

@@ -12,13 +12,13 @@
 #include "pfs-fat32.h"
 #include "pfs-fat-utils.h"
 
-CacheSectorRecord cacheSectores[atoi(pfs_configuration_getCacheSize())*1024/512];
+CacheSectorRecord cacheSectores[255];
 
 
 	void pfs_fat_utils_cache_sectores_initialize()
 	{
 		int i;
-		for (i=0;i<256;i++)
+		for (i=0;i<254;i++)
 		{
 			cacheSectores[i].sector.sectorNumber=-1;
 		}
@@ -26,7 +26,7 @@ CacheSectorRecord cacheSectores[atoi(pfs_configuration_getCacheSize())*1024/512]
 	void pfs_fat_utils_cache_sectores_registrar_acceso()
 	{
 		int i;
-		for(i=0;i<256;i++)
+		for(i=0;i<254;i++)
 		{
 			if (cacheSectores[i].sector.sectorNumber!=-1) cacheSectores[i].estado++;
 		}
@@ -34,7 +34,7 @@ CacheSectorRecord cacheSectores[atoi(pfs_configuration_getCacheSize())*1024/512]
 	uint32_t pfs_fat_utils_cache_sectores_tiene_sector(uint32_t sectorBuscado)
 	{
 		int i;
-		for(i=0;i<256;i++)
+		for(i=0;i<254;i++)
 		{
 			if (cacheSectores[i].sector.sectorNumber==sectorBuscado) return i;
 		}

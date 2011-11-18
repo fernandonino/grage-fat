@@ -13,12 +13,14 @@
 			Cluster * cluster;
 			uint32_t estado;
 		}CacheRecord;
-
-		void pfs_cache_clusters_initialize(void);
-		Cluster * pfs_cache_get_clusters(int clusterID);
-		void pfs_cache_put_clusters(Cluster * cluster);
-		void pfs_cache_clusters_registrar_acceso();
-		int pfs_cache_tiene_cluster(int clusterID);
-		void pfs_cache_clusters_dump();
+		typedef struct {
+			uint8_t estado;
+			DiskSector sector;
+		}CacheSectorRecord;
+		void pfs_cache_sectors_initialize(void);
+		CacheSectorRecord * pfs_cache_get_sector(uint32 sectorID);
+		void pfs_cache_put_sectors(DiskSector * sectorNuevo);
+		void pfs_cache_sectors_registrar_acceso();
+		void pfs_cache_sectores_dump();
 
 #endif /* PFS_CACHE_H_ */

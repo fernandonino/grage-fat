@@ -4,11 +4,11 @@
  *  Created on: 05/09/2011
  *      Author: gonzalo
  */
-
+#include "grage-commons.h"
 #ifndef PFS_CONFIGURATION_H_
 #define PFS_CONFIGURATION_H_
 
-#define PFS_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/conf/grage-pfs.properties"
+#define PFS_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/grage-pfs.properties"
 
 #define PFS_DEVICE_ADDRESS	"pfs.device.address"
 #define PFS_DEVICE_PORT		"pfs.device.port"
