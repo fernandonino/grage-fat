@@ -37,10 +37,18 @@
 
 
 	void ppd_entrypoint_executePutSector(NipcMessage message){
+
+		puts("[ Recibiendo peticion PUT Sectores ]");
+		printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
+
 		ppd_queues_putInQueue(message);
 	}
 
 	void ppd_entrypoint_executeGetSector(NipcMessage message){
+
+		puts("[ Recibiendo peticion GET Sectores ]");
+		printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
+
 		ppd_queues_putInQueue(message);
 	}
 
