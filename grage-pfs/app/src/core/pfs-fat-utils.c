@@ -431,3 +431,38 @@ CacheSectorRecord cacheSectores[255];
 
 	}
 
+	uint32_t pfs_fat_utils_BusyClustersQuantity(){
+		Volume * v = pfs_state_getVolume();
+		return v->clusters - pfs_fat_utils_FreeClustersQuantity();
+	}
+	uint32_t pfs_fat_utils_FreeClustersQuantity(){
+		Volume * v = pfs_state_getVolume();
+		uint32_t sector = v->rsv;
+		uint32_t fatEntry;
+		uint32_t counter;
+		uint32_t result = 0;
+		DiskSector diskSector;
+
+		for(;sector < v->fatSize + v->rsv; sector++){
+			diskSector = pfs_endpoint_callGetSector(sector);
+			counter = 0;
+			while(counter <= 128){
+				memcpy(fatEntry, diskSector.sectorContent + counter * FAT_32_FATENTRY_SIZE, sizeof(uint32_t));
+				if(fatEntry == FAT_32_FAT_FREE_ENTRY){
+					result++;
+				}
+				counter++;
+			}
+		}
+		return result;
+	}
+	uint32_t pfs_fat_utils_FATsizeKilobytes(){
+		Volume * v = pfs_state_getVolume();
+		return (v->fatSize*v->bps)%1024;
+	}
+
+
+
+
+
+

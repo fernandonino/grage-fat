@@ -11,9 +11,11 @@
 #include <string.h>
 #include <signal.h>
 #include <linux-commons.h>
+#include <grage-commons.h>
 #include "pfs-console-utils.h"
 #include "pfs-cache.h"
-
+#include "pfs-state.h"
+#include "pfs-fat32.h"
 
 
 
@@ -21,11 +23,29 @@
 
 
 	void pfs_console_fsinfo(){
+		Volume * v = pfs_state_getVolume();
+
+		printf("Cantidad de Clusters ocupados: %d \n",pfs_fat_utils_BusyClustersQuantity());
+		printf("Cantidad de Clusters libres: %d\n",pfs_fat_utils_FreeClustersQuantity());
+		printf("Tamaño de un Sector: %db \n",v->bps);
+		printf("Tamaño de un Cluster: %db \n",v->bpc);
+		printf("Tamaño de la FAT: %d kb \n", pfs_fat_utils_FATsizeKilobytes());
 
 	}
 
 	void pfs_console_finfo(String parameter){
+		FatFile * fatFile = pfs_fat32_open(parameter);
+		Volume * v = pfs_state_getVolume();
+		uint32_t currentCluster = fatFile->nextCluster;
 
+		int i = 0;
+		printf("#Clusters: \n");
+		while (!(FAT_32_ISEOC(currentCluster)) && i<20){
+			printf("%d ",currentCluster);
+			currentCluster=pfs_fat32_utils_getNextClusterInChain(v,currentCluster);
+			i++;
+		}
+		printf("\n");
 	}
 
 	void *pfs_console_thread(void *argument)

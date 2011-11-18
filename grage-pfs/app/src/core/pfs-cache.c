@@ -29,9 +29,9 @@
         return cacheSectorsMaxCount;
     }
 
-	void pfs_cache_sectors_initialize()
+	List pfs_cache_sectors_initialize(uint32 cacheSize)
 	{
-		pfs_cache_setCacheSectorsMaxCount(pfs_configuration_getCacheSize()*2);
+		pfs_cache_setCacheSectorsMaxCount(cacheSize);
 
 
 		Boolean eq(void * s1 , void * s2){
@@ -44,7 +44,7 @@
 			CacheSectorRecord * p2 = (CacheSectorRecord *) s2;
 			return p1->estado < p2->estado;
 		}
-		listaCacheSectors = commons_list_buildList(NULL,eq,commons_list_ORDER_ALWAYS_FIRST);
+		return (listaCacheSectors = commons_list_buildList(NULL,eq,commons_list_ORDER_ALWAYS_FIRST));
 	}
 
 	void pfs_cache_sectors_registrar_acceso()

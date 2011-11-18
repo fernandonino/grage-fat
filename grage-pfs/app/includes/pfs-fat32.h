@@ -27,6 +27,7 @@
 	#define FAT_32_DIR_ENTRY_SIZE						32
 	#define FAT_32_BLOCK_ENTRY_SIZE						64
 	#define FAT_32_SECTOR_SIZE 							512
+	#define FAT_32_FATENTRY_SIZE						4
 	#define FAT_32_FREEENT  0xE5 /* The directory entry is free             */
 	#define FAT_32_ENDOFDIR 0x00 /* This and the following entries are free */
 

@@ -36,7 +36,9 @@
 		//pfs_fat_utils_GetNextCluster(&firstNode);
 	uint32_t pfs_fat_utils_IsListEmpty(rsvCluster * );
 		//pfs_fat_utils_IsListEmpty(*firstCluster);
-
+	uint32_t pfs_fat_utils_FreeClustersQuantity();
+	uint32_t pfs_fat_utils_BusyClustersQuantity();
+	uint32_t pfs_fat_utils_FATsizeKilobytes();
 /*
 	uint32_t pfs_fat_fetchChar(LDirEntry *, int8_t );
 	int8_t pfs_fat_getNameLength(LDirEntry *);
