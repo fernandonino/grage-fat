@@ -53,10 +53,13 @@
 			return -EXIT_FAILURE;
 
 		destination = pfs_fat32_open(basedir);
-		if ( destination->dirType != 0 && destination->shortEntry.DIR_Attr != FAT_32_ATTR_DIRECTORY ) //Intenta crear un archivo adentro de otro
-			return -EXIT_FAILURE;
-
-		pfs_fat32_mknod(v , destination , filename);
+		if (destination-> dirType == 0 )
+			pfs_fat32_mknod(v , destination , filename);
+		if ( destination->shortEntry.DIR_Attr != FAT_32_ATTR_DIRECTORY ) {//Intenta crear un archivo adentro de otro
+			return EXIT_FAILURE;
+		} else {
+			pfs_fat32_mknod(v , destination , filename);
+		}
 
 		return EXIT_SUCCESS;
 	}
