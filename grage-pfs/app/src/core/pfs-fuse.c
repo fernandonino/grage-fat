@@ -112,7 +112,19 @@
 	}
 
 	int pfs_fuse_truncate(const char *path, off_t newsize){
-		return EXIT_SUCCESS;
+		Volume * v = pfs_state_getVolume();
+		FatFile * f = pfs_fat32_open(path);
+
+		if( f == NULL ){
+					return -ENOENT;
+		}
+
+		uint8_t res = pfs_fat32_utils_truncate(v, f, newsize);
+		if(res != 0){
+			return -ENOENT;
+		}
+
+		return 0;
 	}
 
 	int pfs_fuse_unlink(const char * path){

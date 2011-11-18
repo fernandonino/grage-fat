@@ -109,6 +109,7 @@
 	uint32_t pfs_fat32_read(Volume * , FatFile * , char * , size_t);
 	int8_t pfs_fat32_mkdir(Volume *  , FatFile *  , char * );
 	int8_t pfs_fat32_mknod(Volume *  , FatFile *  , char * );
+	uint8_t pfs_fat32_utils_truncate(Volume * , FatFile * , off_t );
 
 //UTILS
 	Volume * pfs_fat_utils_loadVolume( BPB * b );
