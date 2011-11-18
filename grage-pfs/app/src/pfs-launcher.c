@@ -72,18 +72,13 @@ void launch_pfs_tests(void);
 
 
 	void thread(char * name){
-
-
 		puts(commons_string_concat(name , " - Creando conexion" ));
-
 		pfs_endpoint_callGetSector(5);
-
 	}
 
 
 
 	void pfs_launcher_launch(int argc, char *argv[]) {
-
 
 		//pfs_launcher_initializeBPB();
 
@@ -91,9 +86,16 @@ void launch_pfs_tests(void);
 
 		//launch_pfs_tests();
 
+		/*
+		PooledConnection * c1 = pfs_pool_getConection();
+		PooledConnection * c2 = pfs_pool_getConection();
+		PooledConnection * c3 = pfs_pool_getConection();
+		PooledConnection * c4 = pfs_pool_getConection();
+*/
 
-		int i;
-		for(i=0 ; i<3 ; i++){
+		//int i;
+		//for(i=0 ; i<3 ; i++){
+
 
 		pthread_t thread1;
 		pthread_t thread2;
@@ -116,8 +118,7 @@ void launch_pfs_tests(void);
 		pthread_join(thread5 , NULL);
 		pthread_join(thread6 , NULL);
 
-
-		}
+		//}
 
 
 	}
