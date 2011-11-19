@@ -9,7 +9,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <linux-commons-list.h>
+
+#include "pfs-fat32.h"
 #include "pfs-state.h"
+
+
+
+	List
+
+
+
 
 
 	ListenSocket dataSocket;
@@ -39,3 +49,38 @@
 	Volume * pfs_state_getVolume(){
 		return volume;
 	}
+
+
+	List openFiles = NULL;
+
+	void pfs_state_initializeOpenFiles(){
+		Volume * v = pfs_state_getVolume();
+		Boolean eq(void * s1 , void * s2){
+			FatFile * p1 = (FatFile *) s1;
+			FatFile * p2 = (FatFile *) s2;
+			return ((p1->source == p2->source)&&(p1->sourceOffset == p2->sourceOffset));
+	    }
+		openFiles = commons_list_buildList(NULL, eq, commons_list_ORDER_ALWAYS_FIRST);
+		pfs_cache_setCacheSectorsFatMaxCount(v->fatSize*20/100);
+		pfs_cache_setCacheSectorsMaxCount(pfs_configuration_getCacheSize()*2);
+	}
+
+	void pfs_state_addOpenFile(FatFile * fatFile){
+		commons_list_addNode(openFiles,fatFile);
+	}
+
+	void pfs_state_removeOpenedFile(FatFile * fatFile){
+		commons_list_removeNode(openFiles,fatFile,free);
+	}
+
+
+
+
+
+
+
+
+
+
+
+

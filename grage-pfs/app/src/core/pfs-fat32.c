@@ -11,8 +11,15 @@
 #include "pfs-fat32.h"
 
 
-	FatFile * pfs_fat32_utils_openRootDirectory(Volume * v) {
+
+	FatFile * pfs_fat32_utils_buildFatFile(){
 		FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
+		fatFile->cache = pfs_cache_sectors_initialize(32 * 1024);
+		return NULL;
+	}
+
+	FatFile * pfs_fat32_utils_openRootDirectory(Volume * v) {
+		FatFile * fatFile = pfs_fat32_utils_buildFatFile();
 
 		uint32_t cluster = pfs_fat32_utils_getNextClusterInChain(v , v->root);
 
@@ -36,7 +43,7 @@
 	FatFile * pfs_fat32_utils_openNonRootDirectory(const char * path , Volume * v ){
 
 		uint32_t next = v->root;
-		FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
+		FatFile * fatFile = pfs_fat32_utils_buildFatFile();
 		LongDirEntry longEntry;
 		DirEntry sDirEntry;
 

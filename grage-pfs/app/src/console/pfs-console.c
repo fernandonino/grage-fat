@@ -55,10 +55,10 @@
 
 		while(1){
 
-			if (signal (SIGINT, pfs_cache_sectores_dump) == SIG_ERR)
-			{
+			if (signal(SIGINT, pfs_cache_sectores_dump) == SIG_ERR){
 				perror ("No se puede cambiar signal");
 			}
+
 			fgets(buffer, 250, stdin);
 			printf(">%s\n", buffer);
 			cmd = pfs_console_utils_parseCMD(buffer);

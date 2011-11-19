@@ -70,8 +70,16 @@ void launch_pfs_tests(void);
 		pfs_configuration_initialize();
 
 		//pfs_launcher_launchConnections();
-		pfs_console_initialize();
+		//pfs_console_initialize();
 		//ppd_initializeDisk();
+
+
+
+		/*
+		 * Inicializacion de las caches
+		 */
+		pfs_state_initializeOpenFiles();
+
 	}
 
 
@@ -124,8 +132,25 @@ void launch_pfs_tests(void);
 		pfs_launcher_initialize();
 
 		//pfs_launcher_launch(argc , argv);
-
-
+		DiskSector * sector = (DiskSector *) malloc (sizeof (DiskSector));
+		memcpy(sector->sectorContent,"forro",sizeof "forro");
+		sector->sectorNumber=200;
+		List lista = pfs_cache_sectors_initialize(2);
+		pfs_cache_put_sectors(sector,lista);
+		memcpy(sector->sectorContent,"puto",sizeof "puto");
+		sector->sectorNumber=202;
+		pfs_cache_put_sectors(sector,lista);
+		memcpy(sector->sectorContent,"g\0ay",sizeof "gay");
+		sector->sectorNumber=204;
+		pfs_cache_put_sectors(sector,lista);
+		Iterator * fuckingIterator = commons_iterator_buildIterator(lista);
+		CacheSectorRecord * nodo;
+		while (commons_iterator_hasMoreElements(fuckingIterator)){
+			nodo=(CacheSectorRecord *)commons_iterator_next(fuckingIterator);
+			printf("SECTOR: %d CONTENIDO: %s ESTADO: %d\n",nodo->sector.sectorNumber,nodo->sector.sectorContent,nodo->estado);
+		}
+		pfs_cache_sectores_dump(lista);
+		//pfs_cache_sectores_dumpBIS(lista);
 		pthread_join(fuckingThread , NULL);
 
 

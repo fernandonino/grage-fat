@@ -8,7 +8,6 @@
 #include "grage-commons.h"
 #include <linux-commons-socket.h>
 
-
 #ifndef PFS_STATE_H_
 #define PFS_STATE_H_
 
@@ -19,9 +18,9 @@
 	void pfs_state_setBiosParameterBlock(BPB bpb);
 	BPB pfs_state_getBiosParameterBlock();
 
-
 	void pfs_state_setVolume(Volume * v);
 	Volume * pfs_state_getVolume();
 
+	void pfs_state_initializeOpenFiles();
 
 #endif /* PFS_STATE_H_ */
