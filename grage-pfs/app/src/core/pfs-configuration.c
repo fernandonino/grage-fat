@@ -6,6 +6,8 @@
  */
 
 #include <string.h>
+#include <stdlib.h>
+
 #include "linux-commons-file.h"
 
 #include "pfs-configuration.h"
@@ -17,7 +19,7 @@
 
 	char * deviceAddress = NULL;
 	char * devicePort = NULL;
-	char * maxConnections = NULL;
+	uint32_t maxConnections;
 	char * cacheSize = NULL;
 	char * configurationFile = NULL;
 
@@ -37,11 +39,11 @@
 		devicePort = devPort;
 	}
 
-	char * pfs_configuration_getMaxConnections(void){
+	uint32_t pfs_configuration_getMaxConnections(void){
 		return maxConnections;
 	}
 
-	void pfs_configuration_setMaxConnections(char * numberOfConnections){
+	void pfs_configuration_setMaxConnections(uint32_t numberOfConnections){
 		maxConnections = numberOfConnections;
 	}
 
@@ -66,7 +68,7 @@
         }else if(!strcmp(key , PFS_DEVICE_PORT)){
         	pfs_configuration_setDevicePort(value);
         }else if(!strcmp(key , PFS_MAX_CONNECTIONS)){
-        	pfs_configuration_setMaxConnections(value);
+        	pfs_configuration_setMaxConnections((uint32_t)atoi(value));
         }else if(!strcmp(key , PFS_CACHE_SIZE)){
         	pfs_configuration_setCacheSize(value);
         }

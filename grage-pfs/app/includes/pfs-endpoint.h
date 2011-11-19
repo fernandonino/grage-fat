@@ -14,12 +14,16 @@
 	void pfs_endpoint_callPutSector(DiskSector);
 	DiskSector pfs_endpoint_callGetSector(uint32_t);
 
-	//Funciones prestadas del PPD
-	char * ppd_persistance_unmapDisk(char * diskId , char * mapping);
-	char * ppd_persistance_mapDisk(char * diskId);
-	char * ppd_state_getDiskStartAddress(void);
-	void ppd_state_setDiskStartAddress(char *);
-	void ppd_initializeDisk(void);
+
+
+	DiskSector pfs_endpoint_callPooledGetSector(uint32_t sectorNumber);
+	void pfs_endpoint_callPooledPutSector( DiskSector diskSector);
+	DiskSector pfs_endpoint_callNonPooledGetSector(uint32_t sectorNumber);
+	void pfs_endpoint_callNonPooledPutSector( DiskSector diskSector);
+	DiskSector pfs_endpoint_buildAndSendGet(ListenSocket ds, uint32_t sectorNumber);
+	void pfs_endpoint_bulidAndSendPut(ListenSocket ds , DiskSector diskSector);
+
+
 
 
 #endif /* PFS_ENDPOINT_H_ */

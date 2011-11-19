@@ -23,6 +23,9 @@
 #include "pfs-endpoint.h"
 #include "pfs-state.h"
 
+#include "pfs-configuration.h"
+#include "pfs-connection-pool.h"
+
 
 
 
@@ -51,119 +54,80 @@
 
 
 	void pfs_endpoint_callPutSector( DiskSector diskSector){
+		if(pfs_pool_isPooledConnectionsEnabled()){
+			return pfs_endpoint_callPooledPutSector(diskSector);
+		}else{
+			return pfs_endpoint_callNonPooledPutSector(diskSector);
+		}
+	}
 
+
+	DiskSector pfs_endpoint_callGetSector(uint32_t sectorNumber){
+		if(pfs_pool_isPooledConnectionsEnabled()){
+			return pfs_endpoint_callPooledGetSector(sectorNumber);
+		}else{
+			return pfs_endpoint_callNonPooledGetSector(sectorNumber);
+		}
+	}
+
+
+
+
+	DiskSector pfs_endpoint_callPooledGetSector(uint32_t sectorNumber){
+		PooledConnection * conn = pfs_pool_getConection();
+
+		DiskSector diskSector = pfs_endpoint_buildAndSendGet(conn->listenSocket , sectorNumber);
+
+		pfs_pool_releaseConnection(conn);
+
+		return diskSector;
+	}
+
+
+	void pfs_endpoint_callPooledPutSector( DiskSector diskSector){
+		PooledConnection * conn = pfs_pool_getConection();
+
+		pfs_endpoint_bulidAndSendPut(conn->listenSocket , diskSector);
+
+		pfs_pool_releaseConnection(conn);
+	}
+
+	DiskSector pfs_endpoint_callNonPooledGetSector(uint32_t sectorNumber){
 		ListenSocket ds = pfs_endpoint_doHandshake();
 
-		NipcMessage message = nipc_mbuilder_buildNipcMessage();
-		message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_PUT_SECTORS);
-		message = nipc_mbuilder_addDiskSector(message , diskSector);
+		DiskSector diskSector = pfs_endpoint_buildAndSendGet(ds , sectorNumber);
 
-		nipc_messaging_send(ds , message );
+		close(ds);
+
+		return diskSector;
+	}
+
+	void pfs_endpoint_callNonPooledPutSector( DiskSector diskSector){
+		ListenSocket ds = pfs_endpoint_doHandshake();
+
+		pfs_endpoint_bulidAndSendPut(ds , diskSector);
 
 		close(ds);
 	}
 
 
-	DiskSector pfs_endpoint_callGetSector(uint32_t sectorNumber){
 
-		ListenSocket ds = pfs_endpoint_doHandshake();
-
-		DiskSector diskSector;
-
+	DiskSector pfs_endpoint_buildAndSendGet(ListenSocket ds, uint32_t sectorNumber){
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();
 		message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_GET_SECTORS);
 		message = nipc_mbuilder_addDiskSectorId(message , sectorNumber);
-
 		nipc_messaging_send(ds , message);
-
 		message = nipc_messaging_receive(ds);
-
-		close(ds);
 
 		return message.payload.diskSector;
 	}
 
-
-	char * ppd_persistance_mapDisk(char * diskId){
-		struct stat filestat;
-
-		int32_t fd =  open(diskId , O_RDWR);
-		if (fd == -1){
-			perror("Error en open del disco");
-			return NULL;
-		}
-
-		if ( fstat(fd , &filestat) ){
-			perror("fstat - error al obtener atributos del disco");
-			return NULL;
-		}
-
-		char * map = mmap((caddr_t)0 , filestat.st_size , PROT_WRITE , MAP_SHARED , fd , 0);
-		if( map == MAP_FAILED ){
-			perror("Error al mapear el disco");
-			return NULL;
-		}
-
-		if( posix_madvise(map , filestat.st_size , POSIX_MADV_SEQUENTIAL) ){
-			perror("Error en posix_madvise");
-			return NULL;
-		}
-
-		close(fd);
-
-		return map;
+	void pfs_endpoint_bulidAndSendPut(ListenSocket ds , DiskSector diskSector){
+		NipcMessage message = nipc_mbuilder_buildNipcMessage();
+		message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_PUT_SECTORS);
+		message = nipc_mbuilder_addDiskSector(message , diskSector);
+		nipc_messaging_send(ds , message );
 	}
 
 
 
-	char * ppd_persistance_unmapDisk(char * diskId , char * mapping){
-		struct stat filestat;
-
-		int32_t fd =  open(diskId , O_RDONLY);
-		if (fd == -1){
-			perror("Error en open del disco");
-		}
-
-		if ( fstat(fd , &filestat) ){
-			perror("fstat - error al obtener atributos del disco");
-		}
-
-		msync(mapping , filestat.st_size , MS_SYNC );
-
-		if( munmap(mapping , filestat.st_size) ){
-			perror("Error en unmapping.");
-		}
-
-		close(fd);
-
-		return NULL;
-	}
-
-
-
-	char * diskStartAddress;
-
-	char * ppd_state_getDiskStartAddress(){
-		return diskStartAddress;
-	}
-
-	void ppd_state_setDiskStartAddress(char * anAddress){
-		diskStartAddress = anAddress;
-	}
-
-	void ppd_initializeDisk(){
-		ppd_state_setDiskStartAddress( ppd_persistance_mapDisk("/vfs/fat32.disk.1") );
-	}
-
-
-	/*
-	DiskSector pfs_endpoint_callGetSector(uint32_t sectorNumber){
-
-		if(commons_errors_hasError(v)){
-			puts(v->errorDescription);
-		}
-		DiskSector d;
-		return d;
-	}
-
-	*/
