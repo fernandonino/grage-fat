@@ -123,11 +123,18 @@ void imprimirSectoresRecorridos(uint32 pistaRequerida, uint32 sectorRequerido){
 	MessageConsolePPD mensaje = armarMensaje(MESSAGE_ID_SECTORES_RECORRIDOS, pistaRequerida,sectorRequerido,-1);
 	commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
 	receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
+
 	printf("Sectores Recorridos: ");
 	while(mensaje.messageID == MESSAGE_ID_SECTORES_RECORRIDOS){
+
 		printf("%d:%d ",mensaje.pistaSector.pista,mensaje.pistaSector.sectorNumber);
 		commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
 		receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
+
+		if(mensaje.messageID == -5){
+			puts("El sector solicitado se encuentra fuera de rango.");
+			return;
+		}
 	}
 	printf("\nTiempo consumido: %dms \n",mensaje.timeInMiliseconds);
 }
