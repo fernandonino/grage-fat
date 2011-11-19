@@ -649,3 +649,24 @@
 			dotdot->DIR_Name[i+2] = 0x20;
 	}
 
+	uint32_t pfs_fat_utils_FreeClustersQuantity(){
+		Volume * v = pfs_state_getVolume();
+		uint32_t sector = v->rsv;
+		uint32_t clusterId = 2;
+		uint32_t fatEntry;
+		uint32_t offset;
+		uint32_t result = 0;
+		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
+
+		for(;clusterId <= v->clusters; sector++){
+			offset = pfs_fat_utils_getFatEntryOffset(v, clusterId);
+			if(offset == v->bps - FAT_32_FATENTRY_SIZE){
+				diskSector = pfs_endpoint_callGetSector(++sector);
+			}
+			memcpy(&fatEntry, diskSector.sectorContent + offset, sizeof(uint32_t));
+			if(fatEntry == FAT_32_FAT_FREE_ENTRY)
+				result++;
+			clusterId++;
+		}
+		return result;
+	}
