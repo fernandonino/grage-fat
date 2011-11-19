@@ -65,23 +65,23 @@
 	DiskSector pfs_endpoint_callGetSector(uint32_t sectorNumber , FatFile  * fatFile){
 
 		DiskSector * sector = NULL;
+		if (pfs_cache_habilitada()){
+			if (pfs_cache_isFatSectorReserved(sectorNumber)){
+				sector = pfs_cache_get_sector(sectorNumber,pfs_cache_getListaCacheFat(),pfs_cache_getCacheSectorsFatMaxCount());
 
-		if (pfs_cache_isFatSectorReserved(sectorNumber)){
-			sector = pfs_cache_get_sector(sectorNumber,pfs_cache_getListaCacheFat(),pfs_cache_getCacheSectorsFatMaxCount());
-
-		}else{
-			if(fatFile != NULL){
-				sector = pfs_cache_get_sector(sectorNumber,fatFile->cache,pfs_cache_getCacheSectorsMaxCount());
+			}else{
+				if(fatFile != NULL){
+					sector = pfs_cache_get_sector(sectorNumber,fatFile->cache,pfs_cache_getCacheSectorsMaxCount());
+				}
 			}
-		}
+			if(sector != NULL){
 
-		if(sector != NULL){
+				DiskSector diskSector;
 
-			DiskSector diskSector;
-
-			memcpy(diskSector.sectorContent , sector->sectorContent , sizeof(diskSector));
-			diskSector.sectorNumber = sector->sectorNumber;
-			return diskSector;
+				memcpy(diskSector.sectorContent , sector->sectorContent , sizeof(diskSector));
+				diskSector.sectorNumber = sector->sectorNumber;
+				return diskSector;
+			}
 		}
 
 		ListenSocket ds = pfs_endpoint_doHandshake();
@@ -94,16 +94,16 @@
 
 		message = nipc_messaging_receive(ds);
 
+		if (pfs_cache_habilitada()){
+			DiskSector * disk = malloc(sizeof (DiskSector));
+			memcpy(disk->sectorContent , message.payload.diskSector.sectorContent , sizeof message.payload.diskSector.sectorContent);
+			disk->sectorNumber = message.payload.diskSector.sectorNumber;
 
-		DiskSector * disk = malloc(sizeof (DiskSector));
-		memcpy(disk->sectorContent , message.payload.diskSector.sectorContent , sizeof message.payload.diskSector.sectorContent);
-		disk->sectorNumber = message.payload.diskSector.sectorNumber;
-
-		if(pfs_cache_isFatSectorReserved(sectorNumber))
-			pfs_cache_put_sectors(disk , pfs_cache_getListaCacheFat() , pfs_cache_getCacheSectorsFatMaxCount());
-		else
-			pfs_cache_put_sectors(disk , fatFile->cache , pfs_cache_getCacheSectorsMaxCount());
-
+			if(pfs_cache_isFatSectorReserved(sectorNumber))
+				pfs_cache_put_sectors(disk , pfs_cache_getListaCacheFat() , pfs_cache_getCacheSectorsFatMaxCount());
+			else
+				pfs_cache_put_sectors(disk , fatFile->cache , pfs_cache_getCacheSectorsMaxCount());
+		}
 		return message.payload.diskSector;
 	}
 

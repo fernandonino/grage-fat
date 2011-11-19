@@ -2,7 +2,7 @@
  * pfs-cache.c
  *
  *  Created on: 15/09/2011
- *      Author: sebas
+ *      Author: Fernando
  */
 
 #include <time.h>
@@ -24,38 +24,36 @@
 
 	uint32 cacheSectorsMaxCount;
 	uint32 cacheSectorsFatMaxCount;
-
+	Boolean pfs_cache_habilitada(){
+		if (pfs_configuration_getCacheSize()==0)
+			return FALSE;
+		return TRUE;
+	}
 	List pfs_cache_getListaCacheFat(){
 		return listaCacheFat;
 	}
-
 	void pfs_cache_setListaCacheFat(List lista){
 		listaCacheFat = lista;
 	}
-
-	void pfs_cache_setCacheSectorsMaxCount(uint32 count){
+    void pfs_cache_setCacheSectorsMaxCount(uint32 count){
     	cacheSectorsMaxCount = count;
     }
-
     uint32 pfs_cache_getCacheSectorsMaxCount(){
         return cacheSectorsMaxCount;
     }
-
     void pfs_cache_setCacheSectorsFatMaxCount(uint32 count){
     	cacheSectorsFatMaxCount = count;
     }
-
     uint32 pfs_cache_getCacheSectorsFatMaxCount(){
         return cacheSectorsFatMaxCount;
     }
-
     Boolean pfs_cache_isFatSectorReserved(uint32 sectorNumber){
     	Volume * v = pfs_state_getVolume();
     	if (sectorNumber <= (v->rsv)+1024) return TRUE;
     	return FALSE;
     }
-
-	List pfs_cache_sectors_initialize(){
+	List pfs_cache_sectors_initialize()
+	{
 
 		Boolean eq(void * s1 , void * s2){
 			CacheSectorRecord * p1 = (CacheSectorRecord *) s1;
@@ -67,21 +65,17 @@
 			CacheSectorRecord * p2 = (CacheSectorRecord *) s2;
 			return p1->estado < p2->estado;
 		}
-
 		return (commons_list_buildList(NULL,eq,commons_list_ORDER_ALWAYS_FIRST));
 	}
-
-
 	void pfs_cache_initialize(){
 		Volume * v = pfs_state_getVolume();
 		pfs_state_initializeOpenFiles();
-		pfs_cache_setCacheSectorsFatMaxCount(v->fatSize*20/100);
+		//pfs_cache_setCacheSectorsFatMaxCount(v->fatSize*20/100);
 		pfs_cache_setListaCacheFat(pfs_cache_sectors_initialize());
 		pfs_cache_setCacheSectorsMaxCount(pfs_configuration_getCacheSize()*2);
 	}
-
-
-	void pfs_cache_sectors_registrar_acceso(List listaCacheSectors){
+	void pfs_cache_sectors_registrar_acceso(List listaCacheSectors)
+	{
 		Iterator * fuckingIterator = commons_iterator_buildIterator(listaCacheSectors);
 
 		while (commons_iterator_hasMoreElements(fuckingIterator)){
@@ -96,9 +90,10 @@
 		}
 		pfs_cache_sectors_registrar_acceso(listaCacheSectors);
 		return commons_list_getNodeByCriteria(listaCacheSectors , get);
-	}
 
-	void pfs_cache_put_sectors(DiskSector * sectorNuevo,List listaCacheSectors,uint32 sectorsMaxCount){
+	}
+	void pfs_cache_put_sectors(DiskSector * sectorNuevo,List listaCacheSectors,uint32 sectorsMaxCount)
+	{
 		CacheSectorRecord * nodo = (CacheSectorRecord *) malloc (sizeof (CacheSectorRecord));
 		nodo->estado=0;
 		if (commons_list_getSize(listaCacheSectors) >= sectorsMaxCount){
@@ -119,7 +114,8 @@
 	}
 
 
-	void pfs_cache_sectores_dump(List listaCacheSectors,uint32 sectorsMaxCount){
+	void pfs_cache_sectores_dump(List listaCacheSectors,uint32 sectorsMaxCount)
+	{
 		char linea[512];
 		bzero(linea,512);
 		int i;Iterator * fuckingIterator = commons_iterator_buildIterator(listaCacheSectors);
@@ -133,7 +129,7 @@
 		sprintf(linea,"%s",str_time);
 		//fwrite(linea , sizeof(char) , sizeof(linea) , cache_dump);
 		commons_file_insertLine(linea,cache_dump);
-		sprintf(linea,"Tamanio de Bloque de Cache: %d kb ",sectorsMaxCount);
+		sprintf(linea,"Tamanio de Bloque de Cache: %d kb ",pfs_configuration_getCacheSize());
 		//fwrite(linea , sizeof(char) , sizeof(linea) , cache_dump);
 		commons_file_insertLine(linea,cache_dump);
 		i=0;
@@ -163,63 +159,20 @@
 
 
 
-	void pfs_cache_sectores_dumpBIS(List listaCacheSectors,uint32 sectorsMaxCount){
-		char linea[512];CacheSectorRecord * nodo;
-		bzero(linea,512);
-		int i;Iterator * fuckingIterator = commons_iterator_buildIterator(listaCacheSectors);
-		time_t log_time;
-		struct tm *log_tm;
-		char str_time[128];
-		FILE * cache_dump = commons_file_openOrCreateFile("cache_dump.txt");
-		time (&log_time);
-		log_tm = localtime(&log_time);
-		strftime(str_time, 128, "%Y.%m.%d  %H:%M:%S", log_tm);
-		sprintf(linea,"%s",str_time);
-
-		fwrite(linea , sizeof(char) , strlen(linea) , cache_dump);
-		i=strlen(linea);
-		while(i < sizeof(linea)){
-			if (linea[i]=='\0'){
-				fputc(' ',cache_dump);
-			}else fputc(linea[i],cache_dump);
-			i++;
-		}
-		fputc('\n',cache_dump);
-		//commons_file_insertLine(linea,cache_dump);
-		sprintf(linea,"Tamanio de Bloque de Cache: %d kb ",sectorsMaxCount);
-		fwrite(linea , sizeof(char) , strlen(linea) , cache_dump);
-		i=strlen(linea);
-		while(i < sizeof(linea)){
-			if (linea[i]=='\0'){
-				fputc(' ',cache_dump);
-			}else fputc(linea[i],cache_dump);
-			i++;
-		}
-		fputc('\n',cache_dump);
-
-		//commons_file_insertLine(linea,cache_dump);
-		i=0;
-		//if (pfs_configuration_getCacheSize()!=NULL)
-
-
-
-		sprintf(linea,"Cantidad de bloques de Cache: %d ",commons_list_getSize(listaCacheSectors));
-		fwrite(linea , sizeof(char) , strlen(linea) , cache_dump);
-		i=strlen(linea);
-		while(i < sizeof(linea)){
-			if (linea[i]=='\0'){
-				fputc(' ',cache_dump);
-			}else fputc(linea[i],cache_dump);
-			i++;
-		}
-		fputc('\n',cache_dump);
-		//commons_file_insertLine(linea,cache_dump);
-		i = 0;
-
-		while (commons_iterator_hasMoreElements(fuckingIterator))
+	void pfs_cache_sectores_dumpBIS(List listaCacheSectors,uint32 sectorsMaxCount)
 		{
-			nodo = ((CacheSectorRecord *)commons_iterator_next(fuckingIterator));
-			sprintf(linea,"Contenido de Bloque de Cache %d:",i);
+			char linea[512];CacheSectorRecord * nodo;
+			bzero(linea,512);
+			int i;Iterator * fuckingIterator = commons_iterator_buildIterator(listaCacheSectors);
+			time_t log_time;
+			struct tm *log_tm;
+			char str_time[128];
+	    	FILE * cache_dump = commons_file_openOrCreateFile("cache_dump.txt");
+			time (&log_time);
+			log_tm = localtime(&log_time);
+			strftime(str_time, 128, "%Y.%m.%d  %H:%M:%S", log_tm);
+			sprintf(linea,"%s",str_time);
+
 			fwrite(linea , sizeof(char) , strlen(linea) , cache_dump);
 			i=strlen(linea);
 			while(i < sizeof(linea)){
@@ -230,11 +183,8 @@
 			}
 			fputc('\n',cache_dump);
 			//commons_file_insertLine(linea,cache_dump);
-			//commons_file_insertLine(((CacheSectorRecord *)commons_iterator_next(fuckingIterator))->sector.sectorContent,cache_dump);
-			fwrite(nodo->sector.sectorContent ,
-						sizeof(char) ,
-						strlen(nodo->sector.sectorContent) ,
-						cache_dump);
+			sprintf(linea,"Tamanio de Bloque de Cache: %d kb ",pfs_configuration_getCacheSize());
+			fwrite(linea , sizeof(char) , strlen(linea) , cache_dump);
 			i=strlen(linea);
 			while(i < sizeof(linea)){
 				if (linea[i]=='\0'){
@@ -243,8 +193,55 @@
 				i++;
 			}
 			fputc('\n',cache_dump);
-			i++;
-		}
 
-		commons_file_closeFile(cache_dump);
-	}
+			//commons_file_insertLine(linea,cache_dump);
+			i=0;
+			//if (pfs_configuration_getCacheSize()!=NULL)
+
+
+
+			sprintf(linea,"Cantidad de bloques de Cache: %d ",commons_list_getSize(listaCacheSectors));
+			fwrite(linea , sizeof(char) , strlen(linea) , cache_dump);
+			i=strlen(linea);
+			while(i < sizeof(linea)){
+				if (linea[i]=='\0'){
+					fputc(' ',cache_dump);
+				}else fputc(linea[i],cache_dump);
+				i++;
+			}
+			fputc('\n',cache_dump);
+			//commons_file_insertLine(linea,cache_dump);
+			i = 0;
+
+			while (commons_iterator_hasMoreElements(fuckingIterator))
+			{
+				nodo = ((CacheSectorRecord *)commons_iterator_next(fuckingIterator));
+				sprintf(linea,"Contenido de Bloque de Cache %d:",i);
+				fwrite(linea , sizeof(char) , strlen(linea) , cache_dump);
+				i=strlen(linea);
+				while(i < sizeof(linea)){
+					if (linea[i]=='\0'){
+						fputc(' ',cache_dump);
+					}else fputc(linea[i],cache_dump);
+					i++;
+				}
+				fputc('\n',cache_dump);
+				//commons_file_insertLine(linea,cache_dump);
+				//commons_file_insertLine(((CacheSectorRecord *)commons_iterator_next(fuckingIterator))->sector.sectorContent,cache_dump);
+				fwrite(nodo->sector.sectorContent ,
+							sizeof(char) ,
+							strlen(nodo->sector.sectorContent) ,
+							cache_dump);
+				i=strlen(linea);
+				while(i < sizeof(linea)){
+					if (linea[i]=='\0'){
+						fputc(' ',cache_dump);
+					}else fputc(linea[i],cache_dump);
+					i++;
+				}
+				fputc('\n',cache_dump);
+				i++;
+			}
+
+			commons_file_closeFile(cache_dump);
+		}

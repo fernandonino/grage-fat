@@ -17,6 +17,7 @@
 			uint8_t estado;
 			DiskSector sector;
 		}CacheSectorRecord;
+		Boolean pfs_cache_habilitada();
 		void pfs_cache_initialize();
 		List pfs_cache_getListaCacheFat();
 		void pfs_cache_setListaCacheFat(List lista);
