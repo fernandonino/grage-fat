@@ -69,6 +69,8 @@
 
 				ppd_endpoint_responseGetSector(m);
 			}
+
+			ppd_alg_setCurrentPossition(m.payload.diskSector.sectorNumber);
 		}
 	}
 

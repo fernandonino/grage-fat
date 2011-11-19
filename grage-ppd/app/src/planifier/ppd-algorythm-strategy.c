@@ -5,7 +5,9 @@
 #include "ppd-queues.h"
 #include <math.h>
 	uint32 currentPossition;
-
+	void ppd_alg_setCurrentPossition(uint32 posicion){
+		currentPossition = posicion;
+	}
 	Boolean ppd_alg_planif_strategy_look(Object obj1, Object obj2){
 		Job * oldJob = (Job *) obj1;
 		Job * newJob = (Job *) obj2;
