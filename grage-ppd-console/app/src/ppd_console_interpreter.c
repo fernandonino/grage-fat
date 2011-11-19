@@ -153,9 +153,9 @@ void ppd_console_interpreter(){
 	String cmd, parameter, parameter2;
 	receivedCount = 1;
 	sleep(2);
-	while(!feof(stdin) && receivedCount > 0){
-		printf(">");
-		fgets(buffer, 250, stdin);
+	printf(">");
+	fgets(buffer, 250, stdin);
+	while( strcmp(buffer, "exit") ){
 		cmd = ppd_console_parseCMD(buffer);
 		//INFO
 		if(!strcmp(cmd, "info"))ppd_console_info();
@@ -188,6 +188,9 @@ void ppd_console_interpreter(){
 
 		if((strcmp(cmd, "info") && strcmp(cmd, "clean") && strcmp(cmd, "trace")) || buffer[5]== ' ')
 			puts("Comando incorrecto");
+
 		bzero(buffer, sizeof(buffer));
+		fgets(buffer, 250, stdin);
+		printf(">");
 	}
 }
