@@ -32,6 +32,15 @@
 
 
 
+	uint32_t loggingLevel;
+
+	uint32_t ppd_conf_getLoggingLevel(){
+		return loggingLevel;
+	}
+	void ppd_conf_setLoggingLevel(uint32_t l){
+		loggingLevel = l;
+	}
+
 	void ppd_conf_setPraidPort(char * p){
 		praidPort = p;
 	}
@@ -90,8 +99,6 @@
 	void setPpdReadDelay(char * secs){
 		ppdReadDelay = secs;
 	}
-	void setPpdLoggingLevel(char * v){
-	}
 
 	void ppd_conf_setDiskPath(char * path){
 		diskPath = path;
@@ -145,13 +152,17 @@
 
 
 	void ppd_configuration_processEntries(char * key , char * value , void * object){
-		//log_debug_t("Seteando [%s]=[%s]", key, value);
 
-		/**
-		 * aca va el procesamiento de los keys y values.
-		*/
 		if(commons_string_equals(key , PPD_CONFIGURATION_LOGGING_LEVEL)){
-			setPpdLoggingLevel(value);
+			if(commons_string_equals(value , "info")){
+				ppd_conf_setLoggingLevel(INFO);
+			}else if(commons_string_equals(value , "debug")){
+				ppd_conf_setLoggingLevel(DEBUG);
+			}else if(commons_string_equals(value, "warning")){
+				ppd_conf_setLoggingLevel(WARNING);
+			}else if(commons_string_equals(value , "error")){
+				ppd_conf_setLoggingLevel(ERROR);
+			}
 		}
 		if(commons_string_equals(key , PPD_CONFIGURATION_MODE)){
 			 ppd_conf_setPpdMode(value);

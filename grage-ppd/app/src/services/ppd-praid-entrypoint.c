@@ -13,6 +13,7 @@
 #include "ppd-entrypoint.h"
 #include "ppd-state.h"
 #include "ppd-sync.h"
+#include "ppd-launchConsole.h"
 
 	void ppd_entrypoint_executeSyncPutSector(NipcMessage message);
 	void ppd_entrypoint_executeSyncGetSector();

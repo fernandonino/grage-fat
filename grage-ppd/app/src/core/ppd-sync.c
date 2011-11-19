@@ -62,7 +62,7 @@
 		if(bytesCount > 0){
 
 			if( bytesCount < sizeof(sector.sectorContent))
-				puts("Escribiendo el ultimo tramo");
+				log_info_t("Escribiendo el ultimo tramo");
 
 			size_t bytesWritten = fwrite(sector.sectorContent ,	sizeof(char) ,
 					bytesCount , ppd_state_getReplicationDiskVolume());

@@ -37,4 +37,7 @@
 
 	void ppd_state_initializeVolumeSize();
 
+
+	ListenSocket ppd_state_getPpdConsoleSocket();
+
 #endif /* PPD_STATE_H_ */

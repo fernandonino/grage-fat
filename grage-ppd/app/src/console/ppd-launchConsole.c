@@ -70,6 +70,7 @@ pthread_t ppdConsoleThread;
 		}
 		if (newfd == -1) {
 			puts("error de conexion");
+			exit(1);
 		} else {
 			//printf("conexion establecida.\n>");
 

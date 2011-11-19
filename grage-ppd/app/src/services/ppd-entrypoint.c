@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <pthread.h>
 
+#include <linux-commons-logging.h>
+#include <linux-commons-strings.h>
 #include <grage-commons.h>
 #include <linux-commons.h>
 #include <linux-commons-socket.h>
@@ -38,16 +40,16 @@
 
 	void ppd_entrypoint_executePutSector(NipcMessage message){
 
-		puts("[ Recibiendo peticion PUT Sectores ]");
-		printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
+		log_info_t("Recibiendo peticion PUT Sectores ");
+		log_info_t(commons_string_concat("Solicitando sectorId: " , commons_misc_intToString(message.payload.diskSector.sectorNumber)));
 
 		ppd_queues_putInQueue(message);
 	}
 
 	void ppd_entrypoint_executeGetSector(NipcMessage message){
 
-		puts("[ Recibiendo peticion GET Sectores ]");
-		printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
+		log_info_t("Recibiendo peticion GET Sectores");
+		log_info_t(commons_string_concat("Solicitando sectorId: " , commons_misc_intToString(message.payload.diskSector.sectorNumber)));
 
 		ppd_queues_putInQueue(message);
 	}

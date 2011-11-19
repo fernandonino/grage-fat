@@ -6,6 +6,7 @@
  */
 
 #include <linux-commons.h>
+#include <linux-commons-logging.h>
 #include <linux-commons-socket.h>
 
 #include <nipc-messaging.h>
@@ -24,7 +25,7 @@
 
 	void ppd_entrypoint_launchPfsPpdEntrypoint(){
 
-		puts("[ Quedando en escucha de conexiones PFS] ");
+		log_info_t("Quedando en escucha de conexiones PFS ");
 
 		while(TRUE){
 
@@ -41,13 +42,14 @@
 
 				pthread_create( &newPfsThread , NULL , (void* (*) (void*))ppd_pfs_entrypoint_serviceThread , newPfsSocket);
 
-				puts("Se creo un hilo");
 			}
 		}
 	}
 
 
 	void ppd_pfs_entrypoint_serviceThread(ListenSocket * pfsSocket){
+
+		log_info_t("Se abrio una conexion");
 
 		if( ppd_conf_isPooledConnections()){
 
@@ -57,7 +59,7 @@
 			ppd_pfs_entrypoint_processRequest(pfsSocket);
 		}
 
-		puts("Se murio un hilo");
+		log_info_t("Se cerro una conexion");
 	}
 
 
@@ -67,8 +69,8 @@
 
 		if(message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 
-			puts("[ Recibiendo peticion GET Sectores ]");
-			printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
+			//log_info_t("Recibiendo peticion GET Sectores ");
+			//log_info_t("Solicitando sectorId: " , commons_misc_intToString(message.payload.diskSector.sectorNumber));
 
 			message.payload.pfsSocket = *pfsSocket;
 
@@ -76,8 +78,8 @@
 
 		}else if(message.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
 
-			puts("[ Recibiendo peticion PUT Sectores ]");
-			printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
+			//log_info_t("Recibiendo peticion PUT Sectores ");
+			//log_info_t("Solicitando sectorId: " , commons_misc_intToString(message.payload.diskSector.sectorNumber));
 
 			message.payload.pfsSocket = *pfsSocket;
 

@@ -4,7 +4,7 @@
  *  Created on: 08/10/2011
  *      Author: gonzalo
  */
-
+#include <linux-commons-logging.h>
 #include "linux-commons-strings.h"
 #include "linux-commons.h"
 #include "linux-commons-socket.h"
@@ -35,12 +35,12 @@
 				ppd_conf_getPraidPort());
 
 		if(praidSocket > 0){
-			puts("[ Se ha logrado conectar con el PRAID ]");
+			log_info_t("Se ha logrado conectar con el PRAID");
 
-			puts("[ Salvando el estado de la coneccion ]");
+			log_info_t("Salvando el estado de la coneccion");
 			ppd_state_setPraidSocket(praidSocket);
 
-			puts("[ Realizando handshake ]");
+			log_info_t("Realizando handshake");
 			Boolean status = ppd_connections_handshake(praidSocket);
 
 			if(!status){
@@ -60,6 +60,12 @@
 
 		ServerSocket * pfsConnection = commons_socket_openServerConnection(
 				ppd_conf_getPpdPort());
+
+		if(pfsConnection == NULL){
+
+			puts("[ Puerto ocupado. Se finaliza la aplicacion ]");
+			exit(EXIT_FAILURE);
+		}
 
 		ppd_state_setPfsConnection(pfsConnection);
 

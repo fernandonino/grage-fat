@@ -6,6 +6,7 @@
  */
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "grage-commons.h"
 #include "ppd-configuration.h"
 #include "ppd-utils.h"

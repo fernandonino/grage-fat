@@ -12,11 +12,11 @@
 #define PPD_CONFIGURATION_MODE_CONNECT		"connect"
 #define PPD_CONFIGURATION_MODE_LISTEN		"listen"
 
-#define PPD_DEFAULT_CONFIGURATION_FILE		"../conf/grage-ppd.properties"
-#define PPD_DEFAULT_LOG_FILE				"../logs/ppd.log"
+//#define PPD_DEFAULT_CONFIGURATION_FILE		"../conf/grage-ppd.properties"
+//#define PPD_DEFAULT_LOG_FILE				"../logs/ppd.log"
 
-//#define PPD_DEFAULT_LOG_FILE				"/opt/grage-repository/logs/ppd.log"
-//#define PPD_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/grage-ppd.properties"
+#define PPD_DEFAULT_LOG_FILE				"/opt/grage-repository/logs/ppd.log"
+#define PPD_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/grage-ppd.properties"
 
 #define PPD_CONFIGURATION_MODE				"ppd.configuration.mode"
 #define PPD_CONFIGURATION_ALGORITMO			"ppd.configuration.algoritmo"
@@ -85,6 +85,10 @@
 
 	void ppd_conf_setPooledConnections(Boolean s);
 	Boolean ppd_conf_isPooledConnections();
+
+
+	uint32_t ppd_conf_getLoggingLevel();
+	void ppd_conf_setLoggingLevel(uint32_t l);
 
 
 #endif /* PFS_CONFIGURATION_H_ */
