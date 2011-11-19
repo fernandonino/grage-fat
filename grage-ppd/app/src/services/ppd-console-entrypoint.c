@@ -54,16 +54,12 @@ float ppd_console_entrypoint_TiempoConsumido(uint32 pistaSolicitada, uint32 sect
 	MessageConsolePPD mensaje;
 	mensaje.messageID=MESSAGE_ID_SECTORES_RECORRIDOS;
 	mensaje.timeInMiliseconds=-1;
-
-	printf("Sector solicitado: %i \n" , sectorSolicitado);
-	printf("Pistor solicitado: %i \n" , pistaSolicitada);
-	printf("Estado: %i\n" , ppd_utils_get_sector_from_sectorofcilinder(sectorSolicitado , pistaSolicitada));
-	printf("Cuenta: %i\n" , (cantidadSectoresPista * atoi(getPpdDiskCilinder()) - 1));
+	ppd_utils_set_cantidadSectoresPorCilindro(atoi(getPpdDiskCilinder()));
 
 	if(ppd_utils_get_sector_from_sectorofcilinder(sectorSolicitado , pistaSolicitada)
-			> (cantidadSectoresPista * atoi(getPpdDiskCilinder()) - 1)){
-
+			> (cantidadSectoresPista * ppd_utils_get_cantidadSectoresPorCilindro() - 1)){
 		mensaje.messageID = -5;
+		puts("El sector solicitado se encuentra fuera de rango.");
 		commons_socket_sendBytes(ppd_state_getPpdConsoleSocket()  , &mensaje , sizeof mensaje);
 	}
 
