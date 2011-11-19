@@ -86,7 +86,7 @@
 					}else{
 
 						diskSector = pfs_endpoint_callGetSector(++sector);
-						offset = 0;
+						offset = -FAT_32_BLOCK_ENTRY_SIZE;
 
 					}
 				}
@@ -152,14 +152,19 @@
 
 		DiskSector diskSector = pfs_endpoint_callGetSector(file->currentSector.sectorNumber);
 
-
-		if( file->dirEntryOffset >= volume->bps){
-			if ( file->nextCluster != 0 ){
-			uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(volume , file->nextCluster);
-			file->currentSector = diskSector = pfs_endpoint_callGetSector(sectorId);
+		if( file->dirEntryOffset >= volume->bps ){
+			if(pfs_fat32_utils_isLastSectorFromCluster(volume, file->currentSector.sectorNumber)){
+				if ( FAT_32_ISEOC(file->nextCluster) ){
+					return EXIT_FAILURE;
+				} else {
+					file->currentSector.sectorNumber = pfs_fat_utils_getFirstSectorOfCluster(volume,file->nextCluster);
+					file->nextCluster = pfs_fat32_utils_getNextClusterInChain(volume, file->nextCluster);
+				}
 			} else {
-
+				file->currentSector.sectorNumber++;
 			}
+			diskSector = pfs_endpoint_callGetSector(file->currentSector.sectorNumber);
+			file->dirEntryOffset = 0;
 		}
 
 		do {
@@ -360,13 +365,16 @@
 							sectorId = pfs_fat_utils_getFirstSectorOfCluster(v , newCluster);
 							sector = pfs_endpoint_callGetSector(sectorId);
 							freeCount = 2;
+							offset = 64;
 							break;
 						} else {
 							uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , destination->nextCluster);
 							sector = pfs_endpoint_callGetSector(sectorId);
+							offset = 0;
 						}
 					} else {
 						sector = pfs_endpoint_callGetSector(sector.sectorNumber + 1);
+						offset = 0;
 					}
 				}
 			} while ( ! FAT_32_DIRENT_ISFREE(auxEntry.LDIR_Ord) ); //Sale cuando encontro 32 bytes libres
@@ -443,12 +451,15 @@
 							uint32_t newCluster = pfs_fat32_utils_allocateNewCluster(v,destination->nextCluster);
 							sectorId = pfs_fat_utils_getFirstSectorOfCluster(v , newCluster);
 							sector = pfs_endpoint_callGetSector(sectorId);
+							offset = 0;
 						} else {
 							sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , destination->nextCluster);
 							sector = pfs_endpoint_callGetSector(sectorId);
+							offset = 0;
 						}
 					} else {
 						sector = pfs_endpoint_callGetSector(sector.sectorNumber + 1);
+						offset = 0;
 					}
 				}
 			} while ( ! FAT_32_DIRENT_ISFREE(auxEntry.LDIR_Ord) ); //Sale cuando encontro 32 bytes libres

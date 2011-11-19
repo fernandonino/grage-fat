@@ -636,7 +636,7 @@
 
 			/* Comienzo de contenidos y atributos */
 			dotdot->DIR_FstClusHI = 0;
-			dotdot->DIR_FstClusLO = 2;
+			dotdot->DIR_FstClusLO = 0;
 			dotdot->DIR_FileSize = 0;
 			dotdot->DIR_Attr = 0x10;
 		}
