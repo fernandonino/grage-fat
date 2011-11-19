@@ -264,6 +264,14 @@
 
 	void commons_list_removeList(List list , void (*removeOperation)(Object)){
 
+		Iterator * ite = commons_iterator_buildIterator(list);
+
+		while(commons_iterator_hasMoreElements(ite)){
+			Object obj = commons_iterator_next(ite);
+			removeOperation(obj);
+		}
+
+		free(ite);
 	}
 
 
