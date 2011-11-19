@@ -11,6 +11,9 @@
 #include "ppd-configuration.h"
 #include "ppd-utils.h"
 #include "ppd-state.h"
+
+
+
 PistaSector posicionActual;
 MessageConsolePPD messageConsolePPD;
 PistaSector ppd_console_entrypoint_getPosicionCabezal(){
@@ -51,6 +54,19 @@ float ppd_console_entrypoint_TiempoConsumido(uint32 pistaSolicitada, uint32 sect
 	MessageConsolePPD mensaje;
 	mensaje.messageID=MESSAGE_ID_SECTORES_RECORRIDOS;
 	mensaje.timeInMiliseconds=-1;
+
+	printf("Sector solicitado: %i \n" , sectorSolicitado);
+	printf("Pistor solicitado: %i \n" , pistaSolicitada);
+	printf("Estado: %i\n" , ppd_utils_get_sector_from_sectorofcilinder(sectorSolicitado , pistaSolicitada));
+	printf("Cuenta: %i\n" , (cantidadSectoresPista * atoi(getPpdDiskCilinder()) - 1));
+
+	if(ppd_utils_get_sector_from_sectorofcilinder(sectorSolicitado , pistaSolicitada)
+			> (cantidadSectoresPista * atoi(getPpdDiskCilinder()) - 1)){
+
+		mensaje.messageID = -5;
+		commons_socket_sendBytes(ppd_state_getPpdConsoleSocket()  , &mensaje , sizeof mensaje);
+	}
+
 	while (!(pistaActual == pistaSolicitada))
 	{
 		if (pistaActual < pistaSolicitada)
