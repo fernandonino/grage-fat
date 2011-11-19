@@ -624,4 +624,17 @@
 		}
 
 
+	void pfs_fat32_rename(Volume * v, FatFile * fatFile, char * dest){
 
+		uint32_t sectorInCluster = fatFile->sourceOffset / v->bps;
+		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v, fatFile->source);
+		sector = sector + sectorInCluster;
+		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
+
+		pfs_fat32_utils_loadLongEntryFilename(&fatFile->longEntry ,dest);
+		pfs_fat32_utils_loadEntryFilename(&fatFile->shortEntry , dest);
+
+		memcpy(diskSector.sectorContent + fatFile->sourceOffset, &fatFile->longEntry, sizeof(DirEntry));
+		memcpy(diskSector.sectorContent + fatFile->sourceOffset + FAT_32_DIR_ENTRY_SIZE, &fatFile->shortEntry, sizeof(LongDirEntry));
+		pfs_endpoint_callPutSector(diskSector);
+	}

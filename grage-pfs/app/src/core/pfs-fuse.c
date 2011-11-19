@@ -235,6 +235,21 @@
 	}
 
 	int pfs_fuse_rename(const char * path, const char * newpath){
+		FatFile * newFile = pfs_fat32_open(newpath);
+
+		if(newFile != NULL) //Comprobacion de que no exista un archivo con el nuevo nombre
+			return -EXIT_FAILURE;
+
+		FatFile * fatFile = pfs_fat32_open(path);
+		char dest[14];
+		pfs_fat32_utils_getFileNameFromPath(newpath, dest);
+
+		if( strlen(dest) > 13 || fatFile == NULL ) //Comprobacion de que el archivo al cual se le cambia el nombre exista
+					return -EXIT_FAILURE;
+
+		Volume * v = pfs_state_getVolume();
+		pfs_fat32_rename(v, fatFile, dest);
+
 		return EXIT_SUCCESS;
 	}
 
