@@ -4,11 +4,11 @@
  *  Created on: 15/09/2011
  *      Author: Fernando
  */
-
-#ifndef PFS_CACHE_H_
-#define PFS_CACHE_H_
 #include "grage-commons.h"
 #include "linux-commons-list.h"
+#ifndef PFS_CACHE_H_
+#define PFS_CACHE_H_
+
 		typedef struct {
 			Cluster * cluster;
 			uint32_t estado;
@@ -17,13 +17,17 @@
 			uint8_t estado;
 			DiskSector sector;
 		}CacheSectorRecord;
+		void pfs_cache_initialize();
+		List pfs_cache_getListaCacheFat();
+		void pfs_cache_setListaCacheFat(List lista);
 		List pfs_cache_sectors_initialize();
-		CacheSectorRecord * pfs_cache_get_sector(uint32 sectorID,List listaCacheSectors);
-		void pfs_cache_put_sectors(DiskSector * sectorNuevo,List listaCacheSectors);
+		Boolean pfs_cache_isFatSectorReserved(uint32 sectorNumber);
+		CacheSectorRecord * pfs_cache_get_sector(uint32 sectorID,List listaCacheSectors,uint32 sectorsMaxCount);
+		void pfs_cache_put_sectors(DiskSector * sectorNuevo,List listaCacheSectors,uint32 sectorsMaxCount);
 		void pfs_cache_setCacheSectorsFatMaxCount(uint32 count);
 		void pfs_cache_setCacheSectorsMaxCount(uint32 count);
 		void pfs_cache_sectors_registrar_acceso(List listaCacheSectors);
-		void pfs_cache_sectores_dumpBIS(List listaCacheSectors);
-		void pfs_cache_sectores_dump();
+		void pfs_cache_sectores_dumpBIS(List listaCacheSectors,uint32 sectorsMaxCount);
+		void pfs_cache_sectores_dump(List listaCacheSectors,uint32 sectorsMaxCount);
 
 #endif /* PFS_CACHE_H_ */

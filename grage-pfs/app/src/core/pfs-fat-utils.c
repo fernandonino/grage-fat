@@ -11,6 +11,7 @@
 #include "pfs-cache.h"
 #include "pfs-fat32.h"
 #include "pfs-fat-utils.h"
+#include "pfs-endpoint.h"
 
 CacheSectorRecord cacheSectores[255];
 
@@ -44,7 +45,7 @@ CacheSectorRecord cacheSectores[255];
 		uint32_t posicion;
 		DiskSector sectorReturn;
 
-		sectorReturn.sectorNumber="-1";
+		sectorReturn.sectorNumber= -1;
 		posicion=pfs_fat_utils_cache_sectores_tiene_sector(sectorBuscado);
 		if (posicion!=-1)
 		{
@@ -104,7 +105,7 @@ CacheSectorRecord cacheSectores[255];
 
 		printf("Clusters totales: %u.\n" , v->clusters);
 
-		DiskSector sector = pfs_endpoint_callGetSector(b->BPB_FSInfo);
+		DiskSector sector = pfs_endpoint_callGetSector(b->BPB_FSInfo , NULL);
 		memcpy( &(v->nextFreeCluster) , sector.sectorContent + 492 , sizeof(uint32_t));
 
 		if ( v->clusters < 65525 ) {
@@ -191,7 +192,7 @@ CacheSectorRecord cacheSectores[255];
 		uint32_t sector = pfs_fat_utils_getFatEntrySector(v, clusterId);
 		uint32_t offset = pfs_fat_utils_getFatEntryOffset(v, clusterId);
 
-		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
+		DiskSector diskSector = pfs_endpoint_callGetSector(sector , NULL);
 
 		memcpy(&nextCluster, diskSector.sectorContent + offset, sizeof(uint32_t));
 
@@ -274,7 +275,7 @@ CacheSectorRecord cacheSectores[255];
 		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v , fd->nextCluster);
 		uint32_t offset = FAT_32_BLOCK_ENTRY_SIZE;
 		uint32_t next = fd->nextCluster;
-		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
+		DiskSector diskSector = pfs_endpoint_callGetSector(sector , fd);
 		LongDirEntry lDirEntry;
 		memcpy(&lDirEntry, diskSector.sectorContent + offset, sizeof(LongDirEntry));
 
@@ -286,11 +287,11 @@ CacheSectorRecord cacheSectores[255];
 				if(pfs_fat32_utils_isLastSectorFromCluster(v , sector)){
 					if(FAT_32_ISEOC(next)) return 1;
 					sector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);
-					diskSector = pfs_endpoint_callGetSector(sector);
+					diskSector = pfs_endpoint_callGetSector(sector,fd);
 					next = pfs_fat32_utils_getNextClusterInChain(v , next);
 				}
 				else{
-					diskSector = pfs_endpoint_callGetSector(++sector);
+					diskSector = pfs_endpoint_callGetSector(++sector,fd);
 				}
 				offset = 0;
 			}
@@ -395,7 +396,7 @@ CacheSectorRecord cacheSectores[255];
 		if ( f->fileSectorNumberOfCluster != 1)
 			s = s + f->fileSectorNumberOfCluster - 1;
 
-		return pfs_endpoint_callGetSector(s);
+		return pfs_endpoint_callGetSector(s , f);
 	}
 
 
@@ -444,7 +445,7 @@ CacheSectorRecord cacheSectores[255];
 		DiskSector diskSector;
 
 		for(;sector < v->fatSize + v->rsv; sector++){
-			diskSector = pfs_endpoint_callGetSector(sector);
+			diskSector = pfs_endpoint_callGetSector(sector , NULL);
 			counter = 0;
 			while(counter <= 128){
 				memcpy(fatEntry, diskSector.sectorContent + counter * FAT_32_FATENTRY_SIZE, sizeof(uint32_t));

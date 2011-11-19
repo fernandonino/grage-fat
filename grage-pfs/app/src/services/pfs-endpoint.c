@@ -25,9 +25,6 @@
 
 
 
-
-
-
 	ListenSocket pfs_endpoint_doHandshake(){
 
 		char * host = pfs_configuration_getDeviceAddress();
@@ -52,6 +49,7 @@
 
 	void pfs_endpoint_callPutSector( DiskSector diskSector){
 
+
 		ListenSocket ds = pfs_endpoint_doHandshake();
 
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();
@@ -64,11 +62,29 @@
 	}
 
 
-	DiskSector pfs_endpoint_callGetSector(uint32_t sectorNumber){
+	DiskSector pfs_endpoint_callGetSector(uint32_t sectorNumber , FatFile  * fatFile){
+
+		DiskSector * sector = NULL;
+
+		if (pfs_cache_isFatSectorReserved(sectorNumber)){
+			sector = pfs_cache_get_sector(sectorNumber,pfs_cache_getListaCacheFat(),pfs_cache_getCacheSectorsFatMaxCount());
+
+		}else{
+			if(fatFile != NULL){
+				sector = pfs_cache_get_sector(sectorNumber,fatFile->cache,pfs_cache_getCacheSectorsMaxCount());
+			}
+		}
+
+		if(sector != NULL){
+
+			DiskSector diskSector;
+
+			memcpy(diskSector.sectorContent , sector->sectorContent , sizeof(diskSector));
+			diskSector.sectorNumber = sector->sectorNumber;
+			return diskSector;
+		}
 
 		ListenSocket ds = pfs_endpoint_doHandshake();
-
-		DiskSector diskSector;
 
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();
 		message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_GET_SECTORS);
@@ -78,7 +94,15 @@
 
 		message = nipc_messaging_receive(ds);
 
-		close(ds);
+
+		DiskSector * disk = malloc(sizeof (DiskSector));
+		memcpy(disk->sectorContent , message.payload.diskSector.sectorContent , sizeof message.payload.diskSector.sectorContent);
+		disk->sectorNumber = message.payload.diskSector.sectorNumber;
+
+		if(pfs_cache_isFatSectorReserved(sectorNumber))
+			pfs_cache_put_sectors(disk , pfs_cache_getListaCacheFat() , pfs_cache_getCacheSectorsFatMaxCount());
+		else
+			pfs_cache_put_sectors(disk , fatFile->cache , pfs_cache_getCacheSectorsMaxCount());
 
 		return message.payload.diskSector;
 	}

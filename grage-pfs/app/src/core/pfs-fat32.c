@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 #include "pfs-fat32.h"
-
+#include "pfs-endpoint.h"
 
 
 	FatFile * pfs_fat32_utils_buildFatFile(){
@@ -52,7 +52,7 @@
 		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v ,
 				v->root);
 
-		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
+		DiskSector diskSector = pfs_endpoint_callGetSector(sector , fatFile);
 		memcpy(&longEntry, diskSector.sectorContent, FAT_32_DIR_ENTRY_SIZE);
 
 		char * utf8name = pfs_fat_utils_getFileName(&longEntry);
@@ -87,12 +87,12 @@
 					if(pfs_fat32_utils_isLastSectorFromCluster(v , sector)){
 
 						sector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);
-						diskSector = pfs_endpoint_callGetSector(sector);
+						diskSector = pfs_endpoint_callGetSector(sector , fatFile);
 						next = pfs_fat32_utils_getNextClusterInChain(v , next);
 						offset = -FAT_32_BLOCK_ENTRY_SIZE;  //Porque si es un cluster que continua cuando sumo 64 al ppio del while me salteo 1 directorio
 					}else{
 
-						diskSector = pfs_endpoint_callGetSector(++sector);
+						diskSector = pfs_endpoint_callGetSector(++sector , fatFile);
 						offset = 0;
 
 					}
@@ -118,7 +118,7 @@
 
 				if ( commons_iterator_hasMoreElements(ite) ){
 					sector = pfs_fat_utils_getFirstSectorOfCluster(v, next);
-					diskSector = pfs_endpoint_callGetSector(sector);
+					diskSector = pfs_endpoint_callGetSector(sector , fatFile);
 				}
 			}
 		}
@@ -157,13 +157,13 @@
 		LongDirEntry lfnentry;
 		DirEntry  sfnentry;
 
-		DiskSector diskSector = pfs_endpoint_callGetSector(file->currentSector.sectorNumber);
+		DiskSector diskSector = pfs_endpoint_callGetSector(file->currentSector.sectorNumber , file);
 
 
 		if( file->dirEntryOffset >= volume->bps){
 			if ( file->nextCluster != 0 ){
 			uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(volume , file->nextCluster);
-			file->currentSector = diskSector = pfs_endpoint_callGetSector(sectorId);
+			file->currentSector = diskSector = pfs_endpoint_callGetSector(sectorId , file);
 			} else {
 
 			}
@@ -175,7 +175,7 @@
 
 			if( file->dirEntryOffset >= volume->bps ){
 				uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(volume , file->nextCluster);
-				diskSector = pfs_endpoint_callGetSector(sectorId);
+				diskSector = pfs_endpoint_callGetSector(sectorId , file);
 			}
 		} while ( lfnentry.LDIR_Ord == FAT_32_FREEENT );
 
@@ -205,7 +205,7 @@
 
 		uint32_t sectorNumberInCluster = fd->sourceOffset / v->bps;
 		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v , fd->source);
-		DiskSector diskSector = pfs_endpoint_callGetSector(sector + sectorNumberInCluster);
+		DiskSector diskSector = pfs_endpoint_callGetSector(sector + sectorNumberInCluster , fd);
 
 		//Borrado de DirEntry
 		pfs_fat32_unlink_dirEntry(v , fd , &diskSector);
@@ -224,7 +224,7 @@
 
 		uint32_t sectorNumberInCluster = fd->sourceOffset / v->bps;
 		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v , fd->source);
-		DiskSector diskSector = pfs_endpoint_callGetSector(sector + sectorNumberInCluster);
+		DiskSector diskSector = pfs_endpoint_callGetSector(sector + sectorNumberInCluster , fd);
 
 		//Borrado de DirEntry
 		pfs_fat32_unlink_dirEntry(v , fd , &diskSector);
@@ -260,7 +260,7 @@
 
 		nextCluster = pfs_fat32_utils_getNextClusterInChain(v ,fd->nextCluster);
 		sector = pfs_fat_utils_getFatEntrySector(v, fd->nextCluster);
-		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
+		DiskSector diskSector = pfs_endpoint_callGetSector(sector , fd);
 		offset = pfs_fat_utils_getFatEntryOffset(v, fd->nextCluster);
 
 		memcpy(&EntryValue, diskSector.sectorContent + offset, sizeof(uint32_t));
@@ -299,9 +299,9 @@
 			if( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) ){
 				uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , current);
 				current = pfs_fat_utils_getClusterBySector(v , sectorId);
-				sector = pfs_endpoint_callGetSector(sectorId);
+				sector = pfs_endpoint_callGetSector(sectorId , f);
 			} else {
-				sector = pfs_endpoint_callGetSector(sector.sectorNumber + 1);
+				sector = pfs_endpoint_callGetSector(sector.sectorNumber + 1 , f);
 			}
 
 			if ( (bytesLeft <= v->bps) || FAT_32_ISEOC(current) ){

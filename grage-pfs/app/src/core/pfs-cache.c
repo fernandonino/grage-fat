@@ -15,12 +15,21 @@
 #include "linux-commons-strings.h"
 #include "pfs-configuration.h"
 #include "pfs-cache.h"
+#include "pfs-state.h"
+
 
 
 	//CacheRecord Cache[8];
+	List listaCacheFat;
 
 	uint32 cacheSectorsMaxCount;
 	uint32 cacheSectorsFatMaxCount;
+	List pfs_cache_getListaCacheFat(){
+		return listaCacheFat;
+	}
+	void pfs_cache_setListaCacheFat(List lista){
+		listaCacheFat = lista;
+	}
     void pfs_cache_setCacheSectorsMaxCount(uint32 count){
     	cacheSectorsMaxCount = count;
     }
@@ -33,11 +42,13 @@
     uint32 pfs_cache_getCacheSectorsFatMaxCount(){
         return cacheSectorsFatMaxCount;
     }
-
+    Boolean pfs_cache_isFatSectorReserved(uint32 sectorNumber){
+    	Volume * v = pfs_state_getVolume();
+    	if (sectorNumber <= (v->rsv)+1024) return TRUE;
+    	return FALSE;
+    }
 	List pfs_cache_sectors_initialize()
 	{
-
-
 
 		Boolean eq(void * s1 , void * s2){
 			CacheSectorRecord * p1 = (CacheSectorRecord *) s1;
@@ -51,7 +62,13 @@
 		}
 		return (commons_list_buildList(NULL,eq,commons_list_ORDER_ALWAYS_FIRST));
 	}
-
+	void pfs_cache_initialize(){
+		Volume * v = pfs_state_getVolume();
+		pfs_state_initializeOpenFiles();
+		pfs_cache_setCacheSectorsFatMaxCount(v->fatSize*20/100);
+		pfs_cache_setListaCacheFat(pfs_cache_sectors_initialize());
+		pfs_cache_setCacheSectorsMaxCount(pfs_configuration_getCacheSize()*2);
+	}
 	void pfs_cache_sectors_registrar_acceso(List listaCacheSectors)
 	{
 		Iterator * fuckingIterator = commons_iterator_buildIterator(listaCacheSectors);
@@ -62,7 +79,7 @@
 		free(fuckingIterator);
 	}
 
-	CacheSectorRecord * pfs_cache_get_sector(uint32 sectorID,List listaCacheSectors){
+	CacheSectorRecord * pfs_cache_get_sector(uint32 sectorID,List listaCacheSectors,uint32 sectorsMaxCount){
 		Boolean get(CacheSectorRecord * a){
 			return (a->sector.sectorNumber == sectorID);
 		}
@@ -70,11 +87,11 @@
 		return commons_list_getNodeByCriteria(listaCacheSectors , get);
 
 	}
-	void pfs_cache_put_sectors(DiskSector * sectorNuevo,List listaCacheSectors)
+	void pfs_cache_put_sectors(DiskSector * sectorNuevo,List listaCacheSectors,uint32 sectorsMaxCount)
 	{
 		CacheSectorRecord * nodo = (CacheSectorRecord *) malloc (sizeof (CacheSectorRecord));
 		nodo->estado=0;
-		if (commons_list_getSize(listaCacheSectors) >= pfs_cache_getCacheSectorsMaxCount()){
+		if (commons_list_getSize(listaCacheSectors) >= sectorsMaxCount){
 			Iterator * fuckingIterator = commons_iterator_buildIterator(listaCacheSectors);
 			while (commons_iterator_hasMoreElements(fuckingIterator)){
 				if (nodo->estado <= ((CacheSectorRecord *)commons_iterator_next(fuckingIterator))->estado){
@@ -92,7 +109,7 @@
 	}
 
 
-	void pfs_cache_sectores_dump(List listaCacheSectors)
+	void pfs_cache_sectores_dump(List listaCacheSectors,uint32 sectorsMaxCount)
 	{
 		char linea[512];
 		bzero(linea,512);
@@ -107,7 +124,7 @@
 		sprintf(linea,"%s",str_time);
 		//fwrite(linea , sizeof(char) , sizeof(linea) , cache_dump);
 		commons_file_insertLine(linea,cache_dump);
-		sprintf(linea,"Tamanio de Bloque de Cache: %d kb ",pfs_cache_getCacheSectorsMaxCount()/2);
+		sprintf(linea,"Tamanio de Bloque de Cache: %d kb ",sectorsMaxCount);
 		//fwrite(linea , sizeof(char) , sizeof(linea) , cache_dump);
 		commons_file_insertLine(linea,cache_dump);
 		i=0;
@@ -137,7 +154,7 @@
 
 
 
-	void pfs_cache_sectores_dumpBIS(List listaCacheSectors)
+	void pfs_cache_sectores_dumpBIS(List listaCacheSectors,uint32 sectorsMaxCount)
 		{
 			char linea[512];CacheSectorRecord * nodo;
 			bzero(linea,512);
@@ -161,7 +178,7 @@
 			}
 			fputc('\n',cache_dump);
 			//commons_file_insertLine(linea,cache_dump);
-			sprintf(linea,"Tamanio de Bloque de Cache: %d kb ",pfs_cache_getCacheSectorsMaxCount()/2);
+			sprintf(linea,"Tamanio de Bloque de Cache: %d kb ",sectorsMaxCount);
 			fwrite(linea , sizeof(char) , strlen(linea) , cache_dump);
 			i=strlen(linea);
 			while(i < sizeof(linea)){

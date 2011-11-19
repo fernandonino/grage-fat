@@ -15,7 +15,7 @@
 #include "linux-commons-list.h"
 #include "grage-commons.h"
 #include "nipc-messaging.h"
-#include "pfs-endpoint.h"
+
 #include "pfs-state.h"
 #include "pfs-utils.h"
 

@@ -5,14 +5,16 @@
  *      Author: Fernando
  */
 
-#include "grage-commons.h"
 #include <stdint.h>
+
+#include "grage-commons.h"
+#include "pfs-fat32.h"
 
 #ifndef PFS_ENDPOINT_H_
 #define PFS_ENDPOINT_H_
 
 	void pfs_endpoint_callPutSector(DiskSector);
-	DiskSector pfs_endpoint_callGetSector(uint32_t);
+	DiskSector pfs_endpoint_callGetSector(uint32_t,FatFile * fatFile);
 
 	//Funciones prestadas del PPD
 	char * ppd_persistance_unmapDisk(char * diskId , char * mapping);

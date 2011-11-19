@@ -13,14 +13,7 @@
 
 #include "pfs-fat32.h"
 #include "pfs-state.h"
-
-
-
-	List
-
-
-
-
+#include "pfs-cache.h"
 
 	ListenSocket dataSocket;
 	BPB biosParameterBlock;
@@ -61,8 +54,7 @@
 			return ((p1->source == p2->source)&&(p1->sourceOffset == p2->sourceOffset));
 	    }
 		openFiles = commons_list_buildList(NULL, eq, commons_list_ORDER_ALWAYS_FIRST);
-		pfs_cache_setCacheSectorsFatMaxCount(v->fatSize*20/100);
-		pfs_cache_setCacheSectorsMaxCount(pfs_configuration_getCacheSize()*2);
+
 	}
 
 	void pfs_state_addOpenFile(FatFile * fatFile){
