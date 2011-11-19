@@ -18,9 +18,9 @@
 			DiskSector sector;
 		}CacheSectorRecord;
 		List pfs_cache_sectors_initialize(uint32 cacheSize);
-		CacheSectorRecord * pfs_cache_get_sector(uint32 sectorID);
-		void pfs_cache_put_sectors(DiskSector * sectorNuevo);
-		void pfs_cache_sectors_registrar_acceso();
+		CacheSectorRecord * pfs_cache_get_sector(uint32 sectorID,List listaCacheSectors);
+		void pfs_cache_put_sectors(DiskSector * sectorNuevo,List listaCacheSectors);
+		void pfs_cache_sectors_registrar_acceso(List listaCacheSectors);
 		void pfs_cache_sectores_dump();
 
 #endif /* PFS_CACHE_H_ */

@@ -19,8 +19,7 @@
 
 	//CacheRecord Cache[8];
 
-	List listaCacheSectors;
-    uint32 cacheSectorsMaxCount;
+	uint32 cacheSectorsMaxCount;
 
     void pfs_cache_setCacheSectorsMaxCount(uint32 count){
     	cacheSectorsMaxCount = count;
@@ -44,10 +43,10 @@
 			CacheSectorRecord * p2 = (CacheSectorRecord *) s2;
 			return p1->estado < p2->estado;
 		}
-		return (listaCacheSectors = commons_list_buildList(NULL,eq,commons_list_ORDER_ALWAYS_FIRST));
+		return (commons_list_buildList(NULL,eq,commons_list_ORDER_ALWAYS_FIRST));
 	}
 
-	void pfs_cache_sectors_registrar_acceso()
+	void pfs_cache_sectors_registrar_acceso(List listaCacheSectors)
 	{
 		Iterator * fuckingIterator = commons_iterator_buildIterator(listaCacheSectors);
 
@@ -57,28 +56,37 @@
 		free(fuckingIterator);
 	}
 
-	CacheSectorRecord * pfs_cache_get_sector(uint32 sectorID){
+	CacheSectorRecord * pfs_cache_get_sector(uint32 sectorID,List listaCacheSectors){
 		Boolean get(CacheSectorRecord * a){
 			return (a->sector.sectorNumber == sectorID);
 		}
-		pfs_cache_sectors_registrar_acceso();
+		pfs_cache_sectors_registrar_acceso(listaCacheSectors);
 		return commons_list_getNodeByCriteria(listaCacheSectors , get);
 
 	}
-	void pfs_cache_put_sectors(DiskSector * sectorNuevo)
+	void pfs_cache_put_sectors(DiskSector * sectorNuevo,List listaCacheSectors)
 	{
-		if (commons_list_getSize(listaCacheSectors) < pfs_cache_getCacheSectorsMaxCount()){
-			CacheSectorRecord * nodo = (CacheSectorRecord *) malloc (sizeof (CacheSectorRecord));
-			nodo->estado=0;
-			memcpy(nodo->sector.sectorContent,sectorNuevo->sectorContent,sizeof sectorNuevo->sectorContent);
-			nodo->sector.sectorNumber=sectorNuevo->sectorNumber;
-			commons_list_addNode(listaCacheSectors,nodo);
-			pfs_cache_sectors_registrar_acceso();
+		CacheSectorRecord * nodo = (CacheSectorRecord *) malloc (sizeof (CacheSectorRecord));
+		nodo->estado=0;
+		if (commons_list_getSize(listaCacheSectors) > pfs_cache_getCacheSectorsMaxCount()){
+			Iterator * fuckingIterator = commons_iterator_buildIterator(listaCacheSectors);
+			while (commons_iterator_hasMoreElements(fuckingIterator)){
+				if (nodo->estado <= ((CacheSectorRecord *)commons_iterator_next(fuckingIterator))->estado){
+					nodo = (CacheSectorRecord *)commons_iterator_next(fuckingIterator);
+				}
+			}
+			commons_list_removeNode(listaCacheSectors, nodo,free);
 		}
+		//AGREGO EL NODO NUEVO
+		nodo->estado=0;
+		memcpy(nodo->sector.sectorContent,sectorNuevo->sectorContent,sizeof sectorNuevo->sectorContent);
+		nodo->sector.sectorNumber=sectorNuevo->sectorNumber;
+		commons_list_addNode(listaCacheSectors,nodo);
+		pfs_cache_sectors_registrar_acceso(listaCacheSectors);
 	}
 
 
-	void pfs_cache_sectores_dump()
+	void pfs_cache_sectores_dump(List listaCacheSectors)
 	{
 		char linea[512];
 		int i;Iterator * fuckingIterator = commons_iterator_buildIterator(listaCacheSectors);
