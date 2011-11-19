@@ -22,7 +22,7 @@
 	  .mkdir = pfs_fuse_mkdir,
 	  .unlink = pfs_fuse_unlink,
 	  .rmdir = pfs_fuse_rmdir,
-	  .rename = pfs_fuse_rename,			//Pendiente
+	  .rename = pfs_fuse_rename,
 	  .open = pfs_fuse_open,
 	  .read = pfs_fuse_read,
 	  .write = pfs_fuse_write,				//Pendiente
@@ -30,7 +30,7 @@
 	  .release = pfs_fuse_release,
 	  .readdir = pfs_fuse_readdir,
 	  .mknod = pfs_fuse_mknod,
-	  .truncate = pfs_fuse_truncate,		//Pendiente
+	  .truncate = pfs_fuse_truncate,		//A revisar
 	};
 
 
@@ -53,9 +53,9 @@
 			return -EXIT_FAILURE;
 
 		destination = pfs_fat32_open(basedir);
-		if (destination-> dirType == 0 )
+		if (destination-> dirType == 0 ){
 			pfs_fat32_mknod(v , destination , filename);
-		if ( destination->shortEntry.DIR_Attr != FAT_32_ATTR_DIRECTORY ) {//Intenta crear un archivo adentro de otro
+		} else if ( destination->shortEntry.DIR_Attr != FAT_32_ATTR_DIRECTORY ) {//Intenta crear un archivo adentro de otro
 			return EXIT_FAILURE;
 		} else {
 			pfs_fat32_mknod(v , destination , filename);
@@ -94,9 +94,23 @@
 		return read;
 	}
 
-	int pfs_fuse_write(const char *path, const char *buf, size_t size, off_t offset,
-			struct fuse_file_info *fi){
-		return EXIT_SUCCESS;
+	int pfs_fuse_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi){
+
+		uint32_t result;
+		Volume * volume = pfs_state_getVolume();
+		FatFile * file = (FatFile *)fi->fh;
+
+		if ( size >= file->shortEntry.DIR_FileSize || 0 == file->shortEntry.DIR_FileSize){
+			pfs_fat32_utils_extendFile(volume , file , size);
+		}
+
+		result = pfs_fat32_utils_seekWrite(volume , file , offset , file->shortEntry.DIR_FileSize);
+		if ( result == EXIT_FAILURE )
+			return -ESPIPE;
+
+		result = pfs_fat32_write(volume , file , buf , size);
+
+		return result;
 	}
 
 	int pfs_fuse_flush(const char *path, struct fuse_file_info *fi){
@@ -116,10 +130,10 @@
 		FatFile * f = pfs_fat32_open(path);
 
 		if( f == NULL ){
-					return -ENOENT;
+			return -ENOENT;
 		}
 
-		uint8_t res = pfs_fat32_utils_truncate(v, f, newsize);
+		uint8_t res = pfs_fat32_truncate(v, f, newsize);
 		if(res != 0){
 			return -ENOENT;
 		}
@@ -212,6 +226,7 @@
 		FatFile * file = pfs_fat32_open(path);
 		if (file == NULL){
 			return -ENOENT;
+			//return EXIT_SUCCESS;
 		}
 
 		pfs_fat32_utils_fileStat(v , file , statbuf);

@@ -112,6 +112,7 @@
 	int8_t pfs_fat32_mknod(Volume *  , FatFile *  , char * );
 	uint8_t pfs_fat32_truncate(Volume * , FatFile * , off_t );
 	void pfs_fat32_rename(Volume * , FatFile * , char * );
+	uint32_t pfs_fat32_write(Volume * , FatFile * , const char * , size_t);
 
 //UTILS
 	Volume * pfs_fat_utils_loadVolume( BPB * b );
@@ -152,11 +153,17 @@
 	uint32_t pfs_fat32_utils_allocateNewCluster(Volume * , uint32_t);
 	uint32_t pfs_fat32_utils_assignCluster(Volume * v);
 	void pfs_fat32_utils_markEndOfChain(Volume * , uint32_t);
+	uint32_t pfs_fat32_utils_findEOC(Volume * , uint32_t );
 	void pfs_fat32_utils_expandChain(Volume * , uint32_t , uint32_t);
 
 	void pfs_fat32_utils_fillDotEntry(DirEntry * , DirEntry *);
 	void pfs_fat32_utils_fillDotDotEntry(DirEntry * , DirEntry *);
 	uint32_t pfs_fat_utils_FreeClustersQuantity();
+
+	void pfs_fat32_utils_extendFile(Volume * , FatFile * , off_t);
+	int8_t pfs_fat32_utils_seekWrite(Volume * , FatFile * , off_t , uint32_t);
+
+	uint32_t pfs_fat32_utils_getNextFreeCluster();
 
 #endif /* PFS_FAT32_H_ */
 
