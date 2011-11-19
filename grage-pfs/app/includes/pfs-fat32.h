@@ -27,6 +27,7 @@
 	#define FAT_32_DIR_ENTRY_SIZE						32
 	#define FAT_32_BLOCK_ENTRY_SIZE						64
 	#define FAT_32_SECTOR_SIZE 							512
+	#define FAT_32_FATENTRY_SIZE						4
 	#define FAT_32_FREEENT  0xE5 /* The directory entry is free             */
 	#define FAT_32_ENDOFDIR 0x00 /* This and the following entries are free */
 
@@ -109,7 +110,8 @@
 	uint32_t pfs_fat32_read(Volume * , FatFile * , char * , size_t);
 	int8_t pfs_fat32_mkdir(Volume *  , FatFile *  , char * );
 	int8_t pfs_fat32_mknod(Volume *  , FatFile *  , char * );
-	uint8_t pfs_fat32_utils_truncate(Volume * , FatFile * , off_t );
+	uint8_t pfs_fat32_truncate(Volume * , FatFile * , off_t );
+	void pfs_fat32_rename(Volume * , FatFile * , char * );
 
 //UTILS
 	Volume * pfs_fat_utils_loadVolume( BPB * b );
@@ -154,6 +156,7 @@
 
 	void pfs_fat32_utils_fillDotEntry(DirEntry * , DirEntry *);
 	void pfs_fat32_utils_fillDotDotEntry(DirEntry * , DirEntry *);
+	uint32_t pfs_fat_utils_FreeClustersQuantity();
 
 #endif /* PFS_FAT32_H_ */
 
