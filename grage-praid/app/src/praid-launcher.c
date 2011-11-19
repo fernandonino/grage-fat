@@ -21,12 +21,13 @@
 
 	void praid_launcher_initialize(){
 
-		if(log_create("praid", PRAIND_DEFAULT_LOG_FILE ,INFO|WARNING|ERROR|DEBUG,M_CONSOLE_DISABLE)){
+		praid_configuration_setup();
+
+		if(log_create("PRAID", PRAIND_DEFAULT_LOG_FILE , praid_configuration_getLoggingLevel() ,M_CONSOLE_DISABLE)){
 			puts("[ Falló la inicialización del log ]");
 			exit(EXIT_FAILURE);
 		}
 
-		praid_configuration_setup();
 
 		praid_state_initializeStorages();
 	}

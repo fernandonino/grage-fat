@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <pthread.h>
 
+#include <linux-commons-strings.h>
+#include <linux-commons-logging.h>
 #include <linux-commons.h>
 #include <linux-commons-errors.h>
 #include <linux-commons-console-logging.h>
@@ -86,8 +88,8 @@
 
 		if(commons_console_logging_isDefault()){
 			printf("[ Se ha desconectado el PPD %i ]\n" , storage->id);
-			printf("[ Eliminando PPD con Id %i tras desconexion ]\n" , storage->id);
 		}
+		log_info_t( commons_string_concat("Se ha desconectado el PPD " , commons_misc_intToString(storage->id)));
 
 		//TODO: probar esto, tiene bugs
 		praid_ppd_checkIfContinueDenegatingRequests(storage->id);

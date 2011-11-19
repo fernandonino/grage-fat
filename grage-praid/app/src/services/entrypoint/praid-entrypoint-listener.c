@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <linux-commons-strings.h>
+#include <linux-commons-logging.h>
 #include <linux-commons-socket.h>
 #include <linux-commons-console-logging.h>
 
@@ -39,8 +41,10 @@
 
 		praid_utils_printLines();
 
-		if(commons_console_logging_isDefault())
+		if(commons_console_logging_isDefault()){
 			printf("[ Nuevo PPD en el cluster con Id: %i ]\n" , ppdId);
+		}
+		log_info_t( commons_string_concat("Nuevo PPD en el cluster con ID: " , commons_misc_intToString(ppdId)));
 
 		praid_utils_printClusterInformation(ppdId);
 
@@ -51,11 +55,14 @@
 				puts("[ Comenzando la replicación de datos ]");
 				printf("[ Volumen a replicar: %.3f MiB ]\n" , (float)((float) master->volumeSize /(1024*1024)));
 			}
+			log_info_t("Comenzando la replicación de datos ");
 
 			sleep(3);
 
-			if(commons_console_logging_isDefault())
+			if(commons_console_logging_isDefault()){
 				puts("[ Replicación en proceso .... ]");
+			}
+			log_info_t("Replicacion en proceso....");
 
 			praid_ppd_sync_fireSynchronization(master , destiny);
 
@@ -119,6 +126,8 @@
 					if(commons_console_logging_isDefault())
 						puts("[ Se denega la conexion del proceso PPD para mantener la consistencia en la replicacion en curso ]");
 
+					log_info_t("Se denega la conexion del proceso PPD para mantener la consistencia en la replicacion en curso");
+
 					praid_entry_denegateConnection(handshake.header.processHandshakeId , listenSocket);
 
 					continue;
@@ -127,6 +136,8 @@
 
 					if(commons_console_logging_isDefault())
 						puts("[ Se denega la conexion del proceso PFS por ausencia de recursos PPD's conectados ]");
+
+					log_info_t("Se denega la conexion del proceso PFS por ausencia de recursos PPD's conectados");
 
 					praid_entry_denegateConnection(handshake.header.processHandshakeId , listenSocket);
 

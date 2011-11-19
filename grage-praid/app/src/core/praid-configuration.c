@@ -10,9 +10,21 @@
 #include <linux-commons-file.h>
 #include <linux-commons-strings.h>
 #include <linux-commons-console-logging.h>
+#include <linux-commons-logging.h>
 
 #include "praid-configuration.h"
 
+
+
+
+	uint32_t loggingLevel;
+
+	void praid_configuration_setLoggingLevel(uint32_t l){
+		loggingLevel = l;
+	}
+	uint32_t praid_configuration_getLoggingLevel(){
+		return loggingLevel;
+	}
 
 
 	char * devicePort = NULL;
@@ -55,6 +67,17 @@
 			}else if(commons_string_equals(value , "false")){
 				praid_conf_setPooledConnections(FALSE);
 			}
+
+		}else if(commons_string_equals(key , PRAID_CONF_LOGGING_LEVEL)){
+			if(commons_string_equals(value , "info")){
+				praid_configuration_setLoggingLevel(INFO);
+			}else if(commons_string_equals(value , "debug")){
+				praid_configuration_setLoggingLevel(DEBUG);
+			}else if(commons_string_equals(value, "warning")){
+				praid_configuration_setLoggingLevel(WARNING);
+			}else if(commons_string_equals(value , "error")){
+				praid_configuration_setLoggingLevel(ERROR);
+			}
 		}
 	}
 
@@ -81,9 +104,6 @@
 
 		commons_file_loadConfiguration(file , praid_configuration_processEntries);
 		commons_file_closeFile(file);
-
-		if(commons_console_logging_isDefault())
-			puts("[ Se ha cargado la configuracion ]");
 	}
 
 

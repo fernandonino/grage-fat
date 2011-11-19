@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <linux-commons-strings.h>
+#include <linux-commons-logging.h>
 #include <linux-commons.h>
 #include <linux-commons-list.h>
 #include <linux-commons-console-logging.h>
@@ -48,19 +50,23 @@
 
 	void praid_pfs_entrypoint_receiveInvocation(ListenSocket * ls){
 
-		puts("Se abrio una nueva conexion");
+		if(commons_console_logging_isDefault())
+			puts("Se abrio una nueva conexion");
+
+		log_info_t("Se abrio una nueva conexion");
 
 		if( praid_conf_isPooledConnections()){
 
 			while(praid_pfs_entrypoint_processRequest(ls));
 		}else{
 
-			puts("Seba se la come");
-
 			praid_pfs_entrypoint_processRequest(ls);
 		}
 
-		puts("Se murio un hilo");
+		if(commons_console_logging_isDefault())
+			puts("Se cerro una conexion");
+		log_info_t("Se cerro una conexion");
+
 	}
 
 
@@ -72,17 +78,11 @@
 
 		if(message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 
-			puts("[ Recibiendo peticion GET Sectores ]");
-			printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
-
 			message.payload.pfsSocket = *pfsSocket;
 
 			praid_pfs_entrypoint_executeGetSector(message);
 
 		}else if(message.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
-
-			puts("[ Recibiendo peticion PUT Sectores ]");
-			printf("[ Solicitando sectorId: %i ]\n" , message.payload.diskSector.sectorNumber);
 
 			message.payload.pfsSocket = *pfsSocket;
 
@@ -110,6 +110,7 @@
 			printf("[ Se escribira sobre los PPD's con los siguientes ID: ");
 		}
 
+
 		Iterator * storages = commons_iterator_buildIterator(praid_state_getPpdStorages());
 
 		while( commons_iterator_hasMoreElements( storages ) ){
@@ -120,6 +121,8 @@
 
 			if(commons_console_logging_isDefault()){
 				printf("%i " , storage->id);
+
+			log_info_t( commons_string_concat("Ejecutando PUT sobre PPD-" , commons_misc_intToString(storage->id)));
 
 				if(commons_iterator_hasMoreElements(storages))
 					printf(" , ");
@@ -139,11 +142,14 @@
 		praid_utils_printLines();
 
 		PPDConnectionStorage * storage = praid_balancer_selectStorage();
-/*
+
 		if(commons_console_logging_isDefault())
 			printf("[ Se realizará un GET (PPD: %i , SectorId: %i) ]\n"
 					, storage->id , message.payload.diskSector.sectorNumber);
-*/
+
+		log_info_t( commons_string_concat("Ejecutando GET sobre " , commons_misc_intToString(storage->id)));
+
+
 		praid_storage_queue_put(storage->pendingJobs , message);
 	}
 
