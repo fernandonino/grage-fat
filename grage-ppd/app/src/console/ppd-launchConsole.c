@@ -148,6 +148,9 @@ pthread_t ppdConsoleThread;
 					mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
 				}
 			}
+			if (mensaje.messageID == MESSAGE_ID_CLEAN_SECTORS){
+
+			}
 			//hace lo q quieras con el contenido del buffer
 
 			commons_socket_sendBytes(ppd_state_getPpdConsoleSocket(), &mensaje,
