@@ -22,7 +22,7 @@ String ppd_console_parseCMD(char * comando){
 	String cmd;
 	cmd = (String)malloc(255);
 
-	memset(cmd, '\0', sizeof cmd);
+	memset(cmd, '\0', 255);
 
 	while(comando[i] != '(' && comando[i] != '\n' && comando[i] != ' ' && i <= 250){
 		cmd[j] = comando[i];
@@ -190,14 +190,16 @@ void ppd_console_interpreter(){
 				else printf("Próximo Sector: %d:%d\n\n",ppd_console_utils_get_cilinder_from_sector(sectores[i]),ppd_console_utils_get_sectorofcilinder_from_sector(sectores[i]));
 				i++;
 			}
-
 		}
-
-		if((strcmp(cmd, "info") && strcmp(cmd, "clean") && strcmp(cmd, "trace")) || buffer[5]== ' ')
+		if((strcmp(cmd, "info") && strcmp(cmd, "clean") && strcmp(cmd, "trace")) || buffer[5]== ' ' ){
 			puts("Comando incorrecto");
+			sleep(1);
+		}
+		memset(cmd,'\0',sizeof(cmd));
+		memset(buffer,'\0',sizeof(buffer));
 
-		bzero(buffer, sizeof(buffer));
-		fgets(buffer, 250, stdin);
 		printf(">");
+		fgets(buffer, 250, stdin);
+
 	}
 }
