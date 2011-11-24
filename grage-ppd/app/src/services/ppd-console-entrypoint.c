@@ -58,9 +58,7 @@ float ppd_console_entrypoint_TiempoConsumido(uint32 pistaSolicitada, uint32 sect
 
 	if(ppd_utils_get_sector_from_sectorofcilinder(sectorSolicitado , pistaSolicitada)
 			> (cantidadSectoresPista * ppd_utils_get_cantidadSectoresPorCilindro() - 1)){
-		mensaje.messageID = -5;
-		puts("El sector solicitado se encuentra fuera de rango.");
-		commons_socket_sendBytes(ppd_state_getPpdConsoleSocket()  , &mensaje , sizeof mensaje);
+		return -1;
 	}
 
 	while (!(pistaActual == pistaSolicitada))

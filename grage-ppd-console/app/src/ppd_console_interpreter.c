@@ -11,6 +11,8 @@
 #include <string.h>
 #include <linux-commons.h>
 #include <linux-commons-socket.h>
+#include <linux-commons-strings.h>
+#include <linux-commons-list.h>
 #include "ppd_console_launcher.h"
 #include <grage-commons.h>
 #include "ppd-console-utils.h"
@@ -38,16 +40,19 @@ String ppd_console_get_cmd_parameter(char * comando, uint32 cmd_length){
 	uint32 j=0;
 	String parametro;
 	parametro = (String)malloc(255);
-	memset(parametro, '\0', sizeof parametro);
+	memset(parametro, '\0', 255);
 
-	while(comando[i] != ')' && comando[i] != ' ' && i < (250 - cmd_length)
-			&& comando[i] >= 48 && comando[i] <= 57)
+	while(comando[i] != ')' && comando[i] != ' ' && i < (250 - cmd_length))
 	{
 		parametro[j] = comando[i];
 		i++;
 		j++;
+		if(comando[i] != ')' && comando[i] != ' ' && i < (250 - cmd_length) && (comando[i] > 57 || comando[i] < 48)){
+			puts("Valor de Cluster ingresado incorrecto");
+			return "-1";
+		}
 	}
-	if(comando[i] >= 57 || comando[i] <= 48) puts("Valor de Cluster ingresado incorrecto");
+
 	return parametro;
 }
 
@@ -64,14 +69,14 @@ uint32 ppd_console_obtenerNroParametros(char * comando){
 		cant++;
 		return cant;
 	}
-	if(cant == 0 && atoi(ppd_console_get_cmd_parameter(comando, strlen(ppd_console_parseCMD(comando)))) > 0){
+	if(cant == 0 && atoi(ppd_console_get_cmd_parameter(comando, strlen(ppd_console_parseCMD(comando)))) >= 0){
 		return 1;
 	}
 	if(comando[6] == ' '){
 		puts("El primer parametro no debe ser vacio");
 		return 0;
 	}
-	if (cant == 0 && atoi(ppd_console_get_cmd_parameter(comando, strlen(ppd_console_parseCMD(comando)))) <= 0){
+	if (cant == 0 && atoi(ppd_console_get_cmd_parameter(comando, strlen(ppd_console_parseCMD(comando)))) < 0){
 		puts("trace debe recibir parametros");
 		return 0;
 	}
@@ -131,10 +136,11 @@ void imprimirSectoresRecorridos(uint32 pistaRequerida, uint32 sectorRequerido){
 		commons_socket_sendBytes(ppd_console_launcher_getSocketPPD(),&mensaje,sizeof mensaje);
 		receivedCount = commons_socket_receiveBytes( ppd_console_launcher_getSocketPPD() ,&mensaje , sizeof mensaje);
 
-		if(mensaje.messageID == -5){
-			puts("El sector solicitado se encuentra fuera de rango.");
-			return;
-		}
+
+	}
+	if(mensaje.messageID == MESSAGE_ID_ERROR){
+		puts("El sector solicitado se encuentra fuera de rango.");
+		return;
 	}
 	printf("\nTiempo consumido: %dms \n",mensaje.timeInMiliseconds);
 }

@@ -140,11 +140,13 @@ pthread_t ppdConsoleThread;
 
 			}
 			if (mensaje.messageID == MESSAGE_ID_SECTORES_RECORRIDOS) {
-				mensaje.timeInMiliseconds
-						= ppd_console_entrypoint_TiempoConsumido(
+				if ((mensaje.timeInMiliseconds = ppd_console_entrypoint_TiempoConsumido(
 								mensaje.pistaSector.pista,
-								mensaje.pistaSector.sectorNumber);
-				mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
+								mensaje.pistaSector.sectorNumber))==-1){
+					mensaje.messageID = MESSAGE_ID_ERROR;
+				}else{
+					mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
+				}
 			}
 			//hace lo q quieras con el contenido del buffer
 
