@@ -99,6 +99,8 @@
 	DiskSector commons_buildDiskSector();
 
 	//DEFINE DE PPD Y SU CONSOLA
+	#define MESSAGE_ID_CLEAN_SECTORS					14
+	#define MESSAGE_ID_ERROR							15
 	#define MESSAGE_ID_SECTORES_POR_CILINDRO			16
 	#define MESSAGE_ID_POSICION_ACTUAL 					17
 	#define MESSAGE_ID_SECTOR_SOLICITADO 				18
