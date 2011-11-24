@@ -20,7 +20,7 @@ GRAGE_REPOSITORY=/opt/grage-repository
 BUILD_DIR=build
 BUILD_TARGET = build/bin/$(GRAGE_PROJECT_NAME)
 BUILD_INCLUDES = -I./app/includes -I$(GRAGE_REPOSITORY_INCLUDES) 
-BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-commons -lgrage-nipc -lm -lpthread `pkg-config fuse --cflags --libs` -DFUSE_USE_VERSION=22 -licui18n -licuuc -licudata
+BUILD_DEPS= -L$(GRAGE_REPOSITORY_LIB) -lgrage-commons -lgrage-nipc -lm -lpthread `pkg-config fuse --cflags --libs` -DFUSE_USE_VERSION=22 -D_FILE_OFFSET_BITS=64 -licui18n -licuuc -licudata
 
 
 

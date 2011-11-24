@@ -398,13 +398,13 @@
 		}
 	}
 
+	/* Esta funcion esta incompleta */
 	uint32_t pfs_fat32_utils_getNextFreeCluster(){
-		/*
-		 * Volume * v = pfs_state_getVolume();
-		 * return v->nextFreeCluster;
-		 *
-		 */
 
+		Volume * v = pfs_state_getVolume();
+		return v->nextFreeCluster;
+
+/*
 		Volume * v = pfs_state_getVolume();
 		uint32_t sector = v->rsv;
 		uint32_t clusterId = v->root;
@@ -425,6 +425,7 @@
 			clusterId++;
 		}
 		return clusterId;
+		*/
 	}
 
 	void pfs_fat32_utils_setNextFreeCluster(uint32_t next){

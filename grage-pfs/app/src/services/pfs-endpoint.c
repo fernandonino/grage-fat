@@ -57,6 +57,9 @@
 		if(pfs_pool_isPooledConnectionsEnabled()){
 			return pfs_endpoint_callPooledPutSector(diskSector);
 		}else{
+
+			log_info_t(commons_string_concat("Sector: " , commons_misc_intToString(diskSector.sectorNumber)));
+
 			return pfs_endpoint_callNonPooledPutSector(diskSector);
 		}
 	}
@@ -66,6 +69,8 @@
 		if(pfs_pool_isPooledConnectionsEnabled()){
 			return pfs_endpoint_callPooledGetSector(sectorNumber);
 		}else{
+			log_info_t(commons_string_concat("Sector: " , commons_misc_intToString(sectorNumber)));
+
 			return pfs_endpoint_callNonPooledGetSector(sectorNumber);
 		}
 	}

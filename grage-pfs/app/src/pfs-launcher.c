@@ -59,7 +59,7 @@ void launch_pfs_tests(void);
 
 	void pfs_launcher_initialize() {
 		log_create("pfs", "/opt/grage-repository/logs/grage-pfs.log",
-				INFO | DEBUG | WARNING | ERROR, M_CONSOLE_DISABLE);
+				INFO , M_CONSOLE_DISABLE);
 		pfs_configuration_setConfigurationFile(PFS_DEFAULT_CONFIGURATION_FILE);
 		pfs_configuration_initialize();
 
