@@ -206,7 +206,27 @@
 			strcpy(de->d_name,utf8name);
 			free(utf8name);
 		} else {
+			uint8_t i = 0;
 
+			while ( i < 8 ) {
+				if ( direntry->DIR_Name[i] != 0x20 )
+					memcpy(de->d_name + i, &(direntry->DIR_Name[i]) , sizeof(uint8_t));
+				else
+					break;
+				i++;
+			}
+
+			if( direntry->DIR_Name[8] != 0x20 ){
+				de->d_name[i] = 0x2E;
+				i++;
+				de->d_name[i] = direntry->DIR_Name[8];
+				de->d_name[++i] = direntry->DIR_Name[9];
+				de->d_name[++i] = direntry->DIR_Name[10];
+				de->d_name[++i] = '\0';
+				//memcpy(de->d_name[i] , &(direntry->DIR_Name[8]) , sizeof(uint8_t));
+			}
+
+/*
 			memcpy(de->d_name , direntry->DIR_Name , sizeof(uint8_t));
 
 			if( direntry->DIR_Name[1] == '.' ){
@@ -215,7 +235,7 @@
 			} else {
 				de->d_name[1] = '\0';
 			}
-
+*/
 		}
 
 		de->d_ino = pfs_fat_getFirstClusterFromDirEntry(direntry);
