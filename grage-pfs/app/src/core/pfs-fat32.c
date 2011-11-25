@@ -33,91 +33,90 @@
 
 
 
-	FatFile * pfs_fat32_utils_openNonRootDirectory(const char * path , Volume * v ){
+    FatFile * pfs_fat32_utils_openNonRootDirectory(const char * path , Volume * v ){
 
-		uint32_t next = v->root;
-		FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
-		LongDirEntry longEntry;
-		DirEntry sDirEntry;
+            uint32_t next = v->root;
+            FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
+            LongDirEntry longEntry;
+            DirEntry sDirEntry;
+            char * utf8name;
+            int16_t offset;
 
-		char * utf8name;
+            uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v , v->root);
 
-		int16_t offset = 0;
-		uint8_t flag = 1;
+            DiskSector diskSector = pfs_endpoint_callGetSector(sector);
 
-		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v ,
-				v->root);
+            List directories = commons_list_tokenize((char *)path, '/');
+            Iterator * ite = commons_iterator_buildIterator(directories);
+            uint32_t originalSector ;
 
-		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
-		if(pfs_fat_utils_hasLFN(offset, diskSector)){
-			memcpy(&longEntry, diskSector.sectorContent, FAT_32_DIR_ENTRY_SIZE);
-			utf8name = pfs_fat_utils_getFileName(&longEntry);
-		}
-		else{
-			memcpy(&sDirEntry, diskSector.sectorContent, FAT_32_DIR_ENTRY_SIZE);
-			utf8name = commons_string_cloneString(sDirEntry.DIR_Name);
-		}
+            while (commons_iterator_hasMoreElements(ite)) {
 
-		List directories = commons_list_tokenize((char *)path, '/');
-		Iterator * ite = commons_iterator_buildIterator(directories);
-		uint32_t originalSector ;
+				originalSector = diskSector.sectorNumber;
 
-		while (commons_iterator_hasMoreElements(ite)) {
+				offset = 0;
 
-			originalSector = diskSector.sectorNumber;
+				char * token = commons_iterator_next(ite);
 
-			offset = 0;
+				do{
 
-			char * token = commons_iterator_next(ite);
-
-			while (flag && !commons_string_equals(token, utf8name)) {
-
-				offset += FAT_32_BLOCK_ENTRY_SIZE;
-
-				if (offset < v->bps) {
-
-
-					if(pfs_fat_utils_hasLFN(offset, diskSector)){
+					if (offset < v->bps) {
 						memcpy(&longEntry, diskSector.sectorContent + offset, FAT_32_DIR_ENTRY_SIZE);
-						utf8name = pfs_fat_utils_getFileName(&longEntry);
-						if(longEntry.LDIR_Ord != FAT_32_ENDOFDIR) flag = 1;
-						else flag = 0;
+						if(FAT_32_LDIR_ISLONG(longEntry.LDIR_Attr)){
+							utf8name = pfs_fat_utils_getFileName(&longEntry);
+							offset += FAT_32_BLOCK_ENTRY_SIZE;
+						}
+						else{
+							memcpy(&sDirEntry, diskSector.sectorContent + offset, FAT_32_DIR_ENTRY_SIZE);
+							utf8name = pfs_fat32_utils_getShorName(&sDirEntry);
+							offset += FAT_32_DIR_ENTRY_SIZE;
+						}
+					} else if (offset >= v->bps) {
+						if(pfs_fat32_utils_isLastSectorFromCluster(v , sector)){
+
+							sector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);
+							diskSector = pfs_endpoint_callGetSector(sector);
+							next = pfs_fat32_utils_getNextClusterInChain(v , next);
+						}else{
+
+							diskSector = pfs_endpoint_callGetSector(++sector);
+						}
+						if(offset > v->bps){
+							if(FAT_32_LDIR_ISLONG(longEntry.LDIR_Attr)) offset = FAT_32_DIR_ENTRY_SIZE;
+							else offset = 0;
+						}
+						else{
+							offset = 0;
+						}
 					}
-					else{
-						memcpy(&sDirEntry, diskSector.sectorContent + offset, FAT_32_DIR_ENTRY_SIZE);
-						utf8name = commons_string_cloneString(sDirEntry.DIR_Name);
-						if(sDirEntry.DIR_Name[0] != FAT_32_ENDOFDIR) flag = 1;
-						else flag = 0;
-					}
 
-				} else if (offset == v->bps) {
-
-					if(pfs_fat32_utils_isLastSectorFromCluster(v , sector)){
-
-						sector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);
-						diskSector = pfs_endpoint_callGetSector(sector);
-						next = pfs_fat32_utils_getNextClusterInChain(v , next);
-						offset = -FAT_32_BLOCK_ENTRY_SIZE;  //Porque si es un cluster que continua cuando sumo 64 al ppio del while me salteo 1 directorio
-					}else{
-
-						diskSector = pfs_endpoint_callGetSector(++sector);
-						offset = -FAT_32_BLOCK_ENTRY_SIZE; //Porque sumo 64 al ppio del while me saltearia 1 directorio
-
-					}
-				}
-
-			}
-
-			if(pfs_fat_utils_hasLFN(offset, diskSector)){
+				}while (longEntry.LDIR_Ord != FAT_32_ENDOFDIR && !commons_string_equals(token, utf8name));
 
 				if (longEntry.LDIR_Ord == FAT_32_ENDOFDIR) {
-					commons_misc_doFreeNull((void **)utf8name);
-					return NULL;
+						commons_misc_doFreeNull((void **)utf8name);
+						return NULL;
 				} else if (commons_string_equals(utf8name, token)) {
 
-					offset += FAT_32_DIR_ENTRY_SIZE;
+					if (offset >= v->bps) {
+						if(pfs_fat32_utils_isLastSectorFromCluster(v , sector)){
 
-					memcpy(&sDirEntry, diskSector.sectorContent + offset, FAT_32_DIR_ENTRY_SIZE);
+							sector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);
+							diskSector = pfs_endpoint_callGetSector(sector);
+							next = pfs_fat32_utils_getNextClusterInChain(v , next);
+						}else{
+
+							diskSector = pfs_endpoint_callGetSector(++sector);
+						}
+						memcpy(&sDirEntry, diskSector.sectorContent, FAT_32_DIR_ENTRY_SIZE);
+						offset -= FAT_32_BLOCK_ENTRY_SIZE;
+					}
+					else{
+						if(FAT_32_LDIR_ISLONG(longEntry.LDIR_Attr)){
+							offset -= FAT_32_DIR_ENTRY_SIZE;
+							memcpy(&sDirEntry, diskSector.sectorContent + offset, FAT_32_DIR_ENTRY_SIZE);
+							offset -= FAT_32_DIR_ENTRY_SIZE; //Esto es para el calculo del dirEntryOffset
+						}
+					}
 
 					fatFile->longEntry = longEntry;
 					fatFile->shortEntry = sDirEntry;
@@ -130,41 +129,21 @@
 						diskSector = pfs_endpoint_callGetSector(sector);
 					}
 				}
-			}
-			else
-			{
-				if (sDirEntry.DIR_Name[0] == FAT_32_ENDOFDIR) {
-					commons_misc_doFreeNull((void **)utf8name);
-					return NULL;
-				} else if (commons_string_equals(utf8name, token)) {
-					offset += FAT_32_DIR_ENTRY_SIZE;
+            }
 
-					fatFile->shortEntry = sDirEntry;
-
-					fatFile->source = next;
-					next = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
-
-					if ( commons_iterator_hasMoreElements(ite) ){
-						sector = pfs_fat_utils_getFirstSectorOfCluster(v, next);
-						diskSector = pfs_endpoint_callGetSector(sector);
-					}
-				}
-
-			}
-		}
-
-		commons_misc_doFreeNull((void **)utf8name);
+            commons_misc_doFreeNull((void **)utf8name);
 
 
-		fatFile->sourceOffset = pfs_fat32_utils_getDirEntryOffset(
-				diskSector.sectorNumber , originalSector , offset );
-		fatFile->nextCluster = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
-		fatFile->currentSector.sectorNumber = pfs_fat_utils_getFirstSectorOfCluster(v , fatFile->nextCluster);
-		fatFile->dirEntryOffset = 0;
-		fatFile->dirType = 1;
+            fatFile->sourceOffset = pfs_fat32_utils_getDirEntryOffset(
+                            diskSector.sectorNumber , originalSector , offset );
+            fatFile->nextCluster = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
+            fatFile->currentSector.sectorNumber = pfs_fat_utils_getFirstSectorOfCluster(v , fatFile->nextCluster);
+            fatFile->dirEntryOffset = 0;
+            fatFile->dirType = 1;
 
-		return fatFile;
-	}
+            return fatFile;
+    }
+
 
 
 

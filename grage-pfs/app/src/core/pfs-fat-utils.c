@@ -187,7 +187,30 @@
 	}
 
 	uint32_t pfs_fat32_utils_getDirEntryOffset(uint32_t sectorId , uint32_t os , uint32_t offset){
-		return (sectorId - os) * 512 + offset - FAT_32_DIR_ENTRY_SIZE;
+		return (sectorId - os) * 512 + offset;
+	}
+
+	String pfs_fat32_utils_getShorName(DirEntry * direntry){
+		uint8_t i = 0;
+		char * d_name = (char *)malloc(12);
+
+		while ( i < 8 ) {
+			if ( direntry->DIR_Name[i] != 0x20 )
+				memcpy(d_name + i, &(direntry->DIR_Name[i]) , sizeof(uint8_t));
+			else
+				break;
+			i++;
+		}
+
+		if( direntry->DIR_Name[8] != 0x20 ){
+			d_name[i] = 0x2E;
+			i++;
+			d_name[i] = direntry->DIR_Name[8];
+			d_name[++i] = direntry->DIR_Name[9];
+			d_name[++i] = direntry->DIR_Name[10];
+			d_name[++i] = '\0';
+		}
+		return d_name;
 	}
 
 	void pfs_fat32_utils_toDirent(struct dirent * de , DirEntry  * direntry , LongDirEntry * ldirentry , Volume * v){
@@ -223,7 +246,6 @@
 				de->d_name[++i] = direntry->DIR_Name[9];
 				de->d_name[++i] = direntry->DIR_Name[10];
 				de->d_name[++i] = '\0';
-				//memcpy(de->d_name[i] , &(direntry->DIR_Name[8]) , sizeof(uint8_t));
 			}
 
 /*

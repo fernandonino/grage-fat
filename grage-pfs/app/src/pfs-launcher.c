@@ -99,9 +99,9 @@ void launch_pfs_tests(void);
 
 		pfs_launcher_initializeBPB();
 
-		//pfs_fuse_launchFuse(argc,argv);
+		pfs_fuse_launchFuse(argc,argv);
 
-		launch_pfs_tests();
+		//launch_pfs_tests();
 
 	}
 

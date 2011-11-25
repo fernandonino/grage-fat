@@ -164,7 +164,7 @@
 
 	void pfs_fat32_utils_extendFile(Volume * , FatFile * , off_t);
 	int8_t pfs_fat32_utils_seekWrite(Volume * , FatFile * , off_t , uint32_t);
-
+	String pfs_fat32_utils_getShorName(DirEntry * direntry);
 	uint32_t pfs_fat32_utils_getNextFreeCluster();
 
 #endif /* PFS_FAT32_H_ */
