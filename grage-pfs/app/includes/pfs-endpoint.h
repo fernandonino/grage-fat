@@ -14,7 +14,7 @@
 	void pfs_endpoint_callPutSector(DiskSector);
 	DiskSector pfs_endpoint_callGetSector(uint32_t);
 
-
+	ListenSocket pfs_endpoint_doHandshake(void);
 
 	DiskSector pfs_endpoint_callPooledGetSector(uint32_t sectorNumber);
 	void pfs_endpoint_callPooledPutSector( DiskSector diskSector);

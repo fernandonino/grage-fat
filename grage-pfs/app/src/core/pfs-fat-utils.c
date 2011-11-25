@@ -428,6 +428,15 @@
 		*/
 	}
 
+	uint8_t pfs_fat_utils_hasLFN(uint32_t offset, DiskSector diskSector){
+		uint8_t attr;
+		memcpy(&attr, diskSector.sectorContent + offset + 11, sizeof(attr));
+		if(attr == FAT_32_ATTR_LONG_NAME) //Se suma 11 para verificar el Byte que define si es long o short entry
+			return 1;
+		else
+			return 0;
+	}
+
 	void pfs_fat32_utils_setNextFreeCluster(uint32_t next){
 		Volume * v = pfs_state_getVolume();
 		v->nextFreeCluster = next;

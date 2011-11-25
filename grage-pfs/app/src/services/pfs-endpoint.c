@@ -16,6 +16,8 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
+#include "linux-commons-strings.h"
+#include "linux-commons-logging.h"
 #include <linux-commons-errors.h>
 
 #include "nipc-messaging.h"
@@ -25,8 +27,6 @@
 
 #include "pfs-configuration.h"
 #include "pfs-connection-pool.h"
-
-
 
 
 
@@ -58,8 +58,6 @@
 			return pfs_endpoint_callPooledPutSector(diskSector);
 		}else{
 
-			log_info_t(commons_string_concat("Sector: " , commons_misc_intToString(diskSector.sectorNumber)));
-
 			return pfs_endpoint_callNonPooledPutSector(diskSector);
 		}
 	}
@@ -68,9 +66,8 @@
 	DiskSector pfs_endpoint_callGetSector(uint32_t sectorNumber){
 		if(pfs_pool_isPooledConnectionsEnabled()){
 			return pfs_endpoint_callPooledGetSector(sectorNumber);
-		}else{
-			log_info_t(commons_string_concat("Sector: " , commons_misc_intToString(sectorNumber)));
 
+		}else{
 			return pfs_endpoint_callNonPooledGetSector(sectorNumber);
 		}
 	}

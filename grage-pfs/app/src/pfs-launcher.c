@@ -32,7 +32,7 @@ void estoyProbandoComoMierdaSeLeeUnArchivo(Volume * , FatFile * , uint16_t , uin
 void launch_pfs_tests(void);
 
 
-/*
+
 
 	void pfs_launcher_launchConnections(){
 
@@ -53,7 +53,6 @@ void launch_pfs_tests(void);
 		}
 
 	}
-*/
 
 
 
@@ -63,7 +62,7 @@ void launch_pfs_tests(void);
 		pfs_configuration_setConfigurationFile(PFS_DEFAULT_CONFIGURATION_FILE);
 		pfs_configuration_initialize();
 
-		//pfs_launcher_launchConnections();
+		pfs_launcher_launchConnections();
 		//pfs_console_initialize();
 		//ppd_initializeDisk();
 	}

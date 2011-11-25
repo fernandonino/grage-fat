@@ -28,25 +28,26 @@
 	#define FAT_32_BLOCK_ENTRY_SIZE						64
 	#define FAT_32_SECTOR_SIZE 							512
 	#define FAT_32_FATENTRY_SIZE						4
-	#define FAT_32_FREEENT  0xE5 /* The directory entry is free             */
-	#define FAT_32_ENDOFDIR 0x00 /* This and the following entries are free */
+	#define FAT_32_FREEENT  							0xE5 /* The directory entry is free             */
+	#define FAT_32_ENDOFDIR 							0x00 /* This and the following entries are free */
 
-	#define FAT_32_ATTR_READ_ONLY 								0x1
-	#define FAT_32_ATTR_HIDDEN 									0x2
-	#define FAT_32_ATTR_SYSTEM 									0x4
-	#define FAT_32_ATTR_VOLUME_ID 								0x8
-	#define FAT_32_ATTR_DIRECTORY 								0x10
-	#define FAT_32_ATTR_ARCHIVE 								0x20
-	#define FAT_32_ATTR_LONG_NAME ( FAT_32_ATTR_READ_ONLY | FAT_32_ATTR_HIDDEN | FAT_32_ATTR_SYSTEM | FAT_32_ATTR_VOLUME_ID )
-	#define FAT_32_FAT_FREE_ENTRY								0x00000000
-	#define FAT_32_FAT_EOC										0x0FFFFFF8
+	#define FAT_32_ATTR_READ_ONLY 						0x1
+	#define FAT_32_ATTR_HIDDEN 							0x2
+	#define FAT_32_ATTR_SYSTEM 							0x4
+	#define FAT_32_ATTR_VOLUME_ID 						0x8
+	#define FAT_32_ATTR_DIRECTORY 						0x10
+	#define FAT_32_ATTR_ARCHIVE 						0x20
+	#define FAT_32_ATTR_LONG_NAME 						( FAT_32_ATTR_READ_ONLY | FAT_32_ATTR_HIDDEN | FAT_32_ATTR_SYSTEM | FAT_32_ATTR_VOLUME_ID )
+	#define FAT_32_FAT_FREE_ENTRY						0x00000000
+	#define FAT_32_FAT_EOC								0x0FFFFFF8
 
 	#define FAT_32_ISEOC(FatEntryValue)  (((FatEntryValue) & 0x0FFFFFFF) >= 0x0FFFFFF8)
 	#define FAT_32_ISFREE(FatEntryValue) (((FatEntryValue) & 0x0FFFFFFF) == 0x00000000)
-	#define FAT_32_DIRENT_ISFREE(D) (((D) == FAT_32_FREEENT) || ((D) == FAT_32_ENDOFDIR))
-	#define FAT_32_DIRENT_ISLAST(D) (D == ENDOFDIR)
-	#define FAT_32_LDIR_ISLAST(Ord)	((Ord & 0x40) == 0x40)
-	#define FAT_32_LFN_ISNULL(character)	(character == 0x00)
+	#define FAT_32_DIRENT_ISFREE(D) 	 (((D) == FAT_32_FREEENT) || ((D) == FAT_32_ENDOFDIR))
+	#define FAT_32_DIRENT_ISLAST(D) 	 (D == ENDOFDIR)
+	#define FAT_32_LDIR_ISLONG(Attr) 	 (Attr == FAT_32_ATTR_LONG_NAME)
+	#define FAT_32_LDIR_ISLAST(Ord)		 ((Ord & 0x40) == 0x40)
+	#define FAT_32_LFN_ISNULL(character) (character == 0x00)
 
 
 	typedef struct {
@@ -125,6 +126,7 @@
 	void pfs_fat32_utils_getFileNameFromPath(const char *path, char *dest);
 	void pfs_fat32_utils_loadLongEntryFilename(LongDirEntry * , char * );
 	uint8_t pfs_fat32_utils_loadEntryFilename(DirEntry * , char *);
+	uint8_t pfs_fat_utils_hasLFN(uint32_t , DiskSector);
 
 	uint32_t pfs_fat_utils_getFatEntrySector(Volume * v , uint32_t cluster);
 	uint32_t pfs_fat_utils_getFatEntryOffset(Volume * v , uint32_t cluster);
