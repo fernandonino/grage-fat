@@ -236,8 +236,7 @@
 
 			while ( i < 8 ) {
 				if ( direntry->DIR_Name[i] != 0x20 )
-					//memcpy(de->d_name + i, &(direntry->DIR_Name[i]) , sizeof(uint8_t));
-					de->d_name[i] = direntry->DIR_Name[i];
+					memcpy(de->d_name + i, &(direntry->DIR_Name[i]) , sizeof(uint8_t));
 				else
 					break;
 				i++;
