@@ -80,16 +80,17 @@
 
 		uint8_t	fatQty; 		// quantity of FAT tables
 		uint16_t fatSize; 		// size of FAT in sectors
-		uint16_t fatStartSector; // sector donde comienza la fat
+		uint16_t fatStartSector; 	// sector donde comienza la fat
 
 		uint32_t clusters;		// cluster quantity
 		uint32_t sectors;		// sector quantity
-		uint32_t dataSectors;	// data sector quantity
+		uint32_t dataSectors;		// data sector quantity
 		uint32_t root;			// cluster number of root directory
 
 		int32_t disk;			// disk file descriptor - solo ese usa en los tests
 
-		uint32_t nextFreeCluster;
+		uint32_t nextFreeCluster;  	//Campo del FSInfo
+		uint32_t freeClusterCount; 	//Campo del FSInfo
 
 		pthread_mutex_t fatLock;
 	} __attribute__((packed)) Volume;
@@ -99,10 +100,10 @@
 	DiskSector commons_buildDiskSector();
 
 	//DEFINE DE PPD Y SU CONSOLA
-	#define MESSAGE_ID_CLEAN_SECTORS					14
-	#define MESSAGE_ID_ERROR							15
+	#define MESSAGE_ID_CLEAN_SECTORS				14
+	#define MESSAGE_ID_ERROR					15
 	#define MESSAGE_ID_SECTORES_POR_CILINDRO			16
-	#define MESSAGE_ID_POSICION_ACTUAL 					17
+	#define MESSAGE_ID_POSICION_ACTUAL 				17
 	#define MESSAGE_ID_SECTOR_SOLICITADO 				18
 	#define MESSAGE_ID_SECTORES_RECORRIDOS 				19
 	#define MESSAGE_ID_TIEMPO_CONSUMIDO 				20
