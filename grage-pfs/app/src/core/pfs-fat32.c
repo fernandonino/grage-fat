@@ -68,7 +68,7 @@
 						}
 						else{
 							memcpy(&sDirEntry, diskSector.sectorContent + offset, FAT_32_DIR_ENTRY_SIZE);
-							utf8name = pfs_fat32_utils_getShorName(&sDirEntry);
+							utf8name = pfs_fat32_utils_getShortName(&sDirEntry);
 							offset += FAT_32_DIR_ENTRY_SIZE;
 						}
 					} else if (offset >= v->bps) {
@@ -217,8 +217,11 @@
 
 		} else { //La entrada es solo DirEntry ( . o ..)
 			memcpy(&sfnentry , diskSector.sectorContent + file->dirEntryOffset - 32 , sizeof(DirEntry));
-
+			//puts("DIRENTRY:");
+			//puts(sfnentry.DIR_Name);
 			pfs_fat32_utils_toDirent(direntry , &sfnentry , NULL , volume);
+			//puts("DNAME:");
+			//puts(direntry->d_name);
 			return EXIT_SUCCESS;
 
 		}

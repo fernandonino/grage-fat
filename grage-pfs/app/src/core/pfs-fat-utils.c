@@ -190,7 +190,7 @@
 		return (sectorId - os) * 512 + offset;
 	}
 
-	String pfs_fat32_utils_getShorName(DirEntry * direntry){
+	String pfs_fat32_utils_getShortName(DirEntry * direntry){
 		uint8_t i = 0;
 		char * d_name = (char *)malloc(12);
 
@@ -205,11 +205,14 @@
 		if( direntry->DIR_Name[8] != 0x20 ){
 			d_name[i] = 0x2E;
 			i++;
-			d_name[i] = direntry->DIR_Name[8];
-			d_name[++i] = direntry->DIR_Name[9];
-			d_name[++i] = direntry->DIR_Name[10];
-			d_name[++i] = '\0';
+			if(direntry->DIR_Name[0] != '.'){
+				d_name[i] = direntry->DIR_Name[8];
+				d_name[++i] = direntry->DIR_Name[9];
+				d_name[++i] = direntry->DIR_Name[10];
+				d_name[++i] = '\0';
+			}
 		}
+		else d_name[i] = '\0';
 		return d_name;
 	}
 
@@ -233,20 +236,27 @@
 
 			while ( i < 8 ) {
 				if ( direntry->DIR_Name[i] != 0x20 )
-					memcpy(de->d_name + i, &(direntry->DIR_Name[i]) , sizeof(uint8_t));
+					//memcpy(de->d_name + i, &(direntry->DIR_Name[i]) , sizeof(uint8_t));
+					de->d_name[i] = direntry->DIR_Name[i];
 				else
 					break;
 				i++;
 			}
 
+			printf("ASCII: %d\n", direntry->DIR_Name[8]);
+			printf("VALOR: %c\n", direntry->DIR_Name[8]);
+
 			if( direntry->DIR_Name[8] != 0x20 ){
 				de->d_name[i] = 0x2E;
 				i++;
-				de->d_name[i] = direntry->DIR_Name[8];
-				de->d_name[++i] = direntry->DIR_Name[9];
-				de->d_name[++i] = direntry->DIR_Name[10];
-				de->d_name[++i] = '\0';
+				if(direntry->DIR_Name[0] != '.'){
+					de->d_name[i] = direntry->DIR_Name[8];
+					de->d_name[++i] = direntry->DIR_Name[9];
+					de->d_name[++i] = direntry->DIR_Name[10];
+					de->d_name[++i] = '\0';
+				}
 			}
+			else de->d_name[i] = '\0';
 
 /*
 			memcpy(de->d_name , direntry->DIR_Name , sizeof(uint8_t));
