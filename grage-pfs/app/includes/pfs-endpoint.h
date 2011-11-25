@@ -23,5 +23,6 @@
 	void ppd_state_setDiskStartAddress(char *);
 	void ppd_initializeDisk(void);
 
+	DiskSector pfs_endpoint_callCachedGetSector(uint32_t sectorNumber , FatFile  * fatFile);
 
 #endif /* PFS_ENDPOINT_H_ */

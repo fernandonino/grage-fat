@@ -25,12 +25,14 @@
 #include "pfs-console.h"
 #include "pfs-state.h"
 #include "pfs-fat32.h"
+#include <grage-commons.h>
 #include "pfs-fuse.h"
 
-void createTmpFile(uint16_t, uint32_t);
-void estoyProbandoComoMierdaSeLeeUnArchivo(Volume * , FatFile * , uint16_t , uint32_t);
 
-void launch_pfs_tests(void);
+	void createTmpFile(uint16_t, uint32_t);
+	void estoyProbandoComoMierdaSeLeeUnArchivo(Volume * , FatFile * , uint16_t , uint32_t);
+
+	void launch_pfs_tests(void);
 
 
 
@@ -64,9 +66,12 @@ void launch_pfs_tests(void);
 
 
 	void pfs_launcher_initialize() {
+
 		log_create("pfs", "/opt/grage-repository/logs/grage-pfs.log",
 				INFO | DEBUG | WARNING | ERROR, M_CONSOLE_DISABLE);
+
 		pfs_configuration_setConfigurationFile(PFS_DEFAULT_CONFIGURATION_FILE);
+
 		pfs_configuration_initialize();
 
 		//pfs_launcher_launchConnections();
@@ -127,8 +132,45 @@ void launch_pfs_tests(void);
 		log_destroy();
 	}
 
+
+	void askSector(int sector){
+		 DiskSector disk = pfs_endpoint_callCachedGetSector(sector , NULL);
+	}
+
+	int * getInteger(int i){
+		int * newi = malloc(sizeof(int));
+		*newi = i;
+		return newi;
+	}
+
 	int main(int argc, char *argv[]) {
 
+		pfs_launcher_initialize();
+		pfs_launcher_initializeBPB();
+
+		pfs_cache_initialize();
+
+		askSector(4);
+		askSector(5);
+		askSector(65);
+		askSector(34);
+		askSector(29);
+		askSector(56);
+		askSector(67);
+
+		puts("Repitiendo sectores, deberia buscarse de la cache todo esto");
+
+		askSector(4);
+		askSector(5);
+		askSector(65);
+		askSector(34);
+		askSector(29);
+		askSector(56);
+		askSector(67);
+
+
+
+/*
 		pfs_launcher_initialize();
 
 		//pfs_launcher_launch(argc , argv);
@@ -154,7 +196,7 @@ void launch_pfs_tests(void);
 		//pfs_cache_sectores_dumpBIS(lista);
 		pthread_join(fuckingThread , NULL);
 
-
+*/
 		pfs_launcher_exit();
 
 

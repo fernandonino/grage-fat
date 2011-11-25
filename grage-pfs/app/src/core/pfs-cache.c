@@ -86,7 +86,10 @@
 	void pfs_cache_initialize() {
 		Volume * v = pfs_state_getVolume();
 		pfs_state_initializeOpenFiles();
-		pfs_cache_setCacheSectorsFatMaxCount(v->fatSize*20/100);
+
+		uint32_t fatSize = v->fatSize;
+
+		pfs_cache_setCacheSectorsFatMaxCount(fatSize * 20 / 100);
 		pfs_cache_setListaCacheFat(pfs_cache_sectors_initialize());
 		pfs_cache_setCacheSectorsMaxCount(pfs_configuration_getCacheSize() * 2);
 	}
