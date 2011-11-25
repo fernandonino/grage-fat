@@ -19,10 +19,10 @@
 #include <linux-commons-errors.h>
 
 #include "nipc-messaging.h"
-
+#include "pfs-configuration.h"
 #include "pfs-endpoint.h"
 #include "pfs-state.h"
-
+#include "pfs-cache.h"
 
 
 	ListenSocket pfs_endpoint_doHandshake(){
@@ -67,18 +67,23 @@
 		DiskSector * sector = NULL;
 		if (pfs_cache_habilitada()){
 			if (pfs_cache_isFatSectorReserved(sectorNumber)){
-				CacheSectorRecord * s = pfs_cache_get_sector(sectorNumber,pfs_cache_getListaCacheFat(),pfs_cache_getCacheSectorsFatMaxCount());
+				CacheSectorRecord * s = pfs_cache_get_sector(
+						sectorNumber,pfs_cache_getListaCacheFat()
+						, pfs_cache_getCacheSectorsFatMaxCount());
 
 				if(s != NULL)
-					sector = s->sector;
+					sector = &s->sector;
 
 			}else{
 				if(fatFile != NULL){
 
-					CacheSectorRecord * s = pfs_cache_get_sector(sectorNumber,fatFile->cache,pfs_cache_getCacheSectorsMaxCount());
+					CacheSectorRecord * s = pfs_cache_get_sector(
+							sectorNumber,
+							fatFile->cache,
+							pfs_cache_getCacheSectorsMaxCount());
 
 					if(s != NULL)
-						sector = s->sector;
+						sector = &s->sector;
 				}
 			}
 
