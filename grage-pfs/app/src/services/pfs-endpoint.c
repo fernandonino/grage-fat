@@ -67,13 +67,21 @@
 		DiskSector * sector = NULL;
 		if (pfs_cache_habilitada()){
 			if (pfs_cache_isFatSectorReserved(sectorNumber)){
-				sector = pfs_cache_get_sector(sectorNumber,pfs_cache_getListaCacheFat(),pfs_cache_getCacheSectorsFatMaxCount());
+				CacheSectorRecord * s = pfs_cache_get_sector(sectorNumber,pfs_cache_getListaCacheFat(),pfs_cache_getCacheSectorsFatMaxCount());
+
+				if(s != NULL)
+					sector = s->sector;
 
 			}else{
 				if(fatFile != NULL){
-					sector = pfs_cache_get_sector(sectorNumber,fatFile->cache,pfs_cache_getCacheSectorsMaxCount());
+
+					CacheSectorRecord * s = pfs_cache_get_sector(sectorNumber,fatFile->cache,pfs_cache_getCacheSectorsMaxCount());
+
+					if(s != NULL)
+						sector = s->sector;
 				}
 			}
+
 			if(sector != NULL){
 
 				DiskSector diskSector;
@@ -95,6 +103,7 @@
 		message = nipc_messaging_receive(ds);
 
 		if (pfs_cache_habilitada()){
+
 			DiskSector * disk = malloc(sizeof (DiskSector));
 			memcpy(disk->sectorContent , message.payload.diskSector.sectorContent , sizeof message.payload.diskSector.sectorContent);
 			disk->sectorNumber = message.payload.diskSector.sectorNumber;
