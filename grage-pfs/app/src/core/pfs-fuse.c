@@ -18,19 +18,19 @@
 #include "pfs-fat32.h"
 
 	struct fuse_operations grage_oper = {
-	  .getattr = pfs_fuse_getattr,
+	  .getattr = pfs_fuse_getattr,			//Revisada
 	  .mkdir = pfs_fuse_mkdir,
-	  .unlink = pfs_fuse_unlink,
-	  .rmdir = pfs_fuse_rmdir,
+	  .unlink = pfs_fuse_unlink,			//Revisada
+	  .rmdir = pfs_fuse_rmdir,				//Revisada
 	  .rename = pfs_fuse_rename,
-	  .open = pfs_fuse_open,
-	  .read = pfs_fuse_read,
-	  .write = pfs_fuse_write,				//Pendiente
-	  .flush = pfs_fuse_flush,				//Pendiente
-	  .release = pfs_fuse_release,
-	  .readdir = pfs_fuse_readdir,
+	  .open = pfs_fuse_open,				//Revisada
+	  .read = pfs_fuse_read,				//Revisada
+	  .write = pfs_fuse_write,
+	  .flush = pfs_fuse_flush,
+	  .release = pfs_fuse_release,			//Revisada
+	  .readdir = pfs_fuse_readdir,			//Revisada
 	  .mknod = pfs_fuse_mknod,
-	  .truncate = pfs_fuse_truncate,		//A revisar
+	  .truncate = pfs_fuse_truncate,
 	};
 
 
@@ -120,7 +120,8 @@
 	int pfs_fuse_release(const char *path, struct fuse_file_info *fi){
 
 		FatFile * file = (FatFile *)fi->fh;
-		commons_misc_doFreeNull((void**)file);
+		if (file != NULL)
+			commons_misc_doFreeNull((void**)file);
 
 		return EXIT_SUCCESS;
 	}
@@ -201,6 +202,7 @@
 	        if (filler(buf, de.d_name, &st, 0))
 	            break;
 		}
+		free(fatFile);
 		return EXIT_SUCCESS;
 	}
 
@@ -225,11 +227,13 @@
 
 		FatFile * file = pfs_fat32_open(path);
 		if (file == NULL){
+			free(file);
 			return -ENOENT;
 			//return EXIT_SUCCESS;
 		}
 
 		pfs_fat32_utils_fileStat(v , file , statbuf);
+		free(file);
 
 		return EXIT_SUCCESS;
 	}

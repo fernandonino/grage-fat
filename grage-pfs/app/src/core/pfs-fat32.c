@@ -468,7 +468,7 @@
 		uint8_t freeCount = 0;
 
 		/* Completamos los campos del nombre */
-		longEntry.LDIR_Ord = 0x40; 						//Ultimo (y unico) long entry
+		longEntry.LDIR_Ord = 0x41; 						//Ultimo (y unico) long entry
 		pfs_fat32_utils_loadLongEntryFilename(&longEntry , filename);
 		pfs_fat32_utils_loadEntryFilename(&shortEntry , filename);
 
@@ -481,6 +481,7 @@
 
 		/* Completamos el resto de los atributos */
 		shortEntry.DIR_Attr = 0; 								 //Archivo comun y silvestre
+		longEntry.LDIR_Attr = FAT_32_ATTR_LONG_NAME;			 //Archivo comun y silvestre, es long entry
 		shortEntry.DIR_FileSize = 0; 							 //Por ahora esta vacio
 		shortEntry.DIR_FstClusHI = shortEntry.DIR_FstClusLO = 0; //Como esta vacio, no tiene contenido
 
@@ -551,7 +552,7 @@
 		uint8_t freeCount = 0;
 
 		/* Completamos los campos del nombre */
-		longEntry.LDIR_Ord = 0x40; 						//Ultimo (y unico) long entry
+		longEntry.LDIR_Ord = 0x41; 						//Ultimo (y unico) long entry
 		pfs_fat32_utils_loadLongEntryFilename(&longEntry , filename);
 		pfs_fat32_utils_loadEntryFilename(&shortEntry , filename);
 
@@ -568,6 +569,7 @@
 		uint32_t newCluster = pfs_fat32_utils_assignCluster(v);
 		pfs_fat_setFirstClusterToDirEntry(&shortEntry , newCluster);	//Seteamos LO + HI
 		shortEntry.DIR_Attr = FAT_32_ATTR_DIRECTORY; 			 		//Es un directorio
+		longEntry.LDIR_Attr = FAT_32_ATTR_LONG_NAME;					 //Es un directorio, es long entry
 		shortEntry.DIR_FileSize = 0; 							 		//Los directorios siempre estan en 0
 
 
