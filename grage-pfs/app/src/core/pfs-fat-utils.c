@@ -443,7 +443,8 @@
 				st->st_mode = S_IFREG | S_IRWXU;
 			}
 			st->st_size = fatFile->shortEntry.DIR_FileSize;
-			st->st_blocks = (st->st_size / v->bpc) + 1;
+			if(st->st_size == 0) st->st_blocks = 0;
+			else st->st_blocks = ((st->st_size / v->bpc) + 1) * 8;
 			st->st_ctim.tv_sec = st->st_atim.tv_sec = st->st_mtim.tv_sec = pfs_fat32_utils_getTime(&(fatFile->shortEntry));
 		}
 	}
@@ -622,23 +623,11 @@
 	}
 
 	void pfs_fat32_utils_extendFile(Volume * v , FatFile * f , off_t newsize){
-/*
-		uint32_t clusterCount;
-		uint32_t sizeToExtend = newsize;// - f->shortEntry.DIR_FileSize;
-		uint32_t sizeLeftInCluster;
-		if(f->shortEntry.DIR_FileSize != 0) sizeLeftInCluster = v->bpc - f->shortEntry.DIR_FileSize % v->bpc;
-		else sizeLeftInCluster = 0;
-		uint32_t lastCluster;
-		uint32_t amountRemaining = sizeToExtend - sizeLeftInCluster;
-		uint32_t clusterAmountToReserve = amountRemaining / v->bpc;
 
-		if((amountRemaining % v->bpc) != 0){
-			clusterAmountToReserve++;
-		}
-*/
 		uint32_t clusterCount;
 		uint32_t lastCluster;
 		uint32_t clusterAmountToReserve = newsize / v->bpc;
+		//if(newsize % v->bpc != 0) clusterAmountToReserve++;
 
 		if(f->nextCluster == 0){
 
@@ -664,9 +653,26 @@
 		dirSector = dirSector + secInClus;
 		uint32_t sectorOffset = f->sourceOffset % v->bps;
 
+
+		if(FAT_32_LDIR_ISLONG(f->longEntry.LDIR_Attr)){
+			if(sectorOffset + FAT_32_DIR_ENTRY_SIZE >= v->bps){
+				if(pfs_fat32_utils_isLastSectorFromCluster(v, dirSector)){
+					dirSector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v, f->source);
+				}
+				else{
+					dirSector++;
+				}
+				sectorOffset = 0;
+			}
+			else{
+				sectorOffset += FAT_32_DIR_ENTRY_SIZE;
+			}
+		}
+
 		DiskSector diskSector = pfs_endpoint_callGetSector(dirSector);
-		memcpy(diskSector.sectorContent + sectorOffset + FAT_32_DIR_ENTRY_SIZE, &(f->shortEntry), sizeof(DirEntry));
+		memcpy(diskSector.sectorContent + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
 		pfs_endpoint_callPutSector(diskSector);
+
 	}
 
 	uint32_t pfs_fat32_utils_findEOC(Volume * v, uint32_t firstCluster){
