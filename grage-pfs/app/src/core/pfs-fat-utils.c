@@ -242,9 +242,6 @@
 				i++;
 			}
 
-			printf("ASCII: %d\n", direntry->DIR_Name[8]);
-			printf("VALOR: %c\n", direntry->DIR_Name[8]);
-
 			if( direntry->DIR_Name[8] != 0x20 ){
 				de->d_name[i] = 0x2E;
 				i++;

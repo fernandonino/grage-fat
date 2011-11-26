@@ -218,11 +218,7 @@
 
 		} else { //La entrada es solo DirEntry ( . o ..)
 			memcpy(&sfnentry , diskSector.sectorContent + file->dirEntryOffset - 32 , sizeof(DirEntry));
-			//puts("DIRENTRY:");
-			//puts(sfnentry.DIR_Name);
 			pfs_fat32_utils_toDirent(direntry , &sfnentry , NULL , volume);
-			//puts("DNAME:");
-			//puts(direntry->d_name);
 			return EXIT_SUCCESS;
 
 		}
@@ -238,7 +234,6 @@
 
 		//Borrado de DirEntry
 		pfs_fat32_unlink_dirEntry(v , fd , diskSector);
-		//pfs_endpoint_callPutSector(diskSector);
 
 		//Borrado de la chain en la FAT
 		uint8_t result;
@@ -257,7 +252,6 @@
 
 		//Borrado de DirEntry
 		pfs_fat32_unlink_dirEntry(v , fd , diskSector);
-		//pfs_endpoint_callPutSector(diskSector);
 
 		//Borrado de la chain en la FAT
 		pfs_fat32_unlink_FatEntryChain(v , fd);
@@ -352,42 +346,6 @@
 		}
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	/*
-	void pfs_fat32_unlink_dirEntry(Volume * v , FatFile * fd , DiskSector * diskSector){
-		DirEntry sDirEntry;
-		LongDirEntry lDirEntry , auxLDirEntry;
-
-		uint32_t sectorOffset = fd->sourceOffset % v->bps;
-
-		memcpy(&lDirEntry, diskSector->sectorContent + sectorOffset, sizeof(LongDirEntry));
-		memcpy(&auxLDirEntry, diskSector->sectorContent + sectorOffset + FAT_32_BLOCK_ENTRY_SIZE, sizeof(LongDirEntry));
-		memcpy(&sDirEntry, diskSector->sectorContent + sectorOffset + FAT_32_DIR_ENTRY_SIZE, sizeof(DirEntry));
-		if(auxLDirEntry.LDIR_Ord != 0x00){
-			diskSector->sectorContent[sectorOffset] = FAT_32_FREEENT;
-			diskSector->sectorContent[sectorOffset + FAT_32_DIR_ENTRY_SIZE] = FAT_32_FREEENT;
-		}
-		else{
-			diskSector->sectorContent[sectorOffset] = FAT_32_ENDOFDIR;
-			diskSector->sectorContent[sectorOffset + FAT_32_DIR_ENTRY_SIZE] = FAT_32_ENDOFDIR;
-		}
-
-	}
-*/
 
 	int8_t pfs_fat32_unlink_FatEntryChain(Volume * v , FatFile * fd){
 		uint32_t nextCluster , offset , EntryValue , sector;
