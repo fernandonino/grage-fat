@@ -34,6 +34,7 @@
 		printf("Clusters totales: %u.\n" , v->clusters);
 
 		DiskSector sector = pfs_endpoint_callGetSector(b->BPB_FSInfo);
+		memcpy( &(v->freeClusterCount) , sector.sectorContent + 488 , sizeof(uint32_t));
 		memcpy( &(v->nextFreeCluster) , sector.sectorContent + 492 , sizeof(uint32_t));
 		v->nextFreeCluster++; //No sé por qué, siempre atrasa uno!
 		//En un disco en blanco, el nextFree es el 2. Si le creo un directorio adentro al dos,
@@ -47,6 +48,16 @@
 			return v;
 		}
 
+	}
+
+	void pfs_fat32_utils_unloadVolume(){
+		Volume * v = pfs_state_getVolume();
+		DiskSector sector = pfs_endpoint_callGetSector(1);
+
+		memcpy(sector.sectorContent + 488 , &(v->freeClusterCount) , sizeof(uint32_t));
+		memcpy(sector.sectorContent + 492 , &(v->nextFreeCluster) , sizeof(uint32_t));
+
+		pfs_endpoint_callPutSector(sector);
 	}
 
 	void pfs_fat_utils_unloadVolume(Volume * v){

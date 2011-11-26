@@ -116,7 +116,8 @@
 	uint32_t pfs_fat32_write(Volume * , FatFile * , const char * , size_t);
 
 //UTILS
-	Volume * pfs_fat_utils_loadVolume( BPB * b );
+	Volume * pfs_fat_utils_loadVolume(BPB * b);
+	void pfs_fat32_utils_unloadVolume(void);
 
 	uint32_t pfs_fat32_utils_fetchChar(LongDirEntry *D, int8_t n);
 	int8_t pfs_fat32_utils_getNameLength(LongDirEntry * ldirentry);

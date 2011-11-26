@@ -106,6 +106,7 @@ void launch_pfs_tests(void);
 	}
 
 	void pfs_launcher_exit() {
+		pfs_fat32_utils_unloadVolume();
 		log_destroy();
 	}
 
