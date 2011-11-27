@@ -21,8 +21,8 @@
 #include "ppd-entrypoint.h"
 #include "ppd-configuration.h"
 #include "ppd-endpoint.h"
-
-
+#include "ppd-console-entreypoint.h"
+#include "ppd-utils.h"
 
 	void ppd_planifier_worker_doJob(void * arg);
 
@@ -69,8 +69,10 @@
 
 				ppd_endpoint_responseGetSector(m);
 			}
-
-			ppd_alg_setCurrentPossition(m.payload.diskSector.sectorNumber);
+			ppd_console_entrypoint_setearPosicionCabezal(
+					ppd_utils_get_cilinder_from_sector(m.payload.diskSector.sectorNumber),
+					ppd_utils_get_sectorofcilinder_from_sector(m.payload.diskSector.sectorNumber));
+			//ppd_alg_setCurrentPossition(m.payload.diskSector.sectorNumber);
 		}
 	}
 
