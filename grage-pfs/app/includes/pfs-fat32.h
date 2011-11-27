@@ -114,10 +114,10 @@
 	uint8_t pfs_fat32_truncate(Volume * , FatFile * , off_t );
 	void pfs_fat32_rename(Volume * , FatFile * , char * );
 	uint32_t pfs_fat32_write(Volume * , FatFile * , const char * , size_t);
+	void pfs_fat32_flush(Volume *);
 
 //UTILS
 	Volume * pfs_fat_utils_loadVolume(BPB * b);
-	void pfs_fat_utils_unloadVolume(Volume *);
 
 	uint32_t pfs_fat32_utils_fetchChar(LongDirEntry *D, int8_t n);
 	int8_t pfs_fat32_utils_getNameLength(LongDirEntry * ldirentry);

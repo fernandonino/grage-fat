@@ -650,109 +650,116 @@
 
 	uint8_t pfs_fat32_truncate(Volume * v, FatFile * f, off_t newsize){
 
-			DiskSector diskSector;
-			DirEntry sDirEntry;
-			uint8_t setEndOfData = FAT_32_ENDOFDIR;
-			uint32_t setFatEntryFree = FAT_32_FAT_FREE_ENTRY;
-			uint32_t clusterCount = 0;
-			uint32_t currentCluster = f->nextCluster;
+		DiskSector diskSector;
+		DirEntry sDirEntry;
+		uint8_t setEndOfData = FAT_32_ENDOFDIR;
+		uint32_t setFatEntryFree = FAT_32_FAT_FREE_ENTRY;
+		uint32_t clusterCount = 0;
+		uint32_t currentCluster = f->nextCluster;
 
-			if(f->nextCluster == v->root) return -1; //No se puede truncar el root
+		if(f->nextCluster == v->root) return -1; //No se puede truncar el root
 
-			if(newsize > f->shortEntry.DIR_FileSize) {
-				pfs_fat32_utils_extendFile( v , f , newsize);
-				return 0;
-			}
+		//Actualizar fecha y hora de modificacion
+		time_t tim = time(NULL);
+		pfs_fat32_utils_fillTime(&(f->shortEntry.DIR_WrtDate), &(f->shortEntry.DIR_WrtTime), tim);
+		f->shortEntry.DIR_LstAccDate = f->shortEntry.DIR_WrtDate;
 
-			//Actualizar tamaño de archivo
-			uint32_t dirSector = pfs_fat_utils_getFirstSectorOfCluster(v, f->source);
-			uint32_t secInClus = f->sourceOffset / v->bps;
-			dirSector = dirSector + secInClus;
-			uint32_t sectorOffset = f->sourceOffset % v->bps;
+		//Extendiendo el archivo
+		if(newsize > f->shortEntry.DIR_FileSize) {
+			pfs_fat32_utils_extendFile( v , f , newsize);
+			return 0;
+		}
 
-			if(FAT_32_LDIR_ISLONG(f->longEntry.LDIR_Attr)){
-				if(sectorOffset + FAT_32_DIR_ENTRY_SIZE >= v->bps){
-					if(pfs_fat32_utils_isLastSectorFromCluster(v, dirSector)){
-						dirSector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v, f->source);
-					}
-					else{
-						dirSector++;
-					}
-					sectorOffset = 0;
+		//Actualizar tamanio de archivo
+		uint32_t dirSector = pfs_fat_utils_getFirstSectorOfCluster(v, f->source);
+		uint32_t secInClus = f->sourceOffset / v->bps;
+		dirSector = dirSector + secInClus;
+		uint32_t sectorOffset = f->sourceOffset % v->bps;
+
+		if(FAT_32_LDIR_ISLONG(f->longEntry.LDIR_Attr)){
+			if(sectorOffset + FAT_32_DIR_ENTRY_SIZE >= v->bps){
+				if(pfs_fat32_utils_isLastSectorFromCluster(v, dirSector)){
+					dirSector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v, f->source);
 				}
 				else{
-					sectorOffset += FAT_32_DIR_ENTRY_SIZE;
+					dirSector++;
 				}
-			}
-
-			diskSector = pfs_endpoint_callGetSector(dirSector);
-			memcpy(&sDirEntry, diskSector.sectorContent + sectorOffset, sizeof(DirEntry));
-			sDirEntry.DIR_FileSize = newsize;
-			memcpy(diskSector.sectorContent + sectorOffset, &sDirEntry, sizeof(DirEntry));
-			pfs_endpoint_callPutSector(diskSector);
-
-			//Obtenemos el cluster a partir del cual se va a truncar
-			while(clusterCount * v->bpc < newsize){
-				clusterCount++;
-				currentCluster = pfs_fat32_utils_getNextClusterInChain(v, currentCluster);
-			}
-
-			uint32_t offsetInCluster = newsize % v->bpc;
-			uint32_t offsetInSector = offsetInCluster % v->bps;
-			uint32_t sectorInCluster = offsetInCluster / v->bps;
-			uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v, currentCluster) + sectorInCluster;
-
-			//Borrado del primer cluster considerando que sea a partir del medio de un sector
-			diskSector = pfs_endpoint_callGetSector(sector);
-			if(v->bps - offsetInSector == 512){
-				memset(diskSector.sectorContent + offsetInSector, setEndOfData, v->bps - offsetInSector);
+				sectorOffset = 0;
 			}
 			else{
-				memset(diskSector.sectorContent + offsetInSector + 1, setEndOfData, v->bps - offsetInSector);
+				sectorOffset += FAT_32_DIR_ENTRY_SIZE;
 			}
+		}
 
+		diskSector = pfs_endpoint_callGetSector(dirSector);
+		memcpy(&sDirEntry, diskSector.sectorContent + sectorOffset, sizeof(DirEntry));
+		sDirEntry.DIR_FileSize = newsize;
+		memcpy(diskSector.sectorContent + sectorOffset, &sDirEntry, sizeof(DirEntry));
+		pfs_endpoint_callPutSector(diskSector);
+
+		//Obtenemos el cluster a partir del cual se va a truncar
+		while(clusterCount * v->bpc < newsize){
+			clusterCount++;
+			currentCluster = pfs_fat32_utils_getNextClusterInChain(v, currentCluster);
+		}
+
+		uint32_t offsetInCluster = newsize % v->bpc;
+		uint32_t offsetInSector = offsetInCluster % v->bps;
+		uint32_t sectorInCluster = offsetInCluster / v->bps;
+		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v, currentCluster) + sectorInCluster;
+
+		//Borrado del primer cluster considerando que sea a partir del medio de un sector
+		diskSector = pfs_endpoint_callGetSector(sector);
+		if(v->bps - offsetInSector == 512){
+			memset(diskSector.sectorContent + offsetInSector, setEndOfData, v->bps - offsetInSector);
+		}
+		else{
+			memset(diskSector.sectorContent + offsetInSector + 1, setEndOfData, v->bps - offsetInSector);
+		}
+
+		pfs_endpoint_callPutSector(diskSector);
+
+		uint8_t absoluteSectorNumber = sector % 8 + 1;
+
+		for(; absoluteSectorNumber != 8; absoluteSectorNumber++){
+			sector++;
+			diskSector = pfs_endpoint_callGetSector(sector);
+			memset(diskSector.sectorContent, setEndOfData, v->bps);
 			pfs_endpoint_callPutSector(diskSector);
+		}
 
-			uint8_t absoluteSectorNumber = sector % 8 + 1;
 
-			for(; absoluteSectorNumber != 8; absoluteSectorNumber++){
-				sector++;
+		//Seteo de EOC a la EntryFat correspondiente al cluster obtenido y borrado de datos
+		uint32_t nextCluster;
+		nextCluster = pfs_fat32_utils_getNextClusterInChain(v, currentCluster);
+		pfs_fat32_utils_markEndOfChain(v , currentCluster);
+
+		if(FAT_32_ISEOC(nextCluster)){
+			return EXIT_SUCCESS;
+		}
+		else{
+			uint32_t fatEntryOffset;
+			while(!FAT_32_ISEOC(nextCluster)){
+				sector = pfs_fat_utils_getFirstSectorOfCluster(v, nextCluster);
+				for(absoluteSectorNumber = 0; absoluteSectorNumber != 8; absoluteSectorNumber++){
+					diskSector = pfs_endpoint_callGetSector(sector);
+					memset(diskSector.sectorContent, setEndOfData, v->bps);
+					pfs_endpoint_callPutSector(diskSector);
+					sector++;
+				}
+				sector = pfs_fat_utils_getFatEntrySector(v, nextCluster);
 				diskSector = pfs_endpoint_callGetSector(sector);
-				memset(diskSector.sectorContent, setEndOfData, v->bps);
+				fatEntryOffset = pfs_fat_utils_getFatEntryOffset(v, nextCluster);
+
+				memcpy(&nextCluster, diskSector.sectorContent + fatEntryOffset, sizeof(uint32_t));
+				memcpy(diskSector.sectorContent + fatEntryOffset, &setFatEntryFree, sizeof(uint32_t));
 				pfs_endpoint_callPutSector(diskSector);
 			}
-
-
-			//Seteo de EOC a la EntryFat correspondiente al cluster obtenido y borrado de datos
-			uint32_t nextCluster;
-			nextCluster = pfs_fat32_utils_getNextClusterInChain(v, currentCluster);
-			pfs_fat32_utils_markEndOfChain(v , currentCluster);
-
-			if(FAT_32_ISEOC(nextCluster)){
-				return EXIT_SUCCESS;
-			}
-			else{
-				uint32_t fatEntryOffset;
-				while(!FAT_32_ISEOC(nextCluster)){
-					sector = pfs_fat_utils_getFirstSectorOfCluster(v, nextCluster);
-					for(absoluteSectorNumber = 0; absoluteSectorNumber != 8; absoluteSectorNumber++){
-						diskSector = pfs_endpoint_callGetSector(sector);
-						memset(diskSector.sectorContent, setEndOfData, v->bps);
-						pfs_endpoint_callPutSector(diskSector);
-						sector++;
-					}
-					sector = pfs_fat_utils_getFatEntrySector(v, nextCluster);
-					diskSector = pfs_endpoint_callGetSector(sector);
-					fatEntryOffset = pfs_fat_utils_getFatEntryOffset(v, nextCluster);
-
-					memcpy(&nextCluster, diskSector.sectorContent + fatEntryOffset, sizeof(uint32_t));
-					memcpy(diskSector.sectorContent + fatEntryOffset, &setFatEntryFree, sizeof(uint32_t));
-					pfs_endpoint_callPutSector(diskSector);
-				}
-				return EXIT_SUCCESS;
-			}
-		return EXIT_SUCCESS;
+			return EXIT_SUCCESS;
 		}
+
+	return EXIT_SUCCESS;
+	}
 
 
 	void pfs_fat32_rename(Volume * v, FatFile * fatFile, char * dest){
@@ -769,3 +776,15 @@
 		memcpy(diskSector.sectorContent + fatFile->sourceOffset + FAT_32_DIR_ENTRY_SIZE, &fatFile->shortEntry, sizeof(LongDirEntry));
 		pfs_endpoint_callPutSector(diskSector);
 	}
+
+
+	void pfs_fat32_flush(Volume * v){
+		DiskSector sector = pfs_endpoint_callGetSector(1);
+		uint32_t nextFree = v->nextFreeCluster - 1;
+		memcpy(sector.sectorContent + 488 , &(v->freeClusterCount) , sizeof(uint32_t));
+		memcpy( sector.sectorContent + 492 , &(nextFree) , sizeof(uint32_t));
+		pfs_endpoint_callPutSector(sector);
+	}
+
+
+

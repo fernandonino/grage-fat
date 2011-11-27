@@ -107,7 +107,7 @@ void launch_pfs_tests(void);
 
 	void pfs_launcher_exit() {
 		Volume * v = pfs_state_getVolume();
-		pfs_fat_utils_unloadVolume(v);
+		pfs_fat32_flush(v);
 		log_destroy();
 	}
 

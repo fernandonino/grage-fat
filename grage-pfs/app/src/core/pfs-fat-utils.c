@@ -50,15 +50,6 @@
 
 	}
 
-	void pfs_fat_utils_unloadVolume(Volume * v){
-		DiskSector sector = pfs_endpoint_callGetSector(1);
-		uint32_t nextFree = v->nextFreeCluster - 1;
-		memcpy(sector.sectorContent + 488 , &(v->freeClusterCount) , sizeof(uint32_t));
-		memcpy( sector.sectorContent + 492 , &(nextFree) , sizeof(uint32_t));
-		pfs_endpoint_callPutSector(sector);
-	}
-
-
 	uint32_t pfs_fat32_utils_fetchChar(LongDirEntry *D, int8_t n) {
 	    uint8_t i = (n % 13);
 
