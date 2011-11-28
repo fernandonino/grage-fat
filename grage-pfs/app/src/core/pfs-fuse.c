@@ -107,8 +107,6 @@
 		uint32_t total = size + offset;
 		uint32_t amount = size + offset - filesize;
 
-		printf("\t\t\tCantidad de clusters libres: %d\n", volume->freeClusterCount);
-
 		if ( size == 0)
 			return size;
 
@@ -126,8 +124,6 @@
 			return -ESPIPE;
 
 		result = pfs_fat32_write(volume , file , buf , size);
-
-		printf("\t\t\tCantidad de clusters libres: %d\n", volume->freeClusterCount);
 
 		return result;
 	}

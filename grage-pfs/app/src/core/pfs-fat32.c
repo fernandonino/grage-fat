@@ -364,6 +364,8 @@
 		memcpy(diskSector.sectorContent + offset, &phantomValue, sizeof(uint32_t));
 		pfs_endpoint_callPutSector(diskSector);
 
+		v->freeClusterCount++;
+
 		if( FAT_32_ISEOC(EntryValue) )
 			return 0;
 		else{
@@ -737,6 +739,8 @@
 		uint32_t nextCluster;
 		nextCluster = pfs_fat32_utils_getNextClusterInChain(v, currentCluster);
 		pfs_fat32_utils_markEndOfChain(v , currentCluster);
+		//Creo que aca tiene que aumentarse en uno la cuenta de clusters libres
+		//v->freeClusterCount++;
 
 		if(FAT_32_ISEOC(nextCluster)){
 			return EXIT_SUCCESS;
@@ -758,6 +762,9 @@
 				memcpy(&nextCluster, diskSector.sectorContent + fatEntryOffset, sizeof(uint32_t));
 				memcpy(diskSector.sectorContent + fatEntryOffset, &setFatEntryFree, sizeof(uint32_t));
 				pfs_endpoint_callPutSector(diskSector);
+
+				//Creo que esto esta bien,pero verificar:
+				//v->freeClusterCount++;
 			}
 			return EXIT_SUCCESS;
 		}
