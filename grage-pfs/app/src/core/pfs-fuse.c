@@ -28,6 +28,7 @@
 	  .write = pfs_fuse_write,
 	  .flush = pfs_fuse_flush,
 	  .release = pfs_fuse_release,			//Revisada
+	  .releasedir = pfs_fuse_releasedir,
 	  .readdir = pfs_fuse_readdir,			//Revisada
 	  .mknod = pfs_fuse_mknod,
 	  .truncate = pfs_fuse_truncate,
@@ -85,6 +86,9 @@
 		if ( (offset + size) > filesize )
 			size = filesize - offset;
 
+		if (size == 0)
+			return size;
+
 		uint8_t result = pfs_fat32_utils_seek(volume , file , offset , filesize);
 		if ( result == EXIT_FAILURE )
 			return -ESPIPE;
@@ -99,11 +103,37 @@
 		uint32_t result;
 		Volume * volume = pfs_state_getVolume();
 		FatFile * file = (FatFile *)fi->fh;
+		uint32_t filesize= file->shortEntry.DIR_FileSize;
+		uint32_t total = size + offset;
+		uint32_t amount = size + offset - filesize;
 
+		if ( size == 0)
+			return size;
+
+		uint32_t usedBytes = filesize % volume->bpc;
+		if ( amount > volume->bpc - usedBytes || usedBytes == 0) {
+			pfs_fat32_utils_extendFile(volume , file , size);
+
+		} else {
+			filesize = total;
+			pfs_fat32_utils_updateFilesize(volume , file , filesize);
+		}
+
+/*
+		if (total > filesize){
+			if ( ((amount / volume->bpc) >= 1) && ((total % volume->bpc) != 0))
+				pfs_fat32_utils_extendFile(volume , file , size);
+			else{
+				filesize = total;
+				pfs_fat32_utils_updateFilesize(volume , file , filesize);
+			}
+		}
+*/
+/*
 		if ( size >= file->shortEntry.DIR_FileSize || 0 == file->shortEntry.DIR_FileSize){
 			pfs_fat32_utils_extendFile(volume , file , size);
 		}
-
+*/
 		result = pfs_fat32_utils_seekWrite(volume , file , offset , file->shortEntry.DIR_FileSize);
 		if ( result == EXIT_FAILURE )
 			return -ESPIPE;
@@ -122,6 +152,15 @@
 	}
 
 	int pfs_fuse_release(const char *path, struct fuse_file_info *fi){
+
+		FatFile * file = (FatFile *)fi->fh;
+		if (file != NULL)
+			commons_misc_doFreeNull((void**)file);
+
+		return EXIT_SUCCESS;
+	}
+
+	int pfs_fuse_releasedir(const char *path, struct fuse_file_info *fi){
 
 		FatFile * file = (FatFile *)fi->fh;
 		if (file != NULL)

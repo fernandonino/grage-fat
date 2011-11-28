@@ -20,6 +20,9 @@
 			struct fuse_file_info *fi);
 	int pfs_fuse_flush(const char *path, struct fuse_file_info *fi);
 	int pfs_fuse_release(const char *path, struct fuse_file_info *fi);
+
+	int pfs_fuse_releasedir(const char *path, struct fuse_file_info *fi);
+
 	int pfs_fuse_truncate(const char *path, off_t newsize);
 	int pfs_fuse_unlink(const char * path);
 	int pfs_fuse_mkdir(const char *path, mode_t mode);

@@ -39,7 +39,7 @@
             FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
             LongDirEntry longEntry;
             DirEntry sDirEntry;
-            char * utf8name;
+            char * utf8name = NULL;
             int16_t offset;
 
             uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v , v->root);
@@ -59,6 +59,10 @@
 				char * token = commons_iterator_next(ite);
 
 				do{
+
+					//Agregado por Fer
+					if ( utf8name != NULL )
+						commons_misc_doFreeNull((void **)utf8name);
 
 					if (offset < v->bps) {
 						memcpy(&longEntry, diskSector.sectorContent + offset, FAT_32_DIR_ENTRY_SIZE);
@@ -782,7 +786,7 @@
 		DiskSector sector = pfs_endpoint_callGetSector(1);
 		uint32_t nextFree = v->nextFreeCluster - 1;
 		memcpy(sector.sectorContent + 488 , &(v->freeClusterCount) , sizeof(uint32_t));
-		memcpy( sector.sectorContent + 492 , &(nextFree) , sizeof(uint32_t));
+		memcpy(sector.sectorContent + 492 , &(nextFree) , sizeof(uint32_t));
 		pfs_endpoint_callPutSector(sector);
 	}
 
