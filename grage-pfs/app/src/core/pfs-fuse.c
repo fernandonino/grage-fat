@@ -107,6 +107,8 @@
 		uint32_t total = size + offset;
 		uint32_t amount = size + offset - filesize;
 
+		printf("\t\t\tCantidad de clusters libres: %d\n", volume->freeClusterCount);
+
 		if ( size == 0)
 			return size;
 
@@ -119,26 +121,13 @@
 			pfs_fat32_utils_updateFilesize(volume , file , filesize);
 		}
 
-/*
-		if (total > filesize){
-			if ( ((amount / volume->bpc) >= 1) && ((total % volume->bpc) != 0))
-				pfs_fat32_utils_extendFile(volume , file , size);
-			else{
-				filesize = total;
-				pfs_fat32_utils_updateFilesize(volume , file , filesize);
-			}
-		}
-*/
-/*
-		if ( size >= file->shortEntry.DIR_FileSize || 0 == file->shortEntry.DIR_FileSize){
-			pfs_fat32_utils_extendFile(volume , file , size);
-		}
-*/
 		result = pfs_fat32_utils_seekWrite(volume , file , offset , file->shortEntry.DIR_FileSize);
 		if ( result == EXIT_FAILURE )
 			return -ESPIPE;
 
 		result = pfs_fat32_write(volume , file , buf , size);
+
+		printf("\t\t\tCantidad de clusters libres: %d\n", volume->freeClusterCount);
 
 		return result;
 	}

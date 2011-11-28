@@ -440,7 +440,7 @@
 		}
 	}
 
-	/* Esta funcion esta incompleta */
+	/* Esta funcion esta incompleta y se deberia poder borrar*/
 	uint32_t pfs_fat32_utils_getNextFreeCluster(){
 
 		Volume * v = pfs_state_getVolume();
@@ -544,6 +544,8 @@
 
 		pthread_mutex_unlock( &(v->fatLock) );
 
+		v->freeClusterCount -= 1;
+
 		return currentFree;
 	}
 
@@ -592,6 +594,8 @@
 		v->nextFreeCluster = next;
 
 		pthread_mutex_unlock( &(v->fatLock) );
+
+		v->freeClusterCount -= 1;
 
 		return currentFree;
 	}
@@ -663,8 +667,8 @@
 		DiskSector diskSector = pfs_endpoint_callGetSector(dirSector);
 		memcpy(diskSector.sectorContent + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
 		pfs_endpoint_callPutSector(diskSector);
-
 	}
+
 
 	uint32_t pfs_fat32_utils_findEOC(Volume * v, uint32_t firstCluster){
 
