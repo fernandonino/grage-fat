@@ -421,7 +421,7 @@
 
 		if(fatFile->dirType == 0) {
 			st->st_ino = v->root;
-			st->st_mode = S_IFDIR | S_IRWXU;
+			st->st_mode = S_IFDIR | S_IRWXU | S_IRGRP | S_IROTH;
 			st->st_size = 0;
 			st->st_blocks=0;
 			st->st_ctim.tv_sec = st->st_atim.tv_sec = st->st_mtim.tv_sec = 0;
@@ -429,13 +429,14 @@
 			st->st_ino = pfs_fat_getFirstClusterFromDirEntry(&(fatFile->shortEntry));
 
 			if ( fatFile->shortEntry.DIR_Attr == FAT_32_ATTR_DIRECTORY ) {
-				st->st_mode = S_IFDIR | S_IRWXU;
+				st->st_mode = S_IFDIR | S_IRWXU | S_IRGRP | S_IROTH;
 			} else {
-				st->st_mode = S_IFREG | S_IRWXU;
+				st->st_mode = S_IFREG | S_IRWXU | S_IRGRP | S_IROTH;
 			}
 			st->st_size = fatFile->shortEntry.DIR_FileSize;
 			if(st->st_size == 0) st->st_blocks = 0;
-			else st->st_blocks = ((st->st_size / v->bpc) + 1) * 8;
+			else st->st_blocks = st->st_size / v->bpc;
+			if ( (st->st_size % v->bpc) != 0 ) st->st_blocks++;
 			st->st_ctim.tv_sec = st->st_atim.tv_sec = st->st_mtim.tv_sec = pfs_fat32_utils_getTime(&(fatFile->shortEntry));
 		}
 	}
