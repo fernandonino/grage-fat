@@ -85,7 +85,7 @@
 		uint32_t sourceOffset; 		// Offset dentro del cluster
 		uint32_t content;			// Cluster donde comienza el contenido
 		uint32_t nextCluster;		// LO + HI del DirEntry
-		DiskSector currentSector;	// Cluster actual para el recorrido en el readdir
+		uint32_t currentSector;	// Cluster actual para el recorrido en el readdir
 		DirEntry shortEntry;		// LDirEntry del archivo/directorio
 		LongDirEntry longEntry;		// DirEntry del archivo/directorio
 		uint32_t dirEntryOffset;	// cluster offset para los direntries del archivo
