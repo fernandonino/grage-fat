@@ -151,7 +151,7 @@ pthread_t ppdConsoleThread;
 					while (ppd_alg_planif_strategy_sstf(ppd_utils_get_sector_from_sectorofcilinder(
 							mensaje.pistaSector.sectorNumber,
 							mensaje.pistaSector.pista),
-							queue) != TRUE){
+							queue->sectorId) != TRUE){
 						puts("FORRO GONZA");
 						break;
 					}
