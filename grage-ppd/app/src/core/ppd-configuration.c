@@ -178,6 +178,7 @@
 		}
 		if(commons_string_equals(key,PPD_CONFIGURATION_CILINDER)){
 			setPpdDiskCilinder(value);
+			ppd_utils_set_cantidadSectoresPorCilindro(value);
 		}
 		if(commons_string_equals(key,PPD_CONFIGURATION_HEAD)){
 			setPpdDiskHead(value);
