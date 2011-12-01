@@ -149,11 +149,8 @@ pthread_t ppdConsoleThread;
 				Job * newJob = (Job *) malloc (sizeof (Job));
 
 				newJob->sectorId=ppd_utils_get_sector_from_sectorofcilinder(mensaje.pistaSector.sectorNumber,mensaje.pistaSector.pista);
-				if(commons_string_equals(getPpdAlgoritmo() , "sstf")){
-					puts("FORRO JOACO");
+				if(commons_string_equals(getPpdAlgoritmo() , "sstf") && commons_iterator_hasMoreElements(queues)){
 					while (ppd_alg_planif_strategy_sstf(newJob,	queue) != TRUE){
-						puts("FORRO GONZA");
-
 						break;
 					}
 					if ((mensaje.timeInMiliseconds = ppd_console_entrypoint_TiempoConsumido(
