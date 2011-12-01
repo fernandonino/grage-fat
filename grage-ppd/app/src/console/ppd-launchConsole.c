@@ -146,13 +146,14 @@ pthread_t ppdConsoleThread;
 				Queue listQueues = ppd_queues_getJobsQueue();
 				Iterator * queues = commons_iterator_buildIterator(listQueues);
 				Job * queue = commons_iterator_next(queues);
+				Job * newJob = (Job *) malloc (sizeof (Job));
+
+				newJob->sectorId=ppd_utils_get_sector_from_sectorofcilinder(mensaje.pistaSector.sectorNumber,mensaje.pistaSector.pista);
 				if(commons_string_equals(getPpdAlgoritmo() , "sstf")){
 					puts("FORRO JOACO");
-					while (ppd_alg_planif_strategy_sstf(ppd_utils_get_sector_from_sectorofcilinder(
-							mensaje.pistaSector.sectorNumber,
-							mensaje.pistaSector.pista),
-							queue->sectorId) != TRUE){
+					while (ppd_alg_planif_strategy_sstf(newJob,	queue) != TRUE){
 						puts("FORRO GONZA");
+
 						break;
 					}
 					if ((mensaje.timeInMiliseconds = ppd_console_entrypoint_TiempoConsumido(
@@ -171,7 +172,9 @@ pthread_t ppdConsoleThread;
 						mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
 					}
 				}
+				free(newJob);
 			}
+
 			if (mensaje.messageID == MESSAGE_ID_CLEAN_SECTORS){
 
 			}
