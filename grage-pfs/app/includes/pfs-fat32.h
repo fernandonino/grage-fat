@@ -122,7 +122,7 @@
 	uint32_t pfs_fat32_utils_fetchChar(LongDirEntry *D, int8_t n);
 	int8_t pfs_fat32_utils_getNameLength(LongDirEntry * ldirentry);
 	void pfs_fat32_utils_extractName( LongDirEntry * d, uint16_t * dest, int8_t length);
-	char *  pfs_fat_utils_getFileName(LongDirEntry * l);
+	void pfs_fat_utils_getFileName(LongDirEntry * l , char *);
 	void pfs_fat32_utils_getDirNameFromPath(const char *path, char *dest);
 	void pfs_fat32_utils_getFileNameFromPath(const char *path, char *dest);
 	void pfs_fat32_utils_loadLongEntryFilename(LongDirEntry * , char * );
@@ -166,7 +166,7 @@
 	void pfs_fat32_utils_updateFilesize(Volume * , FatFile * , uint32_t);
 	void pfs_fat32_utils_extendFile(Volume * , FatFile * , off_t);
 	int8_t pfs_fat32_utils_seekWrite(Volume * , FatFile * , off_t , uint32_t);
-	String pfs_fat32_utils_getShortName(DirEntry * direntry);
+	void pfs_fat32_utils_getShortName(DirEntry * , char *);
 
 #endif /* PFS_FAT32_H_ */
 

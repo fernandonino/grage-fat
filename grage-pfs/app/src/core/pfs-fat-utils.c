@@ -83,18 +83,18 @@
 	    return;
 	}
 
-	char *  pfs_fat_utils_getFileName(LongDirEntry * l){
+	void pfs_fat_utils_getFileName(LongDirEntry * l , char * utf8name){
 		uint8_t nameLength = pfs_fat32_utils_getNameLength(l);
 
 		uint16_t utf16name[13];
 		pfs_fat32_utils_extractName(l , utf16name , nameLength);
 
-		char * utf8name = (char *)calloc(nameLength,sizeof(char));
+		//char * utf8name = (char *)calloc(nameLength,sizeof(char));
 		size_t utf8length = 0;
 
 		unicode_utf16_to_utf8_inbuffer(utf16name , nameLength - 1 , utf8name , &utf8length);
 
-		return utf8name;
+		//return utf8name;
 	}
 
 	uint32_t pfs_fat_utils_getFatEntrySector(Volume * v , uint32_t cluster){
@@ -183,9 +183,9 @@
 		return (sectorId - os) * 512 + offset;
 	}
 
-	String pfs_fat32_utils_getShortName(DirEntry * direntry){
+	void pfs_fat32_utils_getShortName(DirEntry * direntry , char * d_name){
 		uint8_t i = 0;
-		char * d_name = (char *)malloc(12);
+		//char * d_name = (char *)malloc(12);
 
 		while ( i < 8 ) {
 			if ( direntry->DIR_Name[i] != 0x20 )
@@ -206,7 +206,7 @@
 			}
 		}
 		else d_name[i] = '\0';
-		return d_name;
+		//return d_name;
 	}
 
 	void pfs_fat32_utils_toDirent(struct dirent * de , DirEntry  * direntry , LongDirEntry * ldirentry , Volume * v){

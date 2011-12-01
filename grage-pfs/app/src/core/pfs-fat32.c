@@ -39,8 +39,8 @@
             FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
             LongDirEntry longEntry;
             DirEntry sDirEntry;
-            char * utf8name = NULL;
             int16_t offset;
+            char utf8name[14];
 
             uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v , v->root);
 
@@ -61,18 +61,18 @@
 				do{
 
 					//Agregado por Fer
-					if ( utf8name != NULL )
-						commons_misc_doFreeNull((void **)utf8name);
+					//if ( utf8name != NULL )
+						//commons_misc_doFreeNull((void **)utf8name);
 
 					if (offset < v->bps) {
 						memcpy(&longEntry, diskSector.sectorContent + offset, FAT_32_DIR_ENTRY_SIZE);
 						if(FAT_32_LDIR_ISLONG(longEntry.LDIR_Attr)){
-							utf8name = pfs_fat_utils_getFileName(&longEntry);
+							pfs_fat_utils_getFileName(&longEntry , utf8name);
 							offset += FAT_32_BLOCK_ENTRY_SIZE;
 						}
 						else{
 							memcpy(&sDirEntry, diskSector.sectorContent + offset, FAT_32_DIR_ENTRY_SIZE);
-							utf8name = pfs_fat32_utils_getShortName(&sDirEntry);
+							pfs_fat32_utils_getShortName(&sDirEntry , utf8name);
 							offset += FAT_32_DIR_ENTRY_SIZE;
 						}
 					} else if (offset >= v->bps) {
@@ -97,7 +97,7 @@
 				}while (longEntry.LDIR_Ord != FAT_32_ENDOFDIR && !commons_string_equals(token, utf8name));
 
 				if (longEntry.LDIR_Ord == FAT_32_ENDOFDIR) {
-						commons_misc_doFreeNull((void **)utf8name);
+						//commons_misc_doFreeNull((void **)utf8name);
 						return NULL;
 				} else if (commons_string_equals(utf8name, token)) {
 
@@ -136,7 +136,7 @@
 				}
             }
 
-            commons_misc_doFreeNull((void **)utf8name);
+            //commons_misc_doFreeNull((void **)utf8name);
 
 
             fatFile->sourceOffset = pfs_fat32_utils_getDirEntryOffset(
