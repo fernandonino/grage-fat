@@ -39,8 +39,8 @@
             FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
             LongDirEntry longEntry;
             DirEntry sDirEntry;
+            char * utf8name = NULL;
             int16_t offset;
-            char utf8name[14];
 
             uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v , v->root);
 
@@ -61,18 +61,18 @@
 				do{
 
 					//Agregado por Fer
-					//if ( utf8name != NULL )
-						//commons_misc_doFreeNull((void **)utf8name);
+					if ( utf8name != NULL )
+						commons_misc_doFreeNull((void **)utf8name);
 
 					if (offset < v->bps) {
 						memcpy(&longEntry, diskSector.sectorContent + offset, FAT_32_DIR_ENTRY_SIZE);
 						if(FAT_32_LDIR_ISLONG(longEntry.LDIR_Attr)){
-							pfs_fat_utils_getFileName(&longEntry , utf8name);
+							utf8name = pfs_fat_utils_getFileName(&longEntry);
 							offset += FAT_32_BLOCK_ENTRY_SIZE;
 						}
 						else{
 							memcpy(&sDirEntry, diskSector.sectorContent + offset, FAT_32_DIR_ENTRY_SIZE);
-							pfs_fat32_utils_getShortName(&sDirEntry , utf8name);
+							utf8name = pfs_fat32_utils_getShortName(&sDirEntry);
 							offset += FAT_32_DIR_ENTRY_SIZE;
 						}
 					} else if (offset >= v->bps) {
@@ -97,7 +97,7 @@
 				}while (longEntry.LDIR_Ord != FAT_32_ENDOFDIR && !commons_string_equals(token, utf8name));
 
 				if (longEntry.LDIR_Ord == FAT_32_ENDOFDIR) {
-						//commons_misc_doFreeNull((void **)utf8name);
+						commons_misc_doFreeNull((void **)utf8name);
 						return NULL;
 				} else if (commons_string_equals(utf8name, token)) {
 
@@ -136,7 +136,7 @@
 				}
             }
 
-            //commons_misc_doFreeNull((void **)utf8name);
+            commons_misc_doFreeNull((void **)utf8name);
 
 
             fatFile->sourceOffset = pfs_fat32_utils_getDirEntryOffset(
@@ -145,6 +145,12 @@
             fatFile->currentSector = pfs_fat_utils_getFirstSectorOfCluster(v , fatFile->nextCluster);
             fatFile->dirEntryOffset = 0;
             fatFile->dirType = 1;
+
+            //El siguiente if es un cambio para arreglar un tema con el unlink.
+            //No esta probado con el resto de las funciones
+            if(!FAT_32_LDIR_ISLONG(fatFile->longEntry.LDIR_Attr)){
+            	fatFile->sourceOffset -= FAT_32_DIR_ENTRY_SIZE;
+            }
 
             return fatFile;
     }
@@ -325,26 +331,41 @@
 		}
 		if(twoWritesFlag){
 			if(auxLDirEntry.LDIR_Ord != 0x00){
-				diskSector.sectorContent[v->bps - FAT_32_DIR_ENTRY_SIZE] = FAT_32_FREEENT;
-				auxDiskSector.sectorContent[0] = FAT_32_FREEENT;
+				uint8_t phantomValue = FAT_32_FREEENT;
+				memcpy(diskSector.sectorContent + v->bps - FAT_32_DIR_ENTRY_SIZE, &phantomValue, sizeof(LongDirEntry));
+				memcpy(auxDiskSector.sectorContent, &phantomValue, sizeof(DirEntry));
 			}
 			else{
-				diskSector.sectorContent[v->bps - FAT_32_DIR_ENTRY_SIZE] = FAT_32_ENDOFDIR;
-				auxDiskSector.sectorContent[0] = FAT_32_ENDOFDIR;
+				uint8_t phantomValue = FAT_32_ENDOFDIR;
+				memcpy(diskSector.sectorContent + v->bps - FAT_32_DIR_ENTRY_SIZE, &phantomValue, sizeof(LongDirEntry));
+				memcpy(auxDiskSector.sectorContent, &phantomValue, sizeof(DirEntry));
+
 			}
 			pfs_endpoint_callPutSector(diskSector);
 			pfs_endpoint_callPutSector(auxDiskSector);
 		}
 		else{
-			if(FAT_32_LDIR_ISLONG(lDirEntry.LDIR_Attr)) sectorOffset -= (2 * FAT_32_DIR_ENTRY_SIZE);
-			else sectorOffset -= FAT_32_DIR_ENTRY_SIZE;
+			sectorOffset = fd->sourceOffset % v->bps;
+
 			if(auxLDirEntry.LDIR_Ord != 0x00){
-				diskSector.sectorContent[sectorOffset] = FAT_32_FREEENT;
-				diskSector.sectorContent[sectorOffset + FAT_32_DIR_ENTRY_SIZE] = FAT_32_FREEENT;
+				uint8_t phantomValue = FAT_32_FREEENT;
+				if(FAT_32_LDIR_ISLONG(lDirEntry.LDIR_Attr)){
+					memcpy(diskSector.sectorContent + sectorOffset, &phantomValue, sizeof(LongDirEntry));
+					memcpy(diskSector.sectorContent + sectorOffset + FAT_32_DIR_ENTRY_SIZE, &phantomValue, sizeof(DirEntry));
+				}
+				else{
+					memcpy(diskSector.sectorContent + sectorOffset, &phantomValue, sizeof(DirEntry));
+				}
 			}
 			else{
-				diskSector.sectorContent[sectorOffset] = FAT_32_ENDOFDIR;
-				diskSector.sectorContent[sectorOffset + FAT_32_DIR_ENTRY_SIZE] = FAT_32_ENDOFDIR;
+				uint8_t phantomValue = FAT_32_ENDOFDIR;
+				if(FAT_32_LDIR_ISLONG(lDirEntry.LDIR_Attr)){
+					memcpy(diskSector.sectorContent + sectorOffset, &phantomValue, sizeof(LongDirEntry));
+					memcpy(diskSector.sectorContent + sectorOffset + FAT_32_DIR_ENTRY_SIZE, &phantomValue, sizeof(DirEntry));
+				}
+				else{
+					memcpy(diskSector.sectorContent + sectorOffset, &phantomValue, sizeof(DirEntry));
+				}
 			}
 			pfs_endpoint_callPutSector(diskSector);
 		}
