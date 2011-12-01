@@ -4,6 +4,7 @@
  *  Created on: 10/11/2011
  *      Author: gonzalo
  */
+#include <signal.h>
 
 #include <linux-commons.h>
 #include <linux-commons-logging.h>
@@ -15,7 +16,7 @@
 #include "ppd-state.h"
 #include "ppd-connection.h"
 #include "ppd-configuration.h"
-
+#include "ppd-launchConsole.h"
 
 
 	void ppd_pfs_entrypoint_serviceThread(ListenSocket * pfsSocket);
@@ -44,6 +45,13 @@
 
 			}
 		}
+		/*
+		* Matamos el proceso consola para q no quede pooleando
+		*/
+		if(ppd_launch_console_getChildProcessId() != -1)
+			kill( ppd_launch_console_getChildProcessId() , SIGKILL);
+
+		exit(1);
 	}
 
 
