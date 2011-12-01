@@ -20,6 +20,7 @@
 #include "ppd-state.h"
 #include "ppd-queues.h"
 #include "ppd-planifier.h"
+#include "ppd-utils.h"
 
 #define SOCK_PATH "/opt/grage-repository/.echo_socket"
 
