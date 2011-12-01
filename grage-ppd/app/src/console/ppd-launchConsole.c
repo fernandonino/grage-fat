@@ -147,17 +147,20 @@ pthread_t ppdConsoleThread;
 				Iterator * queues = commons_iterator_buildIterator(listQueues);
 				Job * queue = commons_iterator_next(queues);
 				if(commons_string_equals(getPpdAlgoritmo() , "sstf")){
+					puts("FORRO JOACO");
 					while (ppd_alg_planif_strategy_sstf(ppd_utils_get_sector_from_sectorofcilinder(
 							mensaje.pistaSector.pista,
 							mensaje.pistaSector.sectorNumber),
 							queue) != TRUE){
-						if ((mensaje.timeInMiliseconds = ppd_console_entrypoint_TiempoConsumido(
-										mensaje.pistaSector.pista,
-										mensaje.pistaSector.sectorNumber))==-1){
-							mensaje.messageID = MESSAGE_ID_ERROR;
-						}else{
-							mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
-						}
+						puts("FORRO GONZA");
+						break;
+					}
+					if ((mensaje.timeInMiliseconds = ppd_console_entrypoint_TiempoConsumido(
+									mensaje.pistaSector.pista,
+									mensaje.pistaSector.sectorNumber))==-1){
+						mensaje.messageID = MESSAGE_ID_ERROR;
+					}else{
+						mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
 					}
 				}else{
 					if ((mensaje.timeInMiliseconds = ppd_console_entrypoint_TiempoConsumido(
