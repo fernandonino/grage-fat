@@ -149,8 +149,8 @@ pthread_t ppdConsoleThread;
 				if(commons_string_equals(getPpdAlgoritmo() , "sstf")){
 					puts("FORRO JOACO");
 					while (ppd_alg_planif_strategy_sstf(ppd_utils_get_sector_from_sectorofcilinder(
-							mensaje.pistaSector.pista,
-							mensaje.pistaSector.sectorNumber),
+							mensaje.pistaSector.sectorNumber,
+							mensaje.pistaSector.pista),
 							queue) != TRUE){
 						puts("FORRO GONZA");
 						break;
