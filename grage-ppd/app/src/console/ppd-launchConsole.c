@@ -143,15 +143,20 @@ pthread_t ppdConsoleThread;
 
 			}
 			if (mensaje.messageID == MESSAGE_ID_SECTORES_RECORRIDOS) {
-				Queue listQueues = ppd_queues_getJobsQueue();
+				Queue listQueues ;
+
+				listQueues = ppd_queues_getJobsQueue();
 				Iterator * queues = commons_iterator_buildIterator(listQueues);
 				Job * queue = commons_iterator_next(queues);
 				Job * newJob = (Job *) malloc (sizeof (Job));
-
 				newJob->sectorId=ppd_utils_get_sector_from_sectorofcilinder(mensaje.pistaSector.sectorNumber,mensaje.pistaSector.pista);
 				if(commons_string_equals(getPpdAlgoritmo() , "sstf") && commons_iterator_hasMoreElements(queues)){
 					while (ppd_alg_planif_strategy_sstf(newJob,	queue) != TRUE){
-						break;
+						listQueues = ppd_queues_getJobsQueue();
+						Iterator * queues = commons_iterator_buildIterator(listQueues);
+						Job * queue = commons_iterator_next(queues);
+						Job * newJob = (Job *) malloc (sizeof (Job));
+						newJob->sectorId=ppd_utils_get_sector_from_sectorofcilinder(mensaje.pistaSector.sectorNumber,mensaje.pistaSector.pista);
 					}
 					if ((mensaje.timeInMiliseconds = ppd_console_entrypoint_TiempoConsumido(
 									mensaje.pistaSector.pista,

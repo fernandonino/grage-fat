@@ -32,6 +32,9 @@
 
 			ListenSocket pfsSocket = commons_socket_acceptConnection(ppd_state_getPfsConnection());
 
+			if(pfsSocket == -1)
+				break;
+
 			Boolean status = ppd_connections_handshake(pfsSocket);
 
 			pthread_t newPfsThread;
