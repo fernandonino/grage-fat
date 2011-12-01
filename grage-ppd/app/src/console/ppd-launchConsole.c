@@ -18,6 +18,8 @@
 #include "ppd-console-entreypoint.h"
 #include "ppd-launchConsole.h"
 #include "ppd-state.h"
+#include "ppd-queues.h"
+#include "ppd-planifier.h"
 
 #define SOCK_PATH "/opt/grage-repository/.echo_socket"
 
@@ -140,12 +142,30 @@ pthread_t ppdConsoleThread;
 
 			}
 			if (mensaje.messageID == MESSAGE_ID_SECTORES_RECORRIDOS) {
-				if ((mensaje.timeInMiliseconds = ppd_console_entrypoint_TiempoConsumido(
-								mensaje.pistaSector.pista,
-								mensaje.pistaSector.sectorNumber))==-1){
-					mensaje.messageID = MESSAGE_ID_ERROR;
+				Queue listQueues = ppd_queues_getJobsQueue();
+				Iterator * queues = commons_iterator_buildIterator(listQueues);
+				Job * queue = commons_iterator_next(queues);
+				if(commons_string_equals(getPpdAlgoritmo() , "sstf")){
+					while (ppd_alg_planif_strategy_sstf(ppd_utils_get_sector_from_sectorofcilinder(
+							mensaje.pistaSector.pista,
+							mensaje.pistaSector.sectorNumber),
+							queue) != TRUE){
+						if ((mensaje.timeInMiliseconds = ppd_console_entrypoint_TiempoConsumido(
+										mensaje.pistaSector.pista,
+										mensaje.pistaSector.sectorNumber))==-1){
+							mensaje.messageID = MESSAGE_ID_ERROR;
+						}else{
+							mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
+						}
+					}
 				}else{
-					mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
+					if ((mensaje.timeInMiliseconds = ppd_console_entrypoint_TiempoConsumido(
+							mensaje.pistaSector.pista,
+							mensaje.pistaSector.sectorNumber))==-1){
+						mensaje.messageID = MESSAGE_ID_ERROR;
+					}else{
+						mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
+					}
 				}
 			}
 			if (mensaje.messageID == MESSAGE_ID_CLEAN_SECTORS){

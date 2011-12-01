@@ -7,7 +7,7 @@
 
 #include "linux-commons.h"
 #include "nipc-messaging.h"
-
+#include "linux-commons-queue.h"
 #ifndef PPD_PLANIFIER_H_
 #define PPD_PLANIFIER_H_
 
@@ -26,7 +26,7 @@
 	Job * ppd_queues_buildJob(NipcMessage mes);
 	Boolean ppd_queues_isTheSameJob(Job * j1 , Job * j2);
 	void ppd_queues_initialize();
-
+	Queue ppd_queues_getJobsQueue();
 
 	NipcMessage  ppd_queues_pickFromQueue();
 	void ppd_queues_putInQueue(NipcMessage mes);

@@ -24,6 +24,9 @@
 	Queue jobsQueue;
 	uint32_t jobId;
 
+	Queue ppd_queues_getJobsQueue(){
+		return jobsQueue;
+	}
 
 	void ppd_queues_initialize(){
 		if(commons_string_equals(getPpdAlgoritmo() , "look")){
