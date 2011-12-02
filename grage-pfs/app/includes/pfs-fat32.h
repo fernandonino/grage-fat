@@ -115,6 +115,7 @@
 	int8_t pfs_fat32_mknod(Volume *  , FatFile *  , char * );
 	uint8_t pfs_fat32_truncate(Volume * , FatFile * , off_t );
 	void pfs_fat32_rename(Volume * , FatFile * , char * );
+	void pfs_fat32_moveFile(Volume * , FatFile * , const char * , const char * );
 	uint32_t pfs_fat32_write(Volume * , FatFile * , const char * , size_t);
 	void pfs_fat32_flush(Volume *);
 

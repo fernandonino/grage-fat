@@ -717,7 +717,9 @@
 	}
 
 	uint8_t pfs_fat32_utils_loadEntryFilename(DirEntry * de , char * utf8name){
-		char * name = strtok(utf8name , ".");
+		char utf8nameAux[14];
+		strcpy(utf8nameAux, utf8name);
+		char * name = strtok(utf8nameAux , ".");
 		char * extension = strtok(NULL , ".");
 		uint8_t i;
 
@@ -728,19 +730,19 @@
 		if ( length == 8 ) {			//Cabe justo en el espacio
 
 			for(i = 0 ; i < length ; i++ )
-				de->DIR_Name[i] = toupper(utf8name[i]);
+				de->DIR_Name[i] = toupper(utf8nameAux[i]);
 
 		} else if (length < 8) {		//Rellenamos los espacios
 
 			for(i = 0 ; i < length ; i++ )
-				de->DIR_Name[i] = toupper(utf8name[i]);
+				de->DIR_Name[i] = toupper(utf8nameAux[i]);
 			for( i = length ; i < 8 ; i++ )
 				de->DIR_Name[i] = 0x20;
 
 		} else {						//Hay que crearle un nombre raro
 
 			for(i = 0 ; i < 6 ; i++ )
-				de->DIR_Name[i] = toupper(utf8name[i]);
+				de->DIR_Name[i] = toupper(utf8nameAux[i]);
 				de->DIR_Name[6] = '~';
 				de->DIR_Name[7] = '1';
 				//Hay que buscar si ya existe, y cambiar el 1 en caso afirmativo

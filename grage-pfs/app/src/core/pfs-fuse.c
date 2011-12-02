@@ -279,11 +279,30 @@
 		pfs_fat32_utils_getFileNameFromPath(newpath, dest);
 
 		if( strlen(dest) > 13 || fatFile == NULL ) //Comprobacion de que el archivo al cual se le cambia el nombre exista
-					return -EXIT_FAILURE;
+			return -EXIT_FAILURE;
 
+		char oldDirName[66];
+		char newDirName[66];
+
+		pfs_fat32_utils_getDirNameFromPath(path, oldDirName);
+		pfs_fat32_utils_getDirNameFromPath(newpath, newDirName);
 		Volume * v = pfs_state_getVolume();
-		pfs_fat32_rename(v, fatFile, dest);
+		if(commons_string_equals(oldDirName, newDirName)){
+			pfs_fat32_rename(v, fatFile, dest);
+		}
+		else{
+			pfs_fat32_moveFile(v, fatFile, path, newpath);
+		}
+
+		/*
+		if(!commons_string_equals(oldDirName, newDirName) || commons_string_equals(oldDirName, newpath)){
+			pfs_fat32_moveFile(v, fatFile, dest);
+		}
+		else{
+			pfs_fat32_rename(v, fatFile, dest);
+		}
+		*/
+
 
 		return EXIT_SUCCESS;
 	}
-

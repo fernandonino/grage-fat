@@ -813,6 +813,83 @@
 	}
 
 
+	void pfs_fat32_moveFile(Volume * v, FatFile * oldFatFile, const char * path, const char * newpath){
+		uint8_t freeCount = 0;
+		uint32_t offset = FAT_32_BLOCK_ENTRY_SIZE;
+		LongDirEntry auxEntry;
+
+		char newDirName[66];
+		char dest[14];
+		pfs_fat32_utils_getDirNameFromPath(newpath, newDirName);
+		FatFile * newFatFile = pfs_fat32_open(newDirName);
+
+		uint32_t sectorId = pfs_fat_utils_getFirstSectorOfCluster(v, newFatFile->nextCluster);
+		DiskSector sector = pfs_endpoint_callGetSector(sectorId);
+
+		while( freeCount < 2 ) {
+			do {
+				memcpy(&auxEntry , sector.sectorContent + offset , FAT_32_DIR_ENTRY_SIZE);
+				offset += 32;
+
+				if ( FAT_32_DIRENT_ISFREE(auxEntry.LDIR_Ord) ){
+					freeCount++;
+					break;
+				}
+
+				if( offset >= v->bps ){
+					if ( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) ) {
+						if ( FAT_32_ISEOC(newFatFile->nextCluster)){
+							uint32_t newCluster = pfs_fat32_utils_allocateNewCluster(v , newFatFile->nextCluster);
+							sectorId = pfs_fat_utils_getFirstSectorOfCluster(v , newCluster);
+							sector = pfs_endpoint_callGetSector(sectorId);
+							freeCount = 2;
+							offset = 64;
+							break;
+						} else {
+							uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , newFatFile->nextCluster);
+							sector = pfs_endpoint_callGetSector(sectorId);
+							offset = 0;
+						}
+					} else {
+						sector = pfs_endpoint_callGetSector(sector.sectorNumber + 1);
+						offset = 0;
+					}
+				}
+			} while ( ! FAT_32_DIRENT_ISFREE(auxEntry.LDIR_Ord) ); //Sale cuando encontro 32 bytes libres
+
+			memcpy(&auxEntry , sector.sectorContent + offset , FAT_32_DIR_ENTRY_SIZE); //Se buscan los siguientes 32 bytes libres
+			offset += 32;
+
+			if ( FAT_32_DIRENT_ISFREE(auxEntry.LDIR_Ord) )
+				freeCount++; //Listo, tenemos 64 bytes contiguos libres
+			else
+				freeCount = 0; // Solo se encontraron 32 bytes libres - hay que empezar de nuevo
+		}
+		uint16_t longOffset = offset - FAT_32_BLOCK_ENTRY_SIZE;
+		uint16_t shortOffset = offset - FAT_32_DIR_ENTRY_SIZE;
+
+		pfs_fat32_utils_getFileNameFromPath(newpath, dest);
+		pfs_fat32_utils_loadEntryFilename(&oldFatFile->shortEntry , dest);
+		pfs_fat32_utils_loadLongEntryFilename(&oldFatFile->longEntry ,dest);
+
+		if(FAT_32_LDIR_ISLONG(oldFatFile->longEntry.LDIR_Attr)){
+			memcpy(sector.sectorContent + longOffset , &oldFatFile->longEntry , FAT_32_DIR_ENTRY_SIZE);
+			memcpy(sector.sectorContent + shortOffset , &oldFatFile->shortEntry , FAT_32_DIR_ENTRY_SIZE);
+		}
+		else{
+			shortOffset -= FAT_32_DIR_ENTRY_SIZE;
+			memcpy(sector.sectorContent + shortOffset , &oldFatFile->shortEntry , FAT_32_DIR_ENTRY_SIZE);
+		}
+		pfs_endpoint_callPutSector(sector);
+
+		uint32_t sectorNumberInCluster = oldFatFile->sourceOffset / v->bps;
+		uint32_t sectorToDelete = pfs_fat_utils_getFirstSectorOfCluster(v , oldFatFile->source);
+		DiskSector diskSectorToDelete = pfs_endpoint_callGetSector(sectorToDelete + sectorNumberInCluster);
+
+		pfs_fat32_unlink_dirEntry(v, oldFatFile, diskSectorToDelete);
+	}
+
+
 	void pfs_fat32_rename(Volume * v, FatFile * fatFile, char * dest){
 
 		uint32_t sectorInCluster = fatFile->sourceOffset / v->bps;
@@ -820,11 +897,28 @@
 		sector = sector + sectorInCluster;
 		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
 
-		pfs_fat32_utils_loadLongEntryFilename(&fatFile->longEntry ,dest);
 		pfs_fat32_utils_loadEntryFilename(&fatFile->shortEntry , dest);
-
-		memcpy(diskSector.sectorContent + fatFile->sourceOffset, &fatFile->longEntry, sizeof(DirEntry));
-		memcpy(diskSector.sectorContent + fatFile->sourceOffset + FAT_32_DIR_ENTRY_SIZE, &fatFile->shortEntry, sizeof(LongDirEntry));
+		if(FAT_32_LDIR_ISLONG(fatFile->longEntry.LDIR_Attr)){
+			pfs_fat32_utils_loadLongEntryFilename(&fatFile->longEntry ,dest);
+			memcpy(diskSector.sectorContent + fatFile->sourceOffset, &fatFile->longEntry, sizeof(LongDirEntry));
+			if(fatFile->sourceOffset + FAT_32_DIR_ENTRY_SIZE >= 512){
+				if(pfs_fat32_utils_isLastSectorFromCluster(v, sector)){
+					sector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v, fatFile->source);
+				}
+				else{
+					sector++;
+				}
+				DiskSector auxDiskSector = pfs_endpoint_callGetSector(sector);
+				memcpy(auxDiskSector.sectorContent, &fatFile->shortEntry, sizeof(DirEntry));
+				pfs_endpoint_callPutSector(auxDiskSector);
+			}
+			else{
+				memcpy(diskSector.sectorContent + fatFile->sourceOffset + FAT_32_DIR_ENTRY_SIZE, &fatFile->shortEntry, sizeof(DirEntry));
+			}
+		}
+		else{
+			memcpy(diskSector.sectorContent + fatFile->sourceOffset, &fatFile->shortEntry, sizeof(DirEntry));
+		}
 		pfs_endpoint_callPutSector(diskSector);
 	}
 
