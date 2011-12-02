@@ -69,10 +69,14 @@
 
 				ppd_endpoint_responseGetSector(m);
 			}
-			ppd_console_entrypoint_setearPosicionCabezal(
-					ppd_utils_get_cilinder_from_sector(m.payload.diskSector.sectorNumber),
-					ppd_utils_get_sectorofcilinder_from_sector(m.payload.diskSector.sectorNumber));
-			//ppd_alg_setCurrentPossition(m.payload.diskSector.sectorNumber);
+			if (commons_list_getSize(m)!=0){
+				ppd_console_entrypoint_setearPosicionCabezal(
+						ppd_utils_get_cilinder_from_sector(m.payload.diskSector.sectorNumber),
+						ppd_utils_get_sectorofcilinder_from_sector(m.payload.diskSector.sectorNumber));
+				//ppd_alg_setCurrentPossition(m.payload.diskSector.sectorNumber);
+			}else{
+				ppd_console_entrypoint_setearPosicionCabezal(0,0);
+			}
 		}
 	}
 
