@@ -140,7 +140,8 @@
 
 		FatFile * file = (FatFile *)fi->fh;
 		if (file != NULL)
-			commons_misc_doFreeNull((void**)file);
+			free(file);
+			//pfs_state_removeOpenedFile(file);
 
 		return EXIT_SUCCESS;
 	}
@@ -149,7 +150,8 @@
 
 		FatFile * file = (FatFile *)fi->fh;
 		if (file != NULL)
-			commons_misc_doFreeNull((void**)file);
+			free(file);
+			//pfs_state_removeOpenedFile(file);
 
 		return EXIT_SUCCESS;
 	}
