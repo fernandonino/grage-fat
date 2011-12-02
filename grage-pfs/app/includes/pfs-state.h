@@ -23,5 +23,7 @@
 	void pfs_state_setVolume(Volume * v);
 	Volume * pfs_state_getVolume();
 
+	void pfs_state_initializeOpenFiles();
+
 
 #endif /* PFS_STATE_H_ */

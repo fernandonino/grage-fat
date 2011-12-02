@@ -6,6 +6,7 @@
  */
 
 #include "grage-commons.h"
+//#include "pfs-fat32.h"
 #include <stdint.h>
 
 #ifndef PFS_ENDPOINT_H_
@@ -23,7 +24,7 @@
 	DiskSector pfs_endpoint_buildAndSendGet(ListenSocket ds, uint32_t sectorNumber);
 	void pfs_endpoint_bulidAndSendPut(ListenSocket ds , DiskSector diskSector);
 
-
+	//DiskSector pfs_endpoint_callCachedGetSector(uint32_t , FatFile  *);
 
 
 #endif /* PFS_ENDPOINT_H_ */

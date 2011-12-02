@@ -20,10 +20,13 @@
 #include "linux-commons-logging.h"
 #include <linux-commons-errors.h>
 
+#include <grage-commons.h>
 #include "nipc-messaging.h"
 
 #include "pfs-endpoint.h"
 #include "pfs-state.h"
+#include "pfs-cache.h"
+#include "pfs-fat32.h"
 
 #include "pfs-configuration.h"
 #include "pfs-connection-pool.h"
@@ -70,6 +73,162 @@
 		}else{
 			return pfs_endpoint_callNonPooledGetSector(sectorNumber);
 		}
+	}
+
+
+
+
+	/*
+	DiskSector pfs_endpoint_callCachedGetSector(uint32_t sectorNumber , FatFile  * fatFile){
+
+		DiskSector * sector = NULL;
+
+		if (pfs_cache_habilitada()){
+			if (pfs_cache_isFatSectorReserved(sectorNumber)){
+
+				CacheSectorRecord * s = pfs_cache_get_sector(
+						sectorNumber,pfs_cache_getListaCacheFat()
+						, pfs_cache_getCacheSectorsFatMaxCount());
+
+				if(s != NULL)
+					sector = &s->sector;
+
+			}else{
+				if(fatFile != NULL){
+
+					CacheSectorRecord * s = pfs_cache_get_sector(
+							sectorNumber,
+							fatFile->cache,
+							pfs_cache_getCacheSectorsMaxCount());
+
+					if(s != NULL)
+						sector = &s->sector;
+				}
+			}
+
+			if(sector != NULL){
+
+				printf("Se toma de la cache el sector %i\n" , sector->sectorNumber);
+
+				DiskSector diskSector;
+
+				memcpy(diskSector.sectorContent , sector->sectorContent , sizeof(diskSector));
+				diskSector.sectorNumber = sector->sectorNumber;
+				return diskSector;
+			}
+		}
+
+		DiskSector diskSector = pfs_endpoint_callGetSector(sectorNumber);
+
+		if (pfs_cache_habilitada()){
+
+			DiskSector * disk = malloc(sizeof (DiskSector));
+			memcpy(disk->sectorContent , diskSector.sectorContent , sizeof diskSector.sectorContent);
+			disk->sectorNumber = diskSector.sectorNumber;
+
+			if(pfs_cache_isFatSectorReserved(sectorNumber)){
+
+				printf("Se pone en cache fat el sector %i \n" , sectorNumber);
+				pfs_cache_put_sectors(disk , pfs_cache_getListaCacheFat() , pfs_cache_getCacheSectorsFatMaxCount());
+
+			}else{
+
+				pfs_cache_put_sectors(disk , fatFile->cache , pfs_cache_getCacheSectorsMaxCount());
+
+			}
+		}
+		return diskSector;
+
+	}
+*/
+
+
+
+
+	DiskSector pfs_endpoint_buildDiskSectorFromCacheCluster(CacheSectorRecord * a){
+		DiskSector d;
+		d.sectorNumber = 0;
+
+		if(a == NULL)
+			return d;
+
+		memcpy(d.sectorContent , a->sector.sectorContent , sizeof(a->sector.sectorContent));
+		d.sectorNumber = a->sector.sectorNumber;
+		return d;
+	}
+
+	DiskSector pfs_endpoint_utils_getFromFatCache(uint32_t sectorNumber){
+		CacheSectorRecord * s = pfs_cache_get_sector(
+			sectorNumber,pfs_cache_getListaCacheFat()
+			, pfs_cache_getCacheSectorsFatMaxCount());
+
+		return pfs_endpoint_buildDiskSectorFromCacheCluster(s);
+	}
+
+	DiskSector pfs_endpoint_utils_getFromFileCache(uint32_t sectorNumber , FatFile * fatFile){
+
+		CacheSectorRecord * s = pfs_cache_get_sector(
+				sectorNumber,
+				fatFile->cache,
+				pfs_cache_getCacheSectorsMaxCount());
+
+		return pfs_endpoint_buildDiskSectorFromCacheCluster(s);
+
+	}
+
+	DiskSector pfs_endpoint_utils_getFromCache(uint32_t sectorNumber , FatFile  * fatFile){
+
+		DiskSector defaultSector;
+		defaultSector.sectorNumber = 0;
+
+		if (pfs_cache_habilitada()){
+			if (pfs_cache_isFatSectorReserved(sectorNumber)){
+
+				return pfs_endpoint_utils_getFromFatCache(sectorNumber);
+
+			}else{
+
+				if(fatFile != NULL)
+					return pfs_endpoint_utils_getFromFileCache(sectorNumber , fatFile);
+			}
+		}
+		return defaultSector;
+	}
+
+	void pfs_endpoint_utils_putInCache(DiskSector d , List cache){
+		if (pfs_cache_habilitada()){
+			DiskSector * disk = malloc(sizeof (DiskSector));
+			memcpy(disk->sectorContent , d.sectorContent , sizeof d.sectorContent);
+			disk->sectorNumber = d.sectorNumber;
+			pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsFatMaxCount());
+		}
+	}
+
+	DiskSector pfs_endpoint_callCachedGetSector(uint32_t sectorNumber , FatFile  * fatFile){
+
+		DiskSector returningSector = pfs_endpoint_utils_getFromCache(sectorNumber , fatFile);
+
+		if(returningSector.sectorNumber != 0){
+
+			//printf("Se toma de la cache el sector %i\n" , returningSector.sectorNumber);
+
+			return returningSector;
+		}
+
+		returningSector = pfs_endpoint_callGetSector(sectorNumber );
+
+		if(pfs_cache_isFatSectorReserved(sectorNumber)){
+
+			//printf("Se pone en cache fat el sector %i \n" , sectorNumber);
+
+			pfs_endpoint_utils_putInCache(returningSector , pfs_cache_getListaCacheFat());
+
+		}else{
+
+			pfs_endpoint_utils_putInCache(returningSector , fatFile->cache );
+		}
+
+		return returningSector;
 	}
 
 

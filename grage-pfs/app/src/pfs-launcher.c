@@ -16,6 +16,7 @@
 #include <linux-commons-errors.h>
 #include <linux-commons-list.h>
 #include <linux-commons.h>
+#include <grage-commons.h>
 
 #include "nipc-messaging.h"
 
@@ -25,12 +26,7 @@
 #include "pfs-state.h"
 #include "pfs-fat32.h"
 #include "pfs-fuse.h"
-
-void createTmpFile(uint16_t, uint32_t);
-void estoyProbandoComoMierdaSeLeeUnArchivo(Volume * , FatFile * , uint16_t , uint32_t);
-
-void launch_pfs_tests(void);
-
+#include "pfs-cache.h"
 
 
 
@@ -99,9 +95,9 @@ void launch_pfs_tests(void);
 
 		pfs_launcher_initializeBPB();
 
-		pfs_fuse_launchFuse(argc,argv);
+		pfs_cache_initialize();
 
-		//launch_pfs_tests();
+		pfs_fuse_launchFuse(argc,argv);
 
 	}
 

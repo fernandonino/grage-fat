@@ -97,6 +97,8 @@
 		uint32_t fileSectorNumberOfCluster;
 		uint16_t sectorByteOffset;
 
+		List cache;
+
 	} FatFile;
 
 //FAT32

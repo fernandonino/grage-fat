@@ -7,12 +7,15 @@
 
 
 #include <stdlib.h>
+#include "pfs-cache.h"
 
 #include "pfs-fat32.h"
 
 
 	FatFile * pfs_fat32_utils_openRootDirectory(Volume * v) {
 		FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
+
+		fatFile->cache = pfs_cache_sectors_initialize();
 
 		uint32_t cluster = pfs_fat32_utils_getNextClusterInChain(v , v->root);
 
@@ -28,6 +31,8 @@
 		fatFile->dirEntryOffset = 0;
 		fatFile->dirType = 0;
 
+		pfs_state_addOpenFile(fatFile);
+
 		return fatFile;
 	}
 
@@ -42,9 +47,11 @@
             int16_t offset;
             char utf8name[14];
 
+            fatFile->cache = pfs_cache_sectors_initialize();
+
             uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v , v->root);
 
-            DiskSector diskSector = pfs_endpoint_callGetSector(sector);
+            DiskSector diskSector = pfs_endpoint_callCachedGetSector(sector , fatFile);
 
             List directories = commons_list_tokenize((char *)path, '/');
             Iterator * ite = commons_iterator_buildIterator(directories);
@@ -79,11 +86,11 @@
 						if(pfs_fat32_utils_isLastSectorFromCluster(v , sector)){
 
 							sector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);
-							diskSector = pfs_endpoint_callGetSector(sector);
+							diskSector = pfs_endpoint_callCachedGetSector(sector , fatFile);
 							next = pfs_fat32_utils_getNextClusterInChain(v , next);
 						}else{
 
-							diskSector = pfs_endpoint_callGetSector(++sector);
+							diskSector = pfs_endpoint_callCachedGetSector(++sector , fatFile);
 						}
 						if(offset > v->bps){
 							if(FAT_32_LDIR_ISLONG(longEntry.LDIR_Attr)) offset = FAT_32_DIR_ENTRY_SIZE;
@@ -106,11 +113,11 @@
 						if(pfs_fat32_utils_isLastSectorFromCluster(v , sector)){
 
 							sector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);
-							auxDiskSector = pfs_endpoint_callGetSector(sector);
+							auxDiskSector = pfs_endpoint_callCachedGetSector(sector , fatFile);
 							next = pfs_fat32_utils_getNextClusterInChain(v , next);
 						}else{
 
-							auxDiskSector = pfs_endpoint_callGetSector(++sector);
+							auxDiskSector = pfs_endpoint_callCachedGetSector(++sector , fatFile);
 						}
 						memcpy(&sDirEntry, auxDiskSector.sectorContent, FAT_32_DIR_ENTRY_SIZE);
 						offset -= FAT_32_BLOCK_ENTRY_SIZE;
@@ -131,7 +138,7 @@
 
 					if ( commons_iterator_hasMoreElements(ite) ){
 						sector = pfs_fat_utils_getFirstSectorOfCluster(v, next);
-						diskSector = pfs_endpoint_callGetSector(sector);
+						diskSector = pfs_endpoint_callCachedGetSector(sector , fatFile);
 					}
 				}
             }
@@ -151,6 +158,8 @@
             if(!FAT_32_LDIR_ISLONG(fatFile->longEntry.LDIR_Attr)){
             	fatFile->sourceOffset -= FAT_32_DIR_ENTRY_SIZE;
             }
+
+            pfs_state_addOpenFile(fatFile);
 
             return fatFile;
     }

@@ -18,7 +18,7 @@
 	char * pfs_configuration_getDeviceAddress(void);
 	uint32_t pfs_configuration_getMaxConnections(void);
 	char * pfs_configuration_getDevicePort(void);
-	char * pfs_configuration_getCacheSize(void);
+	uint32_t pfs_configuration_getCacheSize(void);
 
 	void pfs_configuration_setDevicePort(char * devPort);
 	void pfs_configuration_setDeviceAddress(char *);

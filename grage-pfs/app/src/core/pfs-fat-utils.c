@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <ctype.h>
+#include <grage-commons.h>
+#include "pfs-cache.h"
 
 #include "pfs-fat32.h"
 
@@ -125,7 +127,7 @@
 		uint32_t sector = pfs_fat_utils_getFatEntrySector(v, clusterId);
 		uint32_t offset = pfs_fat_utils_getFatEntryOffset(v, clusterId);
 
-		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
+		DiskSector diskSector = pfs_endpoint_callCachedGetSector(sector , NULL);
 
 		memcpy(&nextCluster, diskSector.sectorContent + offset, sizeof(uint32_t));
 
@@ -272,7 +274,7 @@
 		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v , fd->nextCluster);
 		uint32_t offset = FAT_32_BLOCK_ENTRY_SIZE;
 		uint32_t next = fd->nextCluster;
-		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
+		DiskSector diskSector = pfs_endpoint_callCachedGetSector(sector , fd);
 		LongDirEntry lDirEntry;
 		memcpy(&lDirEntry, diskSector.sectorContent + offset, sizeof(LongDirEntry));
 
@@ -284,11 +286,11 @@
 				if(pfs_fat32_utils_isLastSectorFromCluster(v , sector)){
 					if(FAT_32_ISEOC(next)) return 1;
 					sector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , next);
-					diskSector = pfs_endpoint_callGetSector(sector);
+					diskSector = pfs_endpoint_callCachedGetSector(sector , fd);
 					next = pfs_fat32_utils_getNextClusterInChain(v , next);
 				}
 				else{
-					diskSector = pfs_endpoint_callGetSector(++sector);
+					diskSector = pfs_endpoint_callCachedGetSector(++sector , fd);
 				}
 				offset = 0;
 			}
