@@ -62,12 +62,13 @@
 			fgets(buffer, 250, stdin);
 			printf(">%s\n", buffer);
 			cmd = pfs_console_utils_parseCMD(buffer);
+			if(!strcmp(cmd,"exit")) exit(1);
 			if(!strcmp(cmd, "fsinfo")) pfs_console_fsinfo();
 			if(!strcmp(cmd, "finfo")){
 				parameter = pfs_console_utils_get_cmd_parameter(buffer, strlen(cmd));
 				pfs_console_finfo(parameter);
 			}
-			if(strcmp(cmd, "fsinfo") && strcmp(cmd, "finfo")) puts("Comando incorrecto");
+			if(strcmp(cmd, "fsinfo") && strcmp(cmd, "finfo") && strcmp(cmd,"exit")) puts("Comando incorrecto");
 		}
 		return NULL;
 	}
