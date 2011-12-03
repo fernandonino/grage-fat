@@ -63,7 +63,7 @@
 			praid_pfs_entrypoint_processRequest(ls);
 		}
 
-		if(commons_console_logging_isDefault())
+		if(commons_console_logging_isAll())
 			puts("[ Se cerro una conexion ]");
 
 		log_info_t("Se cerro una conexion");
