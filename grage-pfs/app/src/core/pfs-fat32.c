@@ -712,7 +712,7 @@
 
 		//Extendiendo el archivo
 		if(newsize > f->shortEntry.DIR_FileSize) {
-			pfs_fat32_utils_extendFile( v , f , newsize);
+			pfs_fat32_utils_extendFileTruncate( v , f , newsize);
 			return 0;
 		}
 

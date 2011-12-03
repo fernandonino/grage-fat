@@ -167,7 +167,8 @@
 	uint32_t pfs_fat_utils_FreeClustersQuantity();
 
 	void pfs_fat32_utils_updateFilesize(Volume * , FatFile * , uint32_t);
-	void pfs_fat32_utils_extendFile(Volume * , FatFile * , off_t);
+	void pfs_fat32_utils_extendFileTruncate(Volume * , FatFile * , off_t);
+	void pfs_fat32_utils_extendFileWrite(Volume * , FatFile * , off_t);
 	int8_t pfs_fat32_utils_seekWrite(Volume * , FatFile * , off_t , uint32_t);
 	void pfs_fat32_utils_getShortName(DirEntry * , char *);
 

@@ -112,7 +112,7 @@
 
 		uint32_t usedBytes = filesize % volume->bpc;
 		if ( amount > volume->bpc - usedBytes || usedBytes == 0) {
-			pfs_fat32_utils_extendFile(volume , file , size);
+			pfs_fat32_utils_extendFileWrite(volume , file , size);
 
 		} else {
 			filesize = total;
@@ -293,16 +293,6 @@
 		else{
 			pfs_fat32_moveFile(v, fatFile, path, newpath);
 		}
-
-		/*
-		if(!commons_string_equals(oldDirName, newDirName) || commons_string_equals(oldDirName, newpath)){
-			pfs_fat32_moveFile(v, fatFile, dest);
-		}
-		else{
-			pfs_fat32_rename(v, fatFile, dest);
-		}
-		*/
-
 
 		return EXIT_SUCCESS;
 	}
