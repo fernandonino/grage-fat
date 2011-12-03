@@ -31,7 +31,7 @@
 		void pfs_cache_setCacheSectorsMaxCount(uint32 count);
 		void pfs_cache_sectors_registrar_acceso(List listaCacheSectors);
 		void pfs_cache_sectores_dumpBIS(List listaCacheSectors,uint32 sectorsMaxCount);
-		void pfs_cache_sectores_dump(List listaCacheSectors,uint32 sectorsMaxCount);
+		void pfs_cache_sectores_dump();
 
 
 

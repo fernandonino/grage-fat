@@ -17,13 +17,15 @@
 #include "pfs-state.h"
 #include <string.h>
 
-
-	void pfs_cache_sectores_dump(List listaCacheSectors, uint32 sectorsMaxCount) {
+extern List openFiles;
+	void pfs_cache_sectores_dump() {
 		char linea[512];
 		bzero(linea, 512);
 		int i;
+
+		uint32 sectorsMaxCount = pfs_cache_getCacheSectorsMaxCount();
 		Iterator * fuckingIterator = commons_iterator_buildIterator(
-				listaCacheSectors);
+				openFiles);
 		time_t log_time;
 		struct tm *log_tm;
 		char str_time[128];
@@ -42,7 +44,7 @@
 		//if (pfs_configuration_getCacheSize()!=NULL)
 
 		sprintf(linea, "Cantidad de bloques de Cache: %d ",
-				commons_list_getSize(listaCacheSectors));
+				commons_list_getSize(openFiles));
 		//fwrite(linea , sizeof(char) , sizeof(linea) , cache_dump);
 		commons_file_insertLine(linea, cache_dump);
 		i = 0;
