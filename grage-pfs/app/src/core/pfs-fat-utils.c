@@ -609,7 +609,7 @@
 		uint32_t offset = pfs_fat_utils_getFatEntryOffset(v , assignedCluser);
 		DiskSector sector = pfs_endpoint_callGetSector(sectorId);
 		memcpy(sector.sectorContent + offset , &endOfChain , sizeof(uint32_t));
-		pfs_endpoint_callPutSector(sector);
+		pfs_endpoint_callPutSector(sector , NULL);
 	}
 
 	void pfs_fat32_utils_expandChain(Volume * v , uint32_t last , uint32_t free){
@@ -617,7 +617,7 @@
 		uint16_t   offset = pfs_fat_utils_getFatEntryOffset(v , last);
 		DiskSector sector = pfs_endpoint_callGetSector(sectorId);
 		memcpy(sector.sectorContent + offset , &free , sizeof(uint32_t));
-		pfs_endpoint_callPutSector(sector);
+		pfs_endpoint_callPutSector(sector , NULL);
 	}
 
 	void pfs_fat32_utils_extendFileTruncate(Volume * v , FatFile * f , off_t newsize){
@@ -669,7 +669,7 @@
 
 		DiskSector diskSector = pfs_endpoint_callGetSector(dirSector);
 		memcpy(diskSector.sectorContent + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
-		pfs_endpoint_callPutSector(diskSector);
+		pfs_endpoint_callPutSector(diskSector , NULL);
 	}
 
 	void pfs_fat32_utils_extendFileWrite(Volume * v , FatFile * f , off_t newsize){
@@ -721,7 +721,7 @@
 
 		DiskSector diskSector = pfs_endpoint_callGetSector(dirSector);
 		memcpy(diskSector.sectorContent + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
-		pfs_endpoint_callPutSector(diskSector);
+		pfs_endpoint_callPutSector(diskSector , NULL);
 	}
 
 
@@ -923,8 +923,9 @@
 
 		DiskSector diskSector = pfs_endpoint_callGetSector(dirSector);
 		memcpy(diskSector.sectorContent + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
-		pfs_endpoint_callPutSector(diskSector);
+		pfs_endpoint_callPutSector(diskSector , NULL);
 	}
+
 	uint32_t pfs_fat_utils_FATsizeKilobytes(){
 		Volume * v = pfs_state_getVolume();
 		return (v->fatSize*v->bps)/1024;

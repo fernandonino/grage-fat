@@ -12,7 +12,7 @@
 #ifndef PFS_ENDPOINT_H_
 #define PFS_ENDPOINT_H_
 
-	void pfs_endpoint_callPutSector(DiskSector);
+	//void pfs_endpoint_callPutSector(DiskSector , FatFile *);
 	DiskSector pfs_endpoint_callGetSector(uint32_t);
 
 	ListenSocket pfs_endpoint_doHandshake(void);

@@ -54,15 +54,32 @@
 	}
 
 
+	void pfs_endpoint_callPutSector( DiskSector diskSector , FatFile * file ){
 
+		if (pfs_cache_habilitada() && file != NULL){
 
-	void pfs_endpoint_callPutSector( DiskSector diskSector){
+			Volume * v = pfs_state_getVolume();
+
+			Iterator * ite = commons_iterator_buildIterator(file->cache);
+
+			while( commons_iterator_hasMoreElements(ite) ){
+
+				CacheSectorRecord * nodo = (CacheSectorRecord *)commons_iterator_next(ite);
+
+				if (nodo->sector.sectorNumber == diskSector.sectorNumber){
+					memcpy(nodo->sector.sectorContent , diskSector.sectorContent , v->bps);
+					break;
+				}
+			}
+		}
+
 		if(pfs_pool_isPooledConnectionsEnabled()){
 			return pfs_endpoint_callPooledPutSector(diskSector);
 		}else{
 
 			return pfs_endpoint_callNonPooledPutSector(diskSector);
 		}
+
 	}
 
 
@@ -74,74 +91,6 @@
 			return pfs_endpoint_callNonPooledGetSector(sectorNumber);
 		}
 	}
-
-
-
-
-	/*
-	DiskSector pfs_endpoint_callCachedGetSector(uint32_t sectorNumber , FatFile  * fatFile){
-
-		DiskSector * sector = NULL;
-
-		if (pfs_cache_habilitada()){
-			if (pfs_cache_isFatSectorReserved(sectorNumber)){
-
-				CacheSectorRecord * s = pfs_cache_get_sector(
-						sectorNumber,pfs_cache_getListaCacheFat()
-						, pfs_cache_getCacheSectorsFatMaxCount());
-
-				if(s != NULL)
-					sector = &s->sector;
-
-			}else{
-				if(fatFile != NULL){
-
-					CacheSectorRecord * s = pfs_cache_get_sector(
-							sectorNumber,
-							fatFile->cache,
-							pfs_cache_getCacheSectorsMaxCount());
-
-					if(s != NULL)
-						sector = &s->sector;
-				}
-			}
-
-			if(sector != NULL){
-
-				printf("Se toma de la cache el sector %i\n" , sector->sectorNumber);
-
-				DiskSector diskSector;
-
-				memcpy(diskSector.sectorContent , sector->sectorContent , sizeof(diskSector));
-				diskSector.sectorNumber = sector->sectorNumber;
-				return diskSector;
-			}
-		}
-
-		DiskSector diskSector = pfs_endpoint_callGetSector(sectorNumber);
-
-		if (pfs_cache_habilitada()){
-
-			DiskSector * disk = malloc(sizeof (DiskSector));
-			memcpy(disk->sectorContent , diskSector.sectorContent , sizeof diskSector.sectorContent);
-			disk->sectorNumber = diskSector.sectorNumber;
-
-			if(pfs_cache_isFatSectorReserved(sectorNumber)){
-
-				printf("Se pone en cache fat el sector %i \n" , sectorNumber);
-				pfs_cache_put_sectors(disk , pfs_cache_getListaCacheFat() , pfs_cache_getCacheSectorsFatMaxCount());
-
-			}else{
-
-				pfs_cache_put_sectors(disk , fatFile->cache , pfs_cache_getCacheSectorsMaxCount());
-
-			}
-		}
-		return diskSector;
-
-	}
-*/
-
 
 
 
