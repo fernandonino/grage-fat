@@ -90,13 +90,13 @@
 		LongDirEntry longEntry;		// DirEntry del archivo/directorio
 		uint32_t dirEntryOffset;	// cluster offset para los direntries del archivo
 		uint8_t	dirType;			// Define si es root o subdir: 0 = root ; 1 = subdir
+		uint32_t EOC;				// Guarda el EOC, sirve solo para el trunate y el write
 
 		//pfs_fat32_read
 		uint32_t fileClusterNumber;
 		uint32_t fileAbsoluteClusterNumber;
 		uint32_t fileSectorNumberOfCluster;
 		uint16_t sectorByteOffset;
-
 		List cache;
 
 	} FatFile;

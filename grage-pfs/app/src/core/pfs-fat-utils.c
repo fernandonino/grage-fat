@@ -127,7 +127,7 @@
 		uint32_t sector = pfs_fat_utils_getFatEntrySector(v, clusterId);
 		uint32_t offset = pfs_fat_utils_getFatEntryOffset(v, clusterId);
 
-		DiskSector diskSector = pfs_endpoint_callCachedGetSector(sector , NULL);
+		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
 
 		memcpy(&nextCluster, diskSector.sectorContent + offset, sizeof(uint32_t));
 
@@ -409,7 +409,7 @@
 		if ( f->fileSectorNumberOfCluster != 1)
 			s = s + f->fileSectorNumberOfCluster - 1;
 
-		return pfs_endpoint_callGetSector(s);
+		return pfs_endpoint_callCachedGetSector(s , f);
 	}
 
 
@@ -515,7 +515,7 @@
 		uint32_t sectorId = pfs_fat_utils_getFatEntrySector(v , next);
 		uint32_t offset = pfs_fat_utils_getFatEntryOffset(v , next);
 
-		DiskSector sector = pfs_endpoint_callGetSector(sectorId);
+		DiskSector sector = pfs_endpoint_callCachedGetSector(sectorId , NULL);
 
 		for( ; next < v->clusters; next++){
 			memcpy(&entry , sector.sectorContent + offset , sizeof(uint32_t));
@@ -537,7 +537,7 @@
 					offset = 0;
 					sector.sectorNumber = v->fatStartSector;
 				}
-				sector = pfs_endpoint_callGetSector(sectorId);
+				sector = pfs_endpoint_callCachedGetSector(sectorId  , NULL);
 			}
 		}
 
@@ -564,7 +564,7 @@
 		uint32_t sectorId = pfs_fat_utils_getFatEntrySector(v , next);
 		uint32_t offset = pfs_fat_utils_getFatEntryOffset(v , next);
 
-		DiskSector sector = pfs_endpoint_callGetSector(sectorId);
+		DiskSector sector = pfs_endpoint_callCachedGetSector(sectorId , NULL);
 
 		for( ; next < v->clusters; next++){
 			memcpy(&entry , sector.sectorContent + offset , sizeof(uint32_t));
@@ -586,7 +586,7 @@
 					offset = 0;
 					sector.sectorNumber = v->fatStartSector;
 				}
-				sector = pfs_endpoint_callGetSector(sectorId);
+				sector = pfs_endpoint_callCachedGetSector(sectorId , NULL);
 			}
 		}
 
@@ -607,7 +607,7 @@
 		uint32_t endOfChain = FAT_32_FAT_EOC;
 		uint32_t sectorId = pfs_fat_utils_getFatEntrySector(v , assignedCluser);
 		uint32_t offset = pfs_fat_utils_getFatEntryOffset(v , assignedCluser);
-		DiskSector sector = pfs_endpoint_callGetSector(sectorId);
+		DiskSector sector = pfs_endpoint_callCachedGetSector(sectorId , NULL);
 		memcpy(sector.sectorContent + offset , &endOfChain , sizeof(uint32_t));
 		pfs_endpoint_callPutSector(sector , NULL);
 	}
@@ -615,7 +615,7 @@
 	void pfs_fat32_utils_expandChain(Volume * v , uint32_t last , uint32_t free){
 		uint32_t sectorId = pfs_fat_utils_getFatEntrySector(v , last);
 		uint16_t   offset = pfs_fat_utils_getFatEntryOffset(v , last);
-		DiskSector sector = pfs_endpoint_callGetSector(sectorId);
+		DiskSector sector = pfs_endpoint_callCachedGetSector(sectorId , NULL);
 		memcpy(sector.sectorContent + offset , &free , sizeof(uint32_t));
 		pfs_endpoint_callPutSector(sector , NULL);
 	}
@@ -638,11 +638,17 @@
 			clusterCount = 0;
 		}
 
-		lastCluster = pfs_fat32_utils_findEOC(v, f->nextCluster);
+		if(f->EOC == 0){
+			lastCluster = pfs_fat32_utils_findEOC(v, f->nextCluster);
+			f->EOC = lastCluster;
+		}
+		else{
+			lastCluster = f->EOC;
+		}
 
 		for(; clusterCount < clusterAmountToReserve ; clusterCount++){
 			lastCluster = pfs_fat32_utils_allocateNewCluster(v,lastCluster);
-
+			f->EOC = lastCluster;
 		}
 
 		f->shortEntry.DIR_FileSize = newsize;
@@ -667,7 +673,7 @@
 			}
 		}
 
-		DiskSector diskSector = pfs_endpoint_callGetSector(dirSector);
+		DiskSector diskSector = pfs_endpoint_callCachedGetSector(dirSector , f);
 		memcpy(diskSector.sectorContent + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
 		pfs_endpoint_callPutSector(diskSector , NULL);
 	}
@@ -690,11 +696,17 @@
 			clusterCount = 0;
 		}
 
-		lastCluster = pfs_fat32_utils_findEOC(v, f->nextCluster);
+		if(f->EOC == 0){
+			lastCluster = pfs_fat32_utils_findEOC(v, f->nextCluster);
+			f->EOC = lastCluster;
+		}
+		else{
+			lastCluster = f->EOC;
+		}
 
 		for(; clusterCount < clusterAmountToReserve ; clusterCount++){
 			lastCluster = pfs_fat32_utils_allocateNewCluster(v,lastCluster);
-
+			f->EOC = lastCluster;
 		}
 
 		f->shortEntry.DIR_FileSize += newsize;
@@ -719,7 +731,7 @@
 			}
 		}
 
-		DiskSector diskSector = pfs_endpoint_callGetSector(dirSector);
+		DiskSector diskSector = pfs_endpoint_callCachedGetSector(dirSector , f);
 		memcpy(diskSector.sectorContent + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
 		pfs_endpoint_callPutSector(diskSector , NULL);
 	}
@@ -734,7 +746,7 @@
 			aux = firstCluster;
 			uint32_t offset = pfs_fat_utils_getFatEntryOffset(v, firstCluster);
 			uint32_t sector = pfs_fat_utils_getFatEntrySector(v, firstCluster);
-			DiskSector diskSector = pfs_endpoint_callGetSector(sector);
+			DiskSector diskSector = pfs_endpoint_callCachedGetSector(sector, NULL);
 			memcpy(&fatEntry, diskSector.sectorContent + offset, sizeof(uint32_t));
 			firstCluster = fatEntry;
 		}while(!FAT_32_ISEOC(fatEntry));
@@ -921,7 +933,7 @@
 			}
 		}
 
-		DiskSector diskSector = pfs_endpoint_callGetSector(dirSector);
+		DiskSector diskSector = pfs_endpoint_callCachedGetSector(dirSector , f);
 		memcpy(diskSector.sectorContent + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
 		pfs_endpoint_callPutSector(diskSector , NULL);
 	}
