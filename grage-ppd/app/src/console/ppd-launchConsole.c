@@ -150,11 +150,17 @@ pthread_t ppdConsoleThread;
 				Job * queue = commons_iterator_next(queues);
 				Job * newJob = (Job *) malloc (sizeof (Job));
 				newJob->sectorId=ppd_utils_get_sector_from_sectorofcilinder(mensaje.pistaSector.sectorNumber,mensaje.pistaSector.pista);
+				queues = commons_iterator_buildIterator(listQueues);
 				if(commons_string_equals(getPpdAlgoritmo() , "sstf") && commons_iterator_hasMoreElements(queues)){
+
+					sleep(2);
+
 					while (ppd_alg_planif_strategy_sstf(newJob,	queue) != TRUE){
+
 						listQueues = ppd_queues_getJobsQueue();
 						Iterator * queues = commons_iterator_buildIterator(listQueues);
 						Job * queue = commons_iterator_next(queues);
+						queues = commons_iterator_buildIterator(listQueues);
 						Job * newJob = (Job *) malloc (sizeof (Job));
 						newJob->sectorId=ppd_utils_get_sector_from_sectorofcilinder(mensaje.pistaSector.sectorNumber,mensaje.pistaSector.pista);
 					}
