@@ -886,7 +886,7 @@
 
 	uint32_t pfs_fat_utils_BusyClustersQuantity(){
 		Volume * v = pfs_state_getVolume();
-		return v->clusters - pfs_fat_utils_FreeClustersQuantity();
+		return v->clusters - v->freeClusterCount;
 	}
 	uint32_t pfs_fat_utils_FreeClustersQuantity(){
 		Volume * v = pfs_state_getVolume();

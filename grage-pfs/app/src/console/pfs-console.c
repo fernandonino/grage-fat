@@ -23,7 +23,7 @@
 		Volume * v = pfs_state_getVolume();
 
 		printf("Cantidad de Clusters ocupados: %d \n",pfs_fat_utils_BusyClustersQuantity());
-		printf("Cantidad de Clusters libres: %d\n",pfs_fat_utils_FreeClustersQuantity());
+		printf("Cantidad de Clusters libres: %d\n",v->freeClusterCount);
 		printf("Tamaño de un Sector: %db \n",v->bps);
 		printf("Tamaño de un Cluster: %db \n",v->bpc);
 		printf("Tamaño de la FAT: %d kb \n", pfs_fat_utils_FATsizeKilobytes());
@@ -71,7 +71,7 @@
 			//printf(">%s\n", buffer);
 			cmd = pfs_console_utils_parseCMD(buffer);
 
-			if(!strcmp(cmd,"exit")) exit(1);
+			if(!strcmp(cmd,"exit")) {unmountVolume(); exit(1);}
 			if(!strcmp(cmd, "fsinfo")) pfs_console_fsinfo();
 			if(!strcmp(cmd, "finfo")){
 				parameter = pfs_console_utils_get_cmd_parameter(buffer, strlen(cmd));
@@ -86,4 +86,11 @@
 
 		pthread_create(&consoleThread , NULL , pfs_console_thread , NULL);
 		//pfs_console_thread();
+	}
+
+	void unmountVolume(void){
+		char command[128];
+		sprintf(command , "fusermount -u %s" , pfs_state_getMountPath());
+		puts(command);
+		system(command);
 	}

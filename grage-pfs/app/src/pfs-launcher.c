@@ -46,6 +46,11 @@
 
 		ListenSocket dataSocket = commons_socket_openClientConnection(host , port);
 
+		if( dataSocket < 0 ){
+			perror("Error al iniciar conexion con el PRAID/PPD");
+			exit(EXIT_FAILURE);
+		}
+
 		pfs_state_setDataSocket(dataSocket);
 
 		nipc_sendHandshake(dataSocket , NIPC_PROCESS_ID_PFS);
@@ -69,7 +74,7 @@
 
 		pfs_launcher_launchConnections();
 		//pfs_console_initialize();
-		//ppd_initializeDisk();
+
 	}
 
 
@@ -113,6 +118,8 @@
 
 		//pthread_create(&fuseThread , NULL , pfs_launch_fuseThread , argv);
 
+		pfs_state_setMountPath(argv[1]);
+
 		pfs_console_initialize();
 
 		pfs_launch_fuseThread(argv);
@@ -140,100 +147,4 @@
 		return EXIT_SUCCESS;
 	}
 
-	void launch_pfs_tests(void){
-		Volume * v = pfs_state_getVolume();
-		FatFile * file = pfs_fat32_open("/face-01.png");
-		FatFile * directory = pfs_fat32_open("/");
-		struct dirent de;
-		struct stat st;
-		int16_t result;
 
-
-		/* Modificando la fecha y hora del archivo "file"
-
-		time_t currentTime = time(NULL);
-
-		pfs_fat32_utils_fillTime( &(file->shortEntry.DIR_CrtDate) , &(file->shortEntry.DIR_CrtTime) , currentTime);
-		pfs_fat32_utils_fillTime( &(file->shortEntry.DIR_WrtDate) , &(file->shortEntry.DIR_WrtTime) , currentTime);
-
-		uint32_t sectorNumber = pfs_fat_utils_getFirstSectorOfCluster(v , file->source);
-		DiskSector sector = pfs_endpoint_callGetSector(sectorNumber);
-		memcpy(sector.sectorContent + file->sourceOffset + 32 , &(file->shortEntry) , FAT_32_DIR_ENTRY_SIZE);
-
-		pfs_endpoint_callPutSector(sector);
-
-		*/
-
-
-		/* Listando el directorio "directory" */
-
-		while( (result = pfs_fat32_readDirectory(&de , directory , v)) == 0 ){
-			memset(&st, 0, sizeof(st));
-			st.st_ino = de.d_ino;
-			if (de.d_type == DT_DIR) {
-				st.st_mode = S_IFDIR;
-			} else st.st_mode = S_IFREG;
-
-			printf("%s\n" , de.d_name);
-		}
-
-
-		/* Borrando un archivo y un directorio "file" y "directory", respectivamente */
-/*
-		pfs_fat32_unlink(v,file);
-
-		if (directory == NULL || directory->shortEntry.DIR_Attr != FAT_32_ATTR_DIRECTORY){
-			puts("Directorio no exite o no es un directorio.");
-		}
-		if(pfs_fat32_isDirectoryEmpty(v, directory)){
-			pfs_fat32_rmdir(v,directory);
-			puts("Directorio borrado para el CodeMaster que lo mira por TV.");
-		} else {
-			puts("El directorio no esta vacio.");
-		}
-*/
-
-
-		/* Borrando un archivo y un directorio "file" y "directory", respectivamente */
-		//estoyProbandoComoMierdaSeLeeUnArchivo(v , file , 512, 265044);
-
-		commons_misc_doFreeNull((void **)file);
-		commons_misc_doFreeNull((void **)directory);
-	}
-
-
-
-
-	void createTmpFile(uint16_t size, uint32_t offset){
-
-		char buffer[size];
-		int photo = open("/vfs/face-01.png" , O_RDONLY);
-		lseek(photo, offset, SEEK_SET);
-		read(photo , buffer , size);
-		FILE * forro = fopen("/vfs/face-01-1024.png" , "w");
-		fwrite(buffer , 1 , size , forro);
-		close(photo);
-		fclose(forro);
-	}
-
-	void estoyProbandoComoMierdaSeLeeUnArchivo(Volume * v , FatFile * file , uint16_t size, uint32_t offset){
-
-		createTmpFile(size, offset);
-
-		char buffer[size];
-
-		uint32_t filesize = file->shortEntry.DIR_FileSize;
-		if ( (offset + size) > filesize )
-			size = filesize - offset;
-
-		uint16_t result = pfs_fat32_utils_seek(v , file , offset , filesize);
-		if ( result == EXIT_FAILURE )
-			return;
-
-		uint16_t read = pfs_fat32_read(v , file , buffer , size);
-		printf("Se leyeron %d\n" , read);
-
-		FILE * forro = fopen("/vfs/face-01-1024-test.png" , "w");
-		fwrite(buffer , 1 , size , forro);
-		fclose(forro);
-	}

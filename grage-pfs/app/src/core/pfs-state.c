@@ -13,6 +13,7 @@
 #include "pfs-fat32.h"
 
 
+	char * mountingPoint;
 	ListenSocket dataSocket;
 	BPB biosParameterBlock;
 	Volume * volume;
@@ -69,4 +70,12 @@
 
 		puts("Llamando a la funcion eliminar");
 		commons_list_removeNode(openFiles,fatFile,pfs_state_clearFileCache);
+	}
+
+	char * pfs_state_getMountPath(){
+		return mountingPoint;
+	}
+
+	void pfs_state_setMountPath(char * path){
+		mountingPoint = path;
 	}

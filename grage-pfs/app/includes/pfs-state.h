@@ -25,5 +25,8 @@
 
 	void pfs_state_initializeOpenFiles();
 
+	char * pfs_state_getMountPath(void);
+	void pfs_state_setMountPath(char *);
+
 
 #endif /* PFS_STATE_H_ */

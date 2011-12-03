@@ -775,6 +775,9 @@
 			pfs_endpoint_callPutSector(diskSector , f);
 		}
 
+		if( offsetInCluster == 0)
+			v->freeClusterCount++;
+
 
 		//Seteo de EOC a la EntryFat correspondiente al cluster obtenido y borrado de datos
 		uint32_t nextCluster;
