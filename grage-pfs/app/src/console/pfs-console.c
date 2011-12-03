@@ -9,7 +9,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <linux-commons.h>
+#include <grage-commons.h>
 #include "pfs-console-utils.h"
 #include "pfs-cache.h"
 #include "pfs-state.h"
@@ -53,6 +55,11 @@
 			//!feof(stdin)
 
 			printf(">");
+
+			if (signal(SIGINT, pfs_cache_sectores_dump) == SIG_ERR){
+				perror ("No se puede cambiar signal");
+			}
+
 			fgets(buffer, 250, stdin);
 
 			//printf(">%s\n", buffer);
