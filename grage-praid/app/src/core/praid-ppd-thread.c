@@ -105,7 +105,12 @@
 
 		Queue sendedJobs = storage->sendedJobs;
 
+		printf("[ Cantidad de trabajos pendientes que tenia el PPD %i ]\n" , sendedJobs->size);
+
+		uint8_t ppdId = storage->id;
 		praid_state_removePddStorage(storage);
+
+		printf("[ Redistribuyendo peticiones tras la caida del PPD-%i ]\n" , ppdId);
 
 		praid_ppd_redistributeJobs(sendedJobs);
 
@@ -161,8 +166,6 @@
 
 	void praid_ppd_redistributeJobs(Queue jobs){
 
-		puts("[ Redistribuyendo peticiones tras la caida de un PPD ]");
-
 		Iterator * ite = commons_iterator_buildIterator(jobs);
 
 		while(commons_iterator_hasMoreElements(ite)){
@@ -173,6 +176,12 @@
 
 				PPDConnectionStorage * bestCandidate = praid_balancer_selectStorage();
 
+				if(bestCandidate == NULL){
+					puts("[ No se encuentran PPDs conectados ]");
+					break;
+				}
+
+				printf("[ Cantidad de ppds conectados: %i ]\n" , praid_state_getPpdStorages()->size);
 				printf("[ Encolando pedido de sector %i en PPD-%i ]\n" , job->sectorId , bestCandidate->id);
 
 				commons_queue_put(bestCandidate->pendingJobs , job);
@@ -189,8 +198,13 @@
 
 					commons_queue_put(storage->pendingJobs , job);
 				}
+
+				free(storages);
 			}
 		}
+
+		free(ite);
+
 	}
 
 

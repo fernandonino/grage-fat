@@ -91,7 +91,7 @@
 		void removingStorage(PPDConnectionStorage * s){
 			//remover la cola del storage
 			close(s->connection);
-			commons_misc_doFreeNull((void**)s);
+			free(s);
 		}
 
 		commons_list_removeNode(ppdStorages , storage , (void (*)(Object)) removingStorage);
