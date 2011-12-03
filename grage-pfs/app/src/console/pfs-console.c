@@ -35,8 +35,14 @@
 		uint32_t currentCluster = fatFile->nextCluster;
 
 		int i = 0;
+		int cantidadClusters;
+		if (fatFile->shortEntry.DIR_FileSize%v->bpc == 0){
+			cantidadClusters = fatFile->shortEntry.DIR_FileSize/v->bpc;
+		}else{
+			cantidadClusters = (fatFile->shortEntry.DIR_FileSize/v->bpc)+1;
+		}
 		printf("#Clusters: \n");
-		while (!(FAT_32_ISEOC(currentCluster)) && i<20){
+		while (i<(cantidadClusters) && i<20){
 			printf("%d ",currentCluster);
 			currentCluster=pfs_fat32_utils_getNextClusterInChain(v,currentCluster);
 			i++;
