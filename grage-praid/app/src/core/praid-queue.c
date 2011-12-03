@@ -31,7 +31,7 @@
 	Boolean praid_jobs_eq(Job * j1 , Job * j2){
 		if( j1 == NULL || j2 == NULL)
 			return FALSE;
-		return (j1->jobId == j2->jobId);
+		return (j1->sectorId == j2->sectorId);
 	}
 
 

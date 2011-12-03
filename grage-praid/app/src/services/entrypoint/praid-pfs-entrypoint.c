@@ -50,8 +50,8 @@
 
 	void praid_pfs_entrypoint_receiveInvocation(ListenSocket * ls){
 
-		if(commons_console_logging_isDefault())
-			puts("Se abrio una nueva conexion");
+		if(commons_console_logging_isAll())
+			puts("[ Se abrio una nueva conexion ]");
 
 		log_info_t("Se abrio una nueva conexion");
 
@@ -64,7 +64,8 @@
 		}
 
 		if(commons_console_logging_isDefault())
-			puts("Se cerro una conexion");
+			puts("[ Se cerro una conexion ]");
+
 		log_info_t("Se cerro una conexion");
 
 	}

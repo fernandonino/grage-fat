@@ -51,6 +51,7 @@
 
 		storage->pendingResponses = 0;
 		storage->pendingJobs = commons_queue_buildQueue((Boolean (*)(void *, void *)) praid_jobs_eq);
+		storage->sendedJobs = commons_queue_buildQueue((Boolean (*)(void *, void *)) praid_jobs_eq);
 
 		storage->connection = aSocket;
 		storage->connected = TRUE;

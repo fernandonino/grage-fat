@@ -31,6 +31,8 @@
 
 		uint32_t volumeSize;
 
+		Queue sendedJobs;
+
 	} PPDConnectionStorage;
 
 

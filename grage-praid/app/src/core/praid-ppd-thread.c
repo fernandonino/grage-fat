@@ -24,6 +24,7 @@
 #include "praid-utils.h"
 
 
+	void praid_ppd_redistributeJobs(Queue jobs);
 	void praid_ppd_thread_listener(PPDConnectionStorage * );
 	void praid_ppd_thread_sender(PPDConnectionStorage * );
 	void praid_ppd_checkIfContinueDenegatingRequests(uint8_t ppdid);
@@ -83,6 +84,14 @@
 				praid_state_storage_decrementPendingResponses(storage);
 
 				praid_endpoint_pfs_responseAndClose(message.payload.pfsSocket , message);
+
+				Boolean eq(Job * j){
+					return j->sectorId == message.payload.diskSector.sectorNumber;
+				}
+
+				Job * job = commons_list_getNodeByCriteria(storage->sendedJobs , eq);
+				if(job != NULL)
+					commons_list_removeNode(storage->sendedJobs , job , free);
 			}
 		}
 
@@ -94,10 +103,13 @@
 		//TODO: probar esto, tiene bugs
 		praid_ppd_checkIfContinueDenegatingRequests(storage->id);
 
+		Queue sendedJobs = storage->sendedJobs;
+
 		praid_state_removePddStorage(storage);
 
-		praid_utils_printClusterInformation();
+		praid_ppd_redistributeJobs(sendedJobs);
 
+		praid_utils_printClusterInformation();
 	}
 
 
@@ -119,6 +131,8 @@
 			NipcMessage message = praid_storage_queue_get(aStorage->pendingJobs);
 
 			praid_endpoint_ppd_sendMessage(aStorage->connection , message);
+
+			praid_storage_queue_put(aStorage->sendedJobs , message);
 
 			if(message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 				praid_state_storage_incrementPendingResponses(aStorage);
@@ -142,5 +156,41 @@
 
 
 
+
+
+
+	void praid_ppd_redistributeJobs(Queue jobs){
+
+		puts("[ Redistribuyendo peticiones tras la caida de un PPD ]");
+
+		Iterator * ite = commons_iterator_buildIterator(jobs);
+
+		while(commons_iterator_hasMoreElements(ite)){
+
+			Job * job = commons_iterator_next(ite);
+
+			if(job->operationId == NIPC_OPERATION_ID_GET_SECTORS){
+
+				PPDConnectionStorage * bestCandidate = praid_balancer_selectStorage();
+
+				printf("[ Encolando pedido de sector %i en PPD-%i ]\n" , job->sectorId , bestCandidate->id);
+
+				commons_queue_put(bestCandidate->pendingJobs , job);
+
+			}else if(job->operationId == NIPC_OPERATION_ID_PUT_SECTORS){
+
+				Iterator * storages = commons_iterator_buildIterator(praid_state_getPpdStorages());
+
+				while(commons_iterator_hasMoreElements(storages)){
+
+					PPDConnectionStorage * storage = commons_iterator_next(storages);
+
+					printf("[ Encolando pedido de sector %i en PPD-%i ]\n" , job->sectorId , storage->id);
+
+					commons_queue_put(storage->pendingJobs , job);
+				}
+			}
+		}
+	}
 
 
