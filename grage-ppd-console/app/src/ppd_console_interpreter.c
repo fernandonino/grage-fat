@@ -198,6 +198,7 @@ void ppd_console_interpreter(){
 			}
 		}
 		if((strcmp(cmd, "info") && strcmp(cmd, "clean") && strcmp(cmd, "trace")) || buffer[5]== ' ' ){
+			printf("CMD = %s",cmd);
 			puts("Comando incorrecto");
 			sleep(1);
 		}

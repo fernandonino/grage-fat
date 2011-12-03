@@ -30,6 +30,15 @@
 
 
 
+	pthread_t fuseThread;
+
+
+	extern pthread_t consoleThread;
+
+	int mainParamsCount;
+	char * mainParamsArgs[];
+
+
 	void pfs_launcher_launchConnections(){
 
 		char * host = pfs_configuration_getDeviceAddress();
@@ -89,17 +98,30 @@
 
 
 
+	void pfs_launch_fuseThread(char *argv[]){
+		pfs_fuse_launchFuse(mainParamsCount,argv);
+	}
+
 
 	void pfs_launcher_launch(int argc, char *argv[]) {
 
+		mainParamsCount = argc;
 
 		pfs_launcher_initializeBPB();
 
 		pfs_cache_initialize();
 
-		pfs_fuse_launchFuse(argc,argv);
+		//pthread_create(&fuseThread , NULL , pfs_launch_fuseThread , argv);
 
+		pfs_console_initialize();
+
+		pfs_launch_fuseThread(argv);
+
+		//pthread_join(consoleThread , NULL);
 	}
+
+
+
 
 	void pfs_launcher_exit() {
 		Volume * v = pfs_state_getVolume();
@@ -114,7 +136,6 @@
 		pfs_launcher_launch(argc , argv);
 
 		pfs_launcher_exit();
-
 
 		return EXIT_SUCCESS;
 	}
@@ -179,6 +200,9 @@
 		commons_misc_doFreeNull((void **)file);
 		commons_misc_doFreeNull((void **)directory);
 	}
+
+
+
 
 	void createTmpFile(uint16_t size, uint32_t offset){
 

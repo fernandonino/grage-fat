@@ -11,42 +11,66 @@
 #include <string.h>
 #include <linux-commons.h>
 #include "pfs-console-utils.h"
+#include "pfs-cache.h"
+#include "pfs-state.h"
+#include "pfs-fat32.h"
 
+	pthread_t consoleThread;
 
+	void pfs_console_fsinfo(){
+		Volume * v = pfs_state_getVolume();
 
-void pfs_console_fsinfo(){
-
-}
-
-void pfs_console_finfo(String parameter){
-
-}
-
-void *pfs_console_thread(void *argument)
-{
-	char buffer[250];
-	String cmd, parameter;
-
-	while(!feof(stdin)){
-		fgets(buffer, 250, stdin);
-		printf(">%s\n", buffer);
-		cmd = pfs_console_utils_parseCMD(buffer);
-		if(!strcmp(cmd, "fsinfo")) pfs_console_fsinfo();
-		if(!strcmp(cmd, "finfo")){
-			parameter = pfs_console_utils_get_cmd_parameter(buffer, strlen(cmd));
-			pfs_console_finfo(parameter);
-		}
-		if(strcmp(cmd, "fsinfo") && strcmp(cmd, "finfo")) puts("Comando incorrecto");
+		printf("Cantidad de Clusters ocupados: %d \n",pfs_fat_utils_BusyClustersQuantity());
+		printf("Cantidad de Clusters libres: %d\n",pfs_fat_utils_FreeClustersQuantity());
+		printf("Tamaño de un Sector: %db \n",v->bps);
+		printf("Tamaño de un Cluster: %db \n",v->bpc);
+		printf("Tamaño de la FAT: %d kb \n", pfs_fat_utils_FATsizeKilobytes());
 	}
-	return NULL;
-}
 
-int pfs_console_initialize(){
-	Thread threads[NUM_THREADS];
-	int console_thread;
-	console_thread = pthread_create(&threads[NUM_THREADS], NULL, pfs_console_thread, NULL);
+	void pfs_console_finfo(String parameter){
+		FatFile * fatFile = pfs_fat32_open(parameter);
+		Volume * v = pfs_state_getVolume();
+		uint32_t currentCluster = fatFile->nextCluster;
 
-	//pthread_exit(NULL);	SI SE DESCOMENTA NO PASA EL TEST
-	return console_thread;
+		int i = 0;
+		printf("#Clusters: \n");
+		while (!(FAT_32_ISEOC(currentCluster)) && i<20){
+			printf("%d ",currentCluster);
+			currentCluster=pfs_fat32_utils_getNextClusterInChain(v,currentCluster);
+			i++;
+		}
+		printf("\n");
+	}
 
-}
+	void pfs_console_thread(){
+		char buffer[250];
+		String cmd, parameter;
+
+		puts("Se lanza la consola");
+
+		while(TRUE){
+			bzero(buffer , 250);
+			//!feof(stdin)
+
+			printf(">");
+			fgets(buffer, 250, stdin);
+
+			//printf(">%s\n", buffer);
+			cmd = pfs_console_utils_parseCMD(buffer);
+
+			if(!strcmp(cmd,"exit")) exit(1);
+			if(!strcmp(cmd, "fsinfo")) pfs_console_fsinfo();
+			if(!strcmp(cmd, "finfo")){
+				parameter = pfs_console_utils_get_cmd_parameter(buffer, strlen(cmd));
+				pfs_console_finfo(parameter);
+			}
+			if(strcmp(cmd, "fsinfo") && strcmp(cmd, "finfo")) puts("Comando incorrecto");
+		}
+	}
+
+	int pfs_console_initialize(){
+		//pthread_create(&consoleThread, NULL, pfs_console_thread, NULL);
+
+		pthread_create(&consoleThread , NULL , pfs_console_thread , NULL);
+		//pfs_console_thread();
+	}

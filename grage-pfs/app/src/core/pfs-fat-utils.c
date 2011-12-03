@@ -872,6 +872,10 @@
 			dotdot->DIR_Name[i+2] = 0x20;
 	}
 
+	uint32_t pfs_fat_utils_BusyClustersQuantity(){
+		Volume * v = pfs_state_getVolume();
+		return v->clusters - pfs_fat_utils_FreeClustersQuantity();
+	}
 	uint32_t pfs_fat_utils_FreeClustersQuantity(){
 		Volume * v = pfs_state_getVolume();
 		uint32_t sector = v->rsv;
@@ -920,4 +924,8 @@
 		DiskSector diskSector = pfs_endpoint_callGetSector(dirSector);
 		memcpy(diskSector.sectorContent + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
 		pfs_endpoint_callPutSector(diskSector);
+	}
+	uint32_t pfs_fat_utils_FATsizeKilobytes(){
+		Volume * v = pfs_state_getVolume();
+		return (v->fatSize*v->bps)/1024;
 	}

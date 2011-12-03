@@ -15,7 +15,7 @@ String pfs_console_utils_parseCMD(char * comando){
 	String cmd;
 	cmd = (String)malloc(255);
 
-	memset(cmd, '\0', sizeof cmd);
+	memset(cmd, '\0', 255);
 
 	while(comando[i] != '(' && comando[i] != '\n' && comando[i] != ' ' && i <= 250){
 		cmd[j] = comando[i];
@@ -31,7 +31,7 @@ String pfs_console_utils_get_cmd_parameter(char * comando, int cmd_length){
 	int j=0;
 	String parametro;
 	parametro = (String)malloc(255);
-	memset(parametro, '\0', sizeof parametro);
+	memset(parametro, '\0', 255);
 
 	while(comando[i] != ')' && i < (250 - cmd_length)){
 		parametro[j] = comando[i];
