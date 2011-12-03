@@ -71,7 +71,10 @@
 	void ppd_launcher_doLaunch(){
  		ppd_launcher_launchConnections();
 		ppd_planifier_worker_doJobs();
-		ppd_launcher_console();
+
+		if(ppd_conf_isConsoleEnabled())
+			ppd_launcher_console();
+
 		ppd_entrypoint_launch();
 	}
 

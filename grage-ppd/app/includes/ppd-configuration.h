@@ -38,6 +38,9 @@
 #define PPD_CONFIGURATION_DISK_PATH			"ppd.configuration.disk.volume.path"
 #define PPD_CONFIGURATION_POOLED_CONNECTIONS_ENABLED			"ppd.configuration.pooled.connections.enabled"
 
+#define PPD_CONFIGURATION_CONSOLE_ENABLED	"ppd.configuration.console.enabled"
+
+
 	void ppd_configuration_setup();
 	void ppd_configuration_setConfigurationFile(char * s);
 	char * ppd_configuration_getConfigurationFile(void);
@@ -89,6 +92,10 @@
 
 	uint32_t ppd_conf_getLoggingLevel();
 	void ppd_conf_setLoggingLevel(uint32_t l);
+
+
+	Boolean ppd_conf_isConsoleEnabled();
+	void ppd_conf_setConsoleEnabled(Boolean);
 
 
 #endif /* PFS_CONFIGURATION_H_ */

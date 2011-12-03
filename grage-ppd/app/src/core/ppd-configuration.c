@@ -201,6 +201,14 @@
 		if(commons_string_equals(key,PPD_CONFIGURATION_READ_DELAY)){
 			setPpdReadDelay(value);
 		}
+		if(commons_string_equals(key , PPD_CONFIGURATION_CONSOLE_ENABLED)){
+
+			if( commons_string_equals(value , "true")){
+				ppd_conf_setConsoleEnabled(TRUE);
+			}else if(commons_string_equals(value , "false")){
+				ppd_conf_setConsoleEnabled(FALSE);
+			}
+		}
 		if(commons_string_equals(key,PPD_CONFIGURATION_WRITE_DELAY)){
 			setPddWriteDelay(value);
 		}
@@ -257,5 +265,16 @@
 	}
 	Boolean ppd_conf_isPooledConnections(){
 		return pooledConnections;
+	}
+
+
+
+	Boolean consoleEnabled = TRUE;
+
+	Boolean ppd_conf_isConsoleEnabled(){
+		return consoleEnabled;
+	}
+	void ppd_conf_setConsoleEnabled(Boolean s){
+		consoleEnabled = s;
 	}
 
