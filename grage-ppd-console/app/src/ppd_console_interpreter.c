@@ -197,6 +197,14 @@ void ppd_console_interpreter(){
 				i++;
 			}
 		}
+		//EXIT
+		if(!strcmp(cmd, "exit")) {
+			char command[30];
+			sprintf(command, "kill -9 %d", (int)getppid());
+			system(command);
+			exit(0);
+		}
+
 		if((strcmp(cmd, "info") && strcmp(cmd, "clean") && strcmp(cmd, "trace")) || buffer[5]== ' ' ){
 			printf("CMD = %s",cmd);
 			puts("Comando incorrecto");
