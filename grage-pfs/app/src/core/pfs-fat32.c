@@ -409,9 +409,18 @@
 
 		uint32_t bytesWritten = 0 ;
 		uint32_t bytesLeft = size;
-		uint32_t bytesToWrite;
+		uint32_t bytesToWrite , sectorId;
 
-		DiskSector sector = pfs_fat32_utils_getSectorFromNthCluster(f);
+
+		DiskSector sector;
+		if (f->fileAbsoluteClusterNumber == 0){
+			sector = pfs_fat32_utils_getSectorFromNthCluster(f);
+		}
+		else{
+			f->fileAbsoluteClusterNumber = pfs_fat32_utils_getNextClusterInChain(v,f->fileAbsoluteClusterNumber);
+			sectorId = pfs_fat_utils_getFirstSectorOfCluster(v , f->fileAbsoluteClusterNumber);
+			sector = pfs_endpoint_callCachedGetSector(sectorId, f);
+		}
 
 		if( size + f->sectorByteOffset <= v->bps ){
 			memcpy(sector.sectorContent + f->sectorByteOffset , buf , size);

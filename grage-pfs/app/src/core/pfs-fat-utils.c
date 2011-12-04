@@ -696,7 +696,7 @@
 			clusterCount = 0;
 		}
 
-		if(f->EOC == 0){
+		if(f->EOC == 0){ //El ECO aun no fue hallado. 0: valor por defecto asignado por el open
 			lastCluster = pfs_fat32_utils_findEOC(v, f->nextCluster);
 			f->EOC = lastCluster;
 		}
