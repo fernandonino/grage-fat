@@ -36,7 +36,14 @@
 
 
 	void pfs_fuse_launchFuse( int argc , char * argv[] ){
-		fuse_main(argc, argv, &grage_oper);
+		int32_t result;
+		if ( (result = fuse_main(argc, argv, &grage_oper)) != 0) {
+			char command[32];
+			sprintf(command , "fusermount -u %s" , argv[1]);
+			system(command);
+			puts("Relaunching the FUSE...");
+			fuse_main(argc, argv, &grage_oper);
+		}
 	}
 
 
