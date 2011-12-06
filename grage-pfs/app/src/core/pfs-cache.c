@@ -119,6 +119,7 @@
 
 	void pfs_cache_put_sectors(DiskSector * sectorNuevo, List listaCacheSectors,
 			uint32 sectorsMaxCount) {
+		CacheSectorRecord * auxNode;
 		CacheSectorRecord * nodo = (CacheSectorRecord *) malloc(
 				sizeof(CacheSectorRecord));
 		nodo->estado = 0;
@@ -126,14 +127,12 @@
 			Iterator * fuckingIterator = commons_iterator_buildIterator(
 					listaCacheSectors);
 			while (commons_iterator_hasMoreElements(fuckingIterator)) {
-				if (nodo->estado
-						<= ((CacheSectorRecord *) commons_iterator_next(
-								fuckingIterator))->estado) {
-					nodo = (CacheSectorRecord *) commons_iterator_next(
-							fuckingIterator);
+				auxNode = (CacheSectorRecord *) commons_iterator_next;
+				if (nodo->estado <= auxNode->estado) {
+					break;
 				}
 			}
-			commons_list_removeNode(listaCacheSectors, nodo, free);
+			commons_list_removeNode(listaCacheSectors, auxNode, free);
 		}
 		//AGREGO EL NODO NUEVO
 		nodo->estado = 0;
