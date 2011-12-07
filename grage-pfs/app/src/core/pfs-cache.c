@@ -127,7 +127,7 @@
 			Iterator * fuckingIterator = commons_iterator_buildIterator(
 					listaCacheSectors);
 			while (commons_iterator_hasMoreElements(fuckingIterator)) {
-				auxNode = (CacheSectorRecord *) commons_iterator_next;
+				auxNode = (CacheSectorRecord *) commons_iterator_next(fuckingIterator);
 				if (nodo->estado <= auxNode->estado) {
 					break;
 				}
