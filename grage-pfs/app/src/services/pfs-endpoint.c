@@ -144,12 +144,17 @@
 		return defaultSector;
 	}
 
-	void pfs_endpoint_utils_putInCache(DiskSector d , List cache){
+	void pfs_endpoint_utils_putInCache(DiskSector d , List cache , uint8_t cacheType){
 		if (pfs_cache_habilitada()){
 			DiskSector * disk = malloc(sizeof (DiskSector));
 			memcpy(disk->sectorContent , d.sectorContent , sizeof d.sectorContent);
 			disk->sectorNumber = d.sectorNumber;
-			pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsFatMaxCount());
+
+			if ( cacheType == FAT_CACHE ){
+				pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsFatMaxCount());
+			} else if ( cacheType == FILE_CACHE ) {
+				pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsMaxCount());
+			}
 		}
 	}
 
@@ -170,11 +175,11 @@
 
 			//printf("Se pone en cache fat el sector %i \n" , sectorNumber);
 
-			pfs_endpoint_utils_putInCache(returningSector , pfs_cache_getListaCacheFat());
+			pfs_endpoint_utils_putInCache(returningSector , pfs_cache_getListaCacheFat() , FAT_CACHE);
 
 		}else{
 
-			pfs_endpoint_utils_putInCache(returningSector , fatFile->cache );
+			pfs_endpoint_utils_putInCache(returningSector , fatFile->cache , FILE_CACHE);
 		}
 
 		return returningSector;

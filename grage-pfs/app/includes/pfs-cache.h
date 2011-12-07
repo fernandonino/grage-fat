@@ -11,14 +11,19 @@
 #ifndef PFS_CACHE_H_
 #define PFS_CACHE_H_
 
+#define FAT_CACHE		0
+#define FILE_CACHE		1
+
 		typedef struct {
 			Cluster * cluster;
 			uint32_t estado;
 		}CacheRecord;
+
 		typedef struct {
 			uint8_t estado;
 			DiskSector sector;
 		}CacheSectorRecord;
+
 		Boolean pfs_cache_habilitada();
 		void pfs_cache_initialize();
 		List pfs_cache_getListaCacheFat();
@@ -27,8 +32,6 @@
 		Boolean pfs_cache_isFatSectorReserved(uint32 sectorNumber);
 		CacheSectorRecord * pfs_cache_get_sector(uint32 sectorID,List listaCacheSectors,uint32 sectorsMaxCount);
 		void pfs_cache_put_sectors(DiskSector * sectorNuevo,List listaCacheSectors,uint32 sectorsMaxCount);
-		void pfs_cache_setCacheSectorsFatMaxCount(uint32 count);
-		void pfs_cache_setCacheSectorsMaxCount(uint32 count);
 		void pfs_cache_sectors_registrar_acceso(List listaCacheSectors);
 		void pfs_cache_sectores_dumpBIS(List listaCacheSectors,uint32 sectorsMaxCount);
 		void pfs_cache_sectores_dump();
