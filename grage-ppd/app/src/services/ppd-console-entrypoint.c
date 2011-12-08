@@ -44,10 +44,10 @@ uint32 nuevoSectorActual(float sector, float ms, uint32 cantidadSectoresPista){
 float ppd_console_entrypoint_TiempoConsumido(uint32 pistaSolicitada, uint32 sectorSolicitado){
 
 	uint32 sectorActual = posicionActual.sectorNumber;
-	uint32 pistaActual=posicionActual.pista;
-	uint32 cantidadSectoresPista = atoi(getPpdDiskSector());
-	uint32 costoPista = atoi(getPpdSaltoPistaMs());
-	uint32 costoSector =60*1000/atoi(getPpdRpm())/cantidadSectoresPista;
+	float pistaActual=posicionActual.pista;
+	float cantidadSectoresPista = atoi(getPpdDiskSector());
+	float costoPista = atoi(getPpdSaltoPistaMs());
+	float costoSector =60*1000/atoi(getPpdRpm())/cantidadSectoresPista;
 	float tiempoPistas = 0;
 	float tiempoSectores = 0;
 	float tiempoTotal;

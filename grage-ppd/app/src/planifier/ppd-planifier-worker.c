@@ -84,9 +84,9 @@
 					mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
 
 				}
+				pthread_kill( (pthread_t *)m.payload.pfsSocket , SIGQUIT);
 				commons_socket_sendBytes(ppd_state_getPpdConsoleSocket(), &mensaje,
 									sizeof mensaje);
-				pthread_kill( (pthread_t)m.payload.pfsSocket , SIGQUIT);
 
 			}
 			ppd_console_entrypoint_setearPosicionCabezal(

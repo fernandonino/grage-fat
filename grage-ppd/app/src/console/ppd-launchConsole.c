@@ -212,6 +212,7 @@ pthread_t ppdConsoleThread;
 	void consoleObtainSignal(){
 
 		void sigquit(){
+			puts("Saliendo");
 			return;
 		}
 
