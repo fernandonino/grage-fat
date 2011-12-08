@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include "linux-commons.h"
 #include "grage-commons.h"
@@ -69,6 +70,24 @@
 				m = nipc_mbuilder_addResponseCode(m , NIPC_RESPONSE_CODE_SUCCESS);
 
 				ppd_endpoint_responseGetSector(m);
+			}
+			if (m.header.operationId == 69){
+
+				MessageConsolePPD mensaje;
+				mensaje.pistaSector.pista = ppd_utils_get_cilinder_from_sector(m.payload.diskSector.sectorNumber);
+				mensaje.pistaSector.sectorNumber = ppd_utils_get_sectorofcilinder_from_sector(m.payload.diskSector.sectorNumber);
+				if ((mensaje.timeInMiliseconds = ppd_console_entrypoint_TiempoConsumido(
+								mensaje.pistaSector.pista,
+								mensaje.pistaSector.sectorNumber))==-1){
+					mensaje.messageID = MESSAGE_ID_ERROR;
+				}else{
+					mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
+
+				}
+				commons_socket_sendBytes(ppd_state_getPpdConsoleSocket(), &mensaje,
+									sizeof mensaje);
+				pthread_kill( (pthread_t)m.payload.pfsSocket , SIGQUIT);
+
 			}
 			ppd_console_entrypoint_setearPosicionCabezal(
 					ppd_utils_get_cilinder_from_sector(m.payload.diskSector.sectorNumber),

@@ -14,6 +14,8 @@
 #include "linux-commons.h"
 #include <linux-commons-socket.h>
 #include <grage-commons.h>
+#include <signal.h>
+
 #include "ppd-configuration.h"
 #include "ppd-console-entreypoint.h"
 #include "ppd-launchConsole.h"
@@ -21,8 +23,11 @@
 #include "ppd-queues.h"
 #include "ppd-planifier.h"
 #include "ppd-utils.h"
+#include "nipc-messaging.h"
 
 #define SOCK_PATH "/opt/grage-repository/.echo_socket"
+
+void consoleObtainSignal();
 
 pthread_t ppdConsoleThread;
 
@@ -129,10 +134,13 @@ pthread_t ppdConsoleThread;
 
 			if (commons_socket_receiveBytes(ppd_state_getPpdConsoleSocket(), &mensaje,sizeof mensaje)==0){
 				break;
+
 			}
 
 			if (mensaje.messageID == MESSAGE_ID_SECTORES_POR_CILINDRO) {
 				mensaje.pistaSector.sectorNumber = atoi(getPpdDiskSector());
+				commons_socket_sendBytes(ppd_state_getPpdConsoleSocket(), &mensaje,
+									sizeof mensaje);
 			}
 
 			if (mensaje.messageID == MESSAGE_ID_POSICION_ACTUAL) {
@@ -140,47 +148,55 @@ pthread_t ppdConsoleThread;
 				posicionCabezal = ppd_console_entrypoint_getPosicionCabezal();
 				mensaje.pistaSector.pista = posicionCabezal.pista;
 				mensaje.pistaSector.sectorNumber = posicionCabezal.sectorNumber;
+				commons_socket_sendBytes(ppd_state_getPpdConsoleSocket(), &mensaje,
+									sizeof mensaje);
 
 			}
 			if (mensaje.messageID == MESSAGE_ID_SECTORES_RECORRIDOS) {
 				Queue listQueues ;
 
-				listQueues = ppd_queues_getJobsQueue();
-				Iterator * queues = commons_iterator_buildIterator(listQueues);
-				Job * queue = commons_iterator_next(queues);
-				Job * newJob = (Job *) malloc (sizeof (Job));
-				newJob->sectorId=ppd_utils_get_sector_from_sectorofcilinder(mensaje.pistaSector.sectorNumber,mensaje.pistaSector.pista);
-				queues = commons_iterator_buildIterator(listQueues);
-				if(commons_string_equals(getPpdAlgoritmo() , "sstf") && commons_iterator_hasMoreElements(queues)){
 
-					sleep(2);
+//				listQueues = ppd_queues_getJobsQueue();
+//				Iterator * queues = commons_iterator_buildIterator(listQueues);
+//				Job * queue = commons_iterator_next(queues);
+//				Job * newJob = (Job *) malloc (sizeof (Job));
+//				newJob->sectorId=ppd_utils_get_sector_from_sectorofcilinder(mensaje.pistaSector.sectorNumber,mensaje.pistaSector.pista);
+//				queues = commons_iterator_buildIterator(listQueues);
+				//if(commons_string_equals(getPpdAlgoritmo() , "sstf") && commons_iterator_hasMoreElements(queues)){
+				if(commons_string_equals(getPpdAlgoritmo() , "sstf")){
+					NipcMessage mensajeNipc=nipc_mbuilder_buildNipcMessage();
 
-					while (ppd_alg_planif_strategy_sstf(newJob,	queue) != TRUE){
+					mensajeNipc.payload.diskSector.sectorNumber=ppd_utils_get_sector_from_sectorofcilinder(mensaje.pistaSector.sectorNumber,mensaje.pistaSector.pista);
+					mensajeNipc.header.operationId=69;
+					pthread_t phantomThread;
+					pthread_create(&phantomThread , NULL , consoleObtainSignal, NULL);
+					mensajeNipc.payload.pfsSocket = (uint32_t) phantomThread;
+					ppd_queues_putInQueue(mensajeNipc);
+					pthread_join(phantomThread , NULL);
 
-						listQueues = ppd_queues_getJobsQueue();
-						Iterator * queues = commons_iterator_buildIterator(listQueues);
-						Job * queue = commons_iterator_next(queues);
-						queues = commons_iterator_buildIterator(listQueues);
-						Job * newJob = (Job *) malloc (sizeof (Job));
-						newJob->sectorId=ppd_utils_get_sector_from_sectorofcilinder(mensaje.pistaSector.sectorNumber,mensaje.pistaSector.pista);
-					}
+					//sleep(2);
+
+//					while (ppd_alg_planif_strategy_sstf(queue,newJob) != TRUE){
+//						//sleep(2);
+//						listQueues = ppd_queues_getJobsQueue();
+//						Iterator * queues = commons_iterator_buildIterator(listQueues);
+//						Job * queue = commons_iterator_next(queues);
+//						queues = commons_iterator_buildIterator(listQueues);
+//						Job * newJob = (Job *) malloc (sizeof (Job));
+//						newJob->sectorId=ppd_utils_get_sector_from_sectorofcilinder(mensaje.pistaSector.sectorNumber,mensaje.pistaSector.pista);
+				}else{
 					if ((mensaje.timeInMiliseconds = ppd_console_entrypoint_TiempoConsumido(
 									mensaje.pistaSector.pista,
 									mensaje.pistaSector.sectorNumber))==-1){
 						mensaje.messageID = MESSAGE_ID_ERROR;
 					}else{
 						mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
+
 					}
-				}else{
-					if ((mensaje.timeInMiliseconds = ppd_console_entrypoint_TiempoConsumido(
-							mensaje.pistaSector.pista,
-							mensaje.pistaSector.sectorNumber))==-1){
-						mensaje.messageID = MESSAGE_ID_ERROR;
-					}else{
-						mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
-					}
+					commons_socket_sendBytes(ppd_state_getPpdConsoleSocket(), &mensaje,
+										sizeof mensaje);
 				}
-				free(newJob);
+				//free(newJob);
 			}
 
 			if (mensaje.messageID == MESSAGE_ID_CLEAN_SECTORS){
@@ -188,9 +204,20 @@ pthread_t ppdConsoleThread;
 			}
 			//hace lo q quieras con el contenido del buffer
 
-			commons_socket_sendBytes(ppd_state_getPpdConsoleSocket(), &mensaje,
-					sizeof mensaje);
 
+
+		}
+	}
+
+	void consoleObtainSignal(){
+
+		void sigquit(){
+			return;
+		}
+
+		while(1){
+			sleep(1);
+			signal(SIGQUIT,sigquit);
 		}
 	}
 
