@@ -474,7 +474,9 @@
 			current = f->fileAbsoluteClusterNumber;
 			sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , current);
 			current = pfs_fat_utils_getClusterBySector(v , sectorId);
-			sector = pfs_endpoint_callCachedGetSector(sectorId , f);
+			if ( ! FAT_32_ISEOC(current) ){
+				sector = pfs_endpoint_callCachedGetSector(sectorId , f);
+			}
 		}
 
 		if ( f->sectorByteOffset + size <= v->bps ){	// Lo que se pide para leer + el offset caen dentro de un sector
