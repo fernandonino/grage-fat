@@ -33,6 +33,7 @@
 	pthread_t fuseThread;
 
 
+
 	extern pthread_t consoleThread;
 
 	int mainParamsCount;
