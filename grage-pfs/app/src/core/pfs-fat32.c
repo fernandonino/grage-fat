@@ -186,47 +186,44 @@
 	int8_t pfs_fat32_readDirectory( struct dirent * direntry , FatFile * file , Volume * volume){
 		LongDirEntry lfnentry;
 		DirEntry  sfnentry;
+		Block block;
 
-		DiskSector diskSector = pfs_endpoint_callCachedGetSector(file->currentSector , file);
 
-		if( file->dirEntryOffset >= volume->bps ){
-			if(pfs_fat32_utils_isLastSectorFromCluster(volume, file->currentSector)){
-				if ( FAT_32_ISEOC(file->nextCluster) ){
-					return EXIT_FAILURE;
-				} else {
-					file->currentSector = pfs_fat_utils_getFirstSectorOfCluster(volume,file->nextCluster);
-					file->nextCluster = pfs_fat32_utils_getNextClusterInChain(volume, file->nextCluster);
-				}
+		if ( file->dirType == 0) {
+			if( file->dirEntryOffset >= volume->bpc ){
+				file->nextCluster = pfs_fat32_utils_getNextClusterInChain(volume , file->nextCluster);
+				file->dirEntryOffset = 0;
+				block = pfs_fat32_utils_callGetBlock(file->nextCluster);
 			} else {
-				file->currentSector++;
+				block = pfs_fat32_utils_callGetBlock(file->source);
 			}
-			diskSector = pfs_endpoint_callCachedGetSector(file->currentSector , file);
-			file->dirEntryOffset = 0;
+		} else {
+			if( file->dirEntryOffset >= volume->bpc ){
+				file->nextCluster = pfs_fat32_utils_getNextClusterInChain(volume , file->nextCluster);
+				file->dirEntryOffset = 0;
+				block = pfs_fat32_utils_callGetBlock(file->nextCluster);
+			} else {
+				block = pfs_fat32_utils_callGetBlock(file->nextCluster);
+			}
 		}
 
 		do {
-			memcpy(&lfnentry , diskSector.sectorContent + file->dirEntryOffset , sizeof(LongDirEntry));
+			memcpy(&lfnentry , block.content + file->dirEntryOffset , sizeof(LongDirEntry));
 			file->dirEntryOffset += 32;
 
-			if( file->dirEntryOffset >= volume->bps ){
-				if(pfs_fat32_utils_isLastSectorFromCluster(volume, file->currentSector)){
-					if ( FAT_32_ISEOC(file->nextCluster) ){
-						return EXIT_FAILURE;
-					} else {
-						file->currentSector = pfs_fat_utils_getFirstSectorOfCluster(volume,file->nextCluster);
-						file->nextCluster = pfs_fat32_utils_getNextClusterInChain(volume, file->nextCluster);
-					}
+			if( file->dirEntryOffset >= volume->bpc ){
+				if ( FAT_32_ISEOC(file->nextCluster) ){
+					return EXIT_FAILURE;
 				} else {
-					file->currentSector++;
+					file->nextCluster = pfs_fat32_utils_getNextClusterInChain(volume, file->nextCluster);
+					file->dirEntryOffset = 0;
 				}
-				diskSector = pfs_endpoint_callCachedGetSector(file->currentSector , file);
-				file->dirEntryOffset = 0;
 			}
 
 		} while ( lfnentry.LDIR_Ord == FAT_32_FREEENT );
 
 		if( FAT_32_LDIR_ISLONG(lfnentry.LDIR_Attr) ){
-			memcpy(&sfnentry , diskSector.sectorContent + file->dirEntryOffset  , sizeof(DirEntry));
+			memcpy(&sfnentry , block.content + file->dirEntryOffset  , sizeof(DirEntry));
 			file->dirEntryOffset += 32;
 
 			pfs_fat32_utils_toDirent(direntry , &sfnentry , &lfnentry, volume);
@@ -237,7 +234,7 @@
 			return EXIT_FAILURE;
 
 		} else { //La entrada es solo DirEntry ( . o ..)
-			memcpy(&sfnentry , diskSector.sectorContent + file->dirEntryOffset - 32 , sizeof(DirEntry));
+			memcpy(&sfnentry , block.content + file->dirEntryOffset - 32 , sizeof(DirEntry));
 			pfs_fat32_utils_toDirent(direntry , &sfnentry , NULL , volume);
 			return EXIT_SUCCESS;
 
@@ -245,6 +242,7 @@
 
 		return EXIT_FAILURE;
 	}
+
 
 	void pfs_fat32_unlink(Volume * v , FatFile * fd){
 

@@ -965,3 +965,23 @@
 		Volume * v = pfs_state_getVolume();
 		return (v->fatSize*v->bps)/1024;
 	}
+
+	Block pfs_fat32_utils_callGetBlock(uint32_t blockNumber){
+		Block block;
+		DiskSector sector;
+		uint16_t offset = 0;
+
+		Volume * v = pfs_state_getVolume();
+		uint32_t firstSector = pfs_fat_utils_getFirstSectorOfCluster(v , blockNumber);
+		uint32_t lastSector = firstSector + 8;
+
+		for( ; firstSector < lastSector ; firstSector++ ){
+			sector = pfs_endpoint_callGetSector(firstSector);
+			memcpy(block.content + offset , sector.sectorContent , SECTOR_SIZE);
+			offset += SECTOR_SIZE;
+		}
+
+		block.id = blockNumber;
+
+		return block;
+	}

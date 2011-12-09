@@ -49,6 +49,10 @@
 	#define FAT_32_LDIR_ISLAST(Ord)		 ((Ord & 0x40) == 0x40)
 	#define FAT_32_LFN_ISNULL(character) (character == 0x00)
 
+	typedef struct {
+		uint32_t id;
+		char content[4096];
+	} Block;
 
 	typedef struct {
 		uint8_t DIR_Name[11];
@@ -175,6 +179,8 @@
 	void pfs_fat32_utils_getShortName(DirEntry * , char *);
 
 	void pfs_endpoint_callPutSector(DiskSector , FatFile *);
+
+	Block pfs_fat32_utils_callGetBlock(uint32_t);
 
 #endif /* PFS_FAT32_H_ */
 
