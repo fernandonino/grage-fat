@@ -18,18 +18,18 @@
 #include "pfs-fat32.h"
 
 	struct fuse_operations grage_oper = {
-	  .getattr = pfs_fuse_getattr,			//Revisada
+	  .getattr = pfs_fuse_getattr,
 	  .mkdir = pfs_fuse_mkdir,
-	  .unlink = pfs_fuse_unlink,			//Revisada
-	  .rmdir = pfs_fuse_rmdir,				//Revisada
+	  .unlink = pfs_fuse_unlink,
+	  .rmdir = pfs_fuse_rmdir,
 	  .rename = pfs_fuse_rename,
-	  .open = pfs_fuse_open,				//Revisada
-	  .read = pfs_fuse_read,				//Revisada
+	  .open = pfs_fuse_open,
+	  .read = pfs_fuse_read,
 	  .write = pfs_fuse_write,
 	  .flush = pfs_fuse_flush,
-	  .release = pfs_fuse_release,			//Revisada
+	  .release = pfs_fuse_release,
 	  .releasedir = pfs_fuse_releasedir,
-	  .readdir = pfs_fuse_readdir,			//Revisada
+	  .readdir = pfs_fuse_readdir,
 	  .mknod = pfs_fuse_mknod,
 	  .truncate = pfs_fuse_truncate,
 	};
