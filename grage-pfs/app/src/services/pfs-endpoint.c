@@ -71,6 +71,8 @@
 					break;
 				}
 			}
+		}else if(file == NULL && pfs_cache_habilitada()){
+			pfs_endpoint_utils_putInCache(diskSector, pfs_cache_getListaCacheFat(), FAT_CACHE);
 		}
 
 		if(pfs_pool_isPooledConnectionsEnabled()){

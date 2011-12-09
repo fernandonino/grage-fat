@@ -93,6 +93,9 @@
 		if ( (offset + size) > filesize )
 			size = filesize - offset;
 
+		if (offset == filesize)
+			return 0;
+
 		if (size == 0)
 			return size;
 
