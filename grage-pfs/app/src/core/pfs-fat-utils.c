@@ -392,7 +392,7 @@
 		return EXIT_SUCCESS;
 	}
 
-	DiskSector pfs_fat32_utils_getSectorFromNthClusterWrite(FatFile * f){
+	Block pfs_fat32_utils_getBlockFromNthClusterWrite(FatFile * f){
 		Volume * v = pfs_state_getVolume();
 		uint16_t clusterCount = 0;
 
@@ -405,12 +405,9 @@
 
 		f->fileAbsoluteClusterNumberWrite = c;
 
-		uint32_t s = pfs_fat_utils_getFirstSectorOfCluster(v,c);
+		Block block = pfs_fat32_utils_callGetBlock(c);
 
-		if ( f->fileSectorNumberOfCluster != 1)
-			s = s + f->fileSectorNumberOfCluster - 1;
-
-		return pfs_endpoint_callCachedGetSector(s , f);
+		return block;
 	}
 
 	DiskSector pfs_fat32_utils_getSectorFromNthClusterRead(FatFile * f){
