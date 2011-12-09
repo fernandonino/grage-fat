@@ -6,6 +6,7 @@
  */
 
 #include <unistd.h>
+#include <pthread.h>
 
 #include <linux-commons.h>
 #include <linux-commons.h>
@@ -53,6 +54,9 @@
 		storage->pendingJobs = commons_queue_buildQueue((Boolean (*)(void *, void *)) praid_jobs_eq);
 		storage->sendedJobs = commons_queue_buildQueue((Boolean (*)(void *, void *)) praid_jobs_eq);
 
+		ThreadMutex disconnectionMutex = PTHREAD_MUTEX_INITIALIZER;
+		storage->disconnectionMutex = disconnectionMutex;
+
 		storage->connection = aSocket;
 		storage->connected = TRUE;
 
@@ -86,12 +90,12 @@
 
 	void praid_state_removePddStorage(PPDConnectionStorage * storage){
 
-		praid_state_storage_setDisconnected(storage);
-
 		void removingStorage(PPDConnectionStorage * s){
+
+			praid_state_storage_setDisconnected(storage);
 			//remover la cola del storage
 			close(s->connection);
-			free(s);
+			//free(s);
 		}
 
 		commons_list_removeNode(ppdStorages , storage , (void (*)(Object)) removingStorage);

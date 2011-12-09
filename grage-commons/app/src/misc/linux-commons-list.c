@@ -109,7 +109,7 @@
 				aList->elements = act->next;
 			}
 
-			removeOperation(act);
+			removeOperation(act->data);
 			aList->size--;
 		}
 
@@ -268,10 +268,11 @@
 
 		while(commons_iterator_hasMoreElements(ite)){
 			Object obj = commons_iterator_next(ite);
-			removeOperation(obj);
+			commons_list_removeNode(list , obj , removeOperation);
 		}
 
 		free(ite);
+		free(list);
 	}
 
 

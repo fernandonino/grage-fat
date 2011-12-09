@@ -13,6 +13,7 @@
 #include <linux-commons.h>
 #include <linux-commons-errors.h>
 #include <linux-commons-console-logging.h>
+#include <linux-commons-list.h>
 
 #include "nipc-messaging.h"
 
@@ -23,11 +24,15 @@
 #include "praid-sync.h"
 #include "praid-utils.h"
 
-
-	void praid_ppd_redistributeJobs(Queue jobs);
+	void praid_ppd_processDisconnection(PPDConnectionStorage * storage);
+	void praid_balancer_redistributeJobs(Queue jobs);
 	void praid_ppd_thread_listener(PPDConnectionStorage * );
 	void praid_ppd_thread_sender(PPDConnectionStorage * );
 	void praid_ppd_checkIfContinueDenegatingRequests(uint8_t ppdid);
+
+
+
+	ThreadMutex disconnetionMutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 	void praid_ppd_thread_launchNewSlaveThread(PPDConnectionStorage * aStorage){
@@ -81,6 +86,9 @@
 				}
 
 			}else{
+
+				printf("Recibiendo sectorId %i desde el ppd-%i\n" , message.payload.diskSector.sectorNumber , storage->id);
+
 				praid_state_storage_decrementPendingResponses(storage);
 
 				praid_endpoint_pfs_responseAndClose(message.payload.pfsSocket , message);
@@ -89,32 +97,53 @@
 					return j->sectorId == message.payload.diskSector.sectorNumber;
 				}
 
-				Job * job = commons_list_getNodeByCriteria(storage->sendedJobs , eq);
+				Job * job = commons_list_getNodeByCriteria(storage->sendedJobs ,
+						(Boolean (*)(Object))eq);
+
 				if(job != NULL)
 					commons_list_removeNode(storage->sendedJobs , job , free);
 			}
 		}
+
+		praid_ppd_processDisconnection(storage);
+
+	}
+
+
+	void praid_ppd_processDisconnection(PPDConnectionStorage * storage){
+
+		commons_misc_lockThreadMutex(&storage->disconnectionMutex);
 
 		if(commons_console_logging_isDefault()){
 			printf("[ Se ha desconectado el PPD %i ]\n" , storage->id);
 		}
 		log_info_t( commons_string_concat("Se ha desconectado el PPD " , commons_misc_intToString(storage->id)));
 
-		//TODO: probar esto, tiene bugs
 		praid_ppd_checkIfContinueDenegatingRequests(storage->id);
 
-		Queue sendedJobs = storage->sendedJobs;
+		Queue readingJobs = praid_utils_getReadingJobs(storage);
 
-		printf("[ Cantidad de trabajos pendientes que tenia el PPD %i ]\n" , sendedJobs->size);
+		if(readingJobs->size > 0){
 
-		uint8_t ppdId = storage->id;
-		praid_state_removePddStorage(storage);
+			printf("[ %i trabajos de lectura huerfanos tras la caida del PPD-%i ]\n" , readingJobs->size , storage->id);
 
-		printf("[ Redistribuyendo peticiones tras la caida del PPD-%i ]\n" , ppdId);
+			if(commons_console_logging_isAll())
+				praid_utils_printPendingJobs(readingJobs);
 
-		praid_ppd_redistributeJobs(sendedJobs);
+			praid_state_removePddStorage(storage);
+
+			praid_balancer_redistributeJobs(readingJobs);
+
+		}else{
+
+			praid_state_removePddStorage(storage);
+		}
 
 		praid_utils_printClusterInformation();
+
+		commons_misc_unlockThreadMutex(&storage->disconnectionMutex);
+
+		puts("finaliza el listener del ppd muerto");
 	}
 
 
@@ -128,12 +157,25 @@
 			/*
 			 * Si se esta realizando la replicacion entonces no se envian trabajos
 			 */
+			printf("checkeando replicacion activa en ppd-%i \n" , aStorage->id);
 			if(praid_sync_isReplicationActive()){
+				printf("replicacion activa, se esperan 10 segundos en ppd-%i \n"  , aStorage->id);
 				sleep(10);
 				continue;
 			}
 
+			commons_misc_lockThreadMutex(&aStorage->disconnectionMutex);
+
+			if(!aStorage->connected){
+				puts("se elimina el ppd desde el hilo sender y se finaliza el hilo");
+				free(aStorage);
+				return;
+			}
+
 			NipcMessage message = praid_storage_queue_get(aStorage->pendingJobs);
+
+
+			printf("pidiendo sectorId %i al ppd-%i \n", message.payload.diskSector.sectorNumber , aStorage->id);
 
 			praid_endpoint_ppd_sendMessage(aStorage->connection , message);
 
@@ -142,7 +184,12 @@
 			if(message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 				praid_state_storage_incrementPendingResponses(aStorage);
 			}
+
+			commons_misc_unlockThreadMutex(&aStorage->disconnectionMutex);
+
 		}
+
+		puts("Se cierra el sender");
 	}
 
 
@@ -162,49 +209,5 @@
 
 
 
-
-
-	void praid_ppd_redistributeJobs(Queue jobs){
-
-		Iterator * ite = commons_iterator_buildIterator(jobs);
-
-		while(commons_iterator_hasMoreElements(ite)){
-
-			Job * job = commons_iterator_next(ite);
-
-			if(job->operationId == NIPC_OPERATION_ID_GET_SECTORS){
-
-				PPDConnectionStorage * bestCandidate = praid_balancer_selectStorage();
-
-				if(bestCandidate == NULL){
-					puts("[ No se encuentran PPDs conectados ]");
-					break;
-				}
-
-				printf("[ Cantidad de ppds conectados: %i ]\n" , praid_state_getPpdStorages()->size);
-				printf("[ Encolando pedido de sector %i en PPD-%i ]\n" , job->sectorId , bestCandidate->id);
-
-				commons_queue_put(bestCandidate->pendingJobs , job);
-
-			}else if(job->operationId == NIPC_OPERATION_ID_PUT_SECTORS){
-
-				Iterator * storages = commons_iterator_buildIterator(praid_state_getPpdStorages());
-
-				while(commons_iterator_hasMoreElements(storages)){
-
-					PPDConnectionStorage * storage = commons_iterator_next(storages);
-
-					printf("[ Encolando pedido de sector %i en PPD-%i ]\n" , job->sectorId , storage->id);
-
-					commons_queue_put(storage->pendingJobs , job);
-				}
-
-				free(storages);
-			}
-		}
-
-		free(ite);
-
-	}
 
 

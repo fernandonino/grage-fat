@@ -33,6 +33,9 @@
 
 		Queue sendedJobs;
 
+
+		ThreadMutex disconnectionMutex;
+
 	} PPDConnectionStorage;
 
 

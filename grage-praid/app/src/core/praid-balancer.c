@@ -6,16 +6,24 @@
  */
 #include <stdlib.h>
 
-#include "praid-state.h"
-#include "linux-commons-list.h"
+#include <linux-commons-list.h>
+#include <nipc-messaging.h>
+#include <linux-commons-console-logging.h>
 
+#include "praid-state.h"
+#include "praid-queue.h"
 
 
 #define PRAID_BALANCER_WEIGHT_PENDING_RESPONSE			1
 #define PRAID_BALANCER_WEIGHT_PENDING_REQUEST			2
 
 
+
+	void praid_balancer_redistributeJobs(Queue jobs);
+	void praid_balancer_assignJob(PPDConnectionStorage * storage , Job * job);
+
 	ThreadMutex loadBalancingMutex = PTHREAD_MUTEX_INITIALIZER;
+	ThreadMutex jobsRedistributionMutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 
@@ -57,4 +65,49 @@
 		commons_misc_unlockThreadMutex(&loadBalancingMutex);
 
 		return selected;
+	}
+
+
+
+
+
+
+
+
+
+	void praid_balancer_redistributeJobs(Queue jobs){
+
+		Iterator * ite = commons_iterator_buildIterator(jobs);
+
+		printf("[ Redistribuyendo %i trabajos en %i ppds conectados ]\n" , jobs->size , praid_state_getPpdStorages()->size);
+
+		while(commons_iterator_hasMoreElements(ite)){
+
+			Job * job = commons_iterator_next(ite);
+
+			PPDConnectionStorage * bestCandidate = praid_balancer_selectStorage();
+
+			if(bestCandidate == NULL){
+				puts("[ No se encuentran PPDs conectados ]");
+				break;
+			}
+
+			praid_balancer_assignJob(bestCandidate , job);
+
+		}
+
+		free(ite);
+	}
+
+
+
+	void praid_balancer_assignJob(PPDConnectionStorage * storage , Job * job){
+
+		if(commons_console_logging_isAll()){
+			printf("[ Asignando trabajo de SectorId %i al PPD-%i ]\n" , job->sectorId , storage->id);
+		}else{
+			printf("[ Asignando trabajo al PPD-%i ]\n" , storage->id);
+		}
+
+		commons_queue_put(storage->pendingJobs , job);
 	}

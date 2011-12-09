@@ -17,7 +17,10 @@
 
 	void praid_utils_printEndSynchingInformation(SyncProcessState state);
 
+	Queue praid_utils_getReadingJobs(PPDConnectionStorage * storage);
 
 	void praid_utils_printLines();
+
+	void praid_utils_printPendingJobs(Queue jobs);
 
 #endif /* PRAID_UTILS_H_ */

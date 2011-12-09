@@ -8,9 +8,11 @@
 
 #include "linux-commons.h"
 #include "linux-commons-queue.h"
+#include <linux-commons-list.h>
+#include <nipc-messaging.h>
 
 #include "praid-queue.h"
-
+#include "praid-state.h"
 
 	void praid_storage_queue_put(Queue aQueue , NipcMessage aMessage){
 		Job * theJob = praid_jobs_buildJob(aMessage);
@@ -62,4 +64,35 @@
 		mes.header.messageType = theJob->messageType;
 		mes.header.operationId = theJob->operationId;
 		return mes;
+	}
+
+
+	void praid_utils_fillReadingQueue(Queue allJobs , Queue reading){
+		Iterator * ite = commons_iterator_buildIterator(allJobs);
+
+		while(commons_iterator_hasMoreElements(ite)){
+
+			Job * theJob = commons_iterator_next(ite);
+
+			if(theJob->operationId == NIPC_OPERATION_ID_GET_SECTORS){
+
+				commons_queue_put(reading , theJob);
+
+			}else{
+				free(theJob);
+			}
+		}
+
+		free(ite);
+	}
+
+
+	Queue praid_utils_getReadingJobs(PPDConnectionStorage * storage){
+
+		Queue readingQueue = commons_queue_buildQueue((Boolean (*)(Object , Object))praid_jobs_eq);
+
+		praid_utils_fillReadingQueue(storage->pendingJobs , readingQueue);
+		praid_utils_fillReadingQueue(storage->sendedJobs , readingQueue);
+
+		return readingQueue;
 	}

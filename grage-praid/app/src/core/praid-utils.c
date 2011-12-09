@@ -9,6 +9,7 @@
 #include <linux-commons-console-logging.h>
 
 #include "praid-utils.h"
+#include "praid-queue.h"
 
 	ThreadMutex listingMutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -88,3 +89,21 @@
 			commons_misc_unlockThreadMutex(&listingMutex);
 		}
 	}
+
+
+	void praid_utils_printPendingJobs(Queue jobs){
+
+		Iterator * ite = commons_iterator_buildIterator(jobs);
+
+		while(commons_iterator_hasMoreElements(ite)){
+
+			Job * job = commons_iterator_next(ite);
+
+			printf("[ Trabajo pendiente - SectorId: %i ]\n" , job->sectorId);
+		}
+
+		free(ite);
+
+
+	}
+

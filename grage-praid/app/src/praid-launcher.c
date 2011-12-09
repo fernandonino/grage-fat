@@ -5,7 +5,6 @@
  *      Author: gonzalo
  */
 
-
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -42,6 +41,7 @@
 	void praid_launcher_exit() {
 		log_destroy();
 	}
+
 
 
 	int main(int argc, char *args[]){
