@@ -966,7 +966,7 @@
 		return (v->fatSize*v->bps)/1024;
 	}
 
-	Block pfs_fat32_utils_callGetBlock(uint32_t blockNumber){
+	Block pfs_fat32_utils_callGetBlock(uint32_t blockNumber , FatFile * f){
 		Block block;
 		DiskSector sector;
 		uint16_t offset = 0;

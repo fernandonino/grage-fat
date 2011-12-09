@@ -180,7 +180,7 @@
 
 	void pfs_endpoint_callPutSector(DiskSector , FatFile *);
 
-	Block pfs_fat32_utils_callGetBlock(uint32_t);
+	Block pfs_fat32_utils_callGetBlock(uint32_t , FatFile *);
 
 #endif /* PFS_FAT32_H_ */
 
