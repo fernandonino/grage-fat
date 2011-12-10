@@ -15,8 +15,7 @@
 	FatFile * pfs_fat32_utils_openRootDirectory(Volume * v) {
 		FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
 
-		if (pfs_cache_habilitada())
-			fatFile->cache = pfs_cache_sectors_initialize();
+		fatFile->cache = pfs_cache_sectors_initialize();
 
 		uint32_t cluster = pfs_fat32_utils_getNextClusterInChain(v , v->root);
 
@@ -53,7 +52,7 @@
             	fatFile->cache = pfs_cache_sectors_initialize();
 
             Block block;
-            block = pfs_fat32_utils_callGetBlock(v->root);
+            block = pfs_fat32_utils_callGetBlock(v->root, fatFile);
 
             List directories = commons_list_tokenize((char *)path, '/');
             Iterator * ite = commons_iterator_buildIterator(directories);
@@ -78,7 +77,7 @@
 						}
 					} else if (offset >= v->bpc) {
 						blockNumber = pfs_fat32_utils_getNextClusterInChain(v, block.id);
-						block = pfs_fat32_utils_callGetBlock(blockNumber);
+						block = pfs_fat32_utils_callGetBlock(blockNumber, fatFile);
 						offset = 0;
 					}
 
@@ -92,7 +91,7 @@
 					if (offset >= v->bpc) {
 						Block auxBlock;
 						blockNumber = pfs_fat32_utils_getNextClusterInChain(v, block.id);
-						auxBlock = pfs_fat32_utils_callGetBlock(blockNumber);
+						auxBlock = pfs_fat32_utils_callGetBlock(blockNumber, fatFile);
 
 						memcpy(&sDirEntry, auxBlock.content, FAT_32_DIR_ENTRY_SIZE);
 						offset -= FAT_32_BLOCK_ENTRY_SIZE;
@@ -112,7 +111,7 @@
 					next = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
 
 					if ( commons_iterator_hasMoreElements(ite) ){
-						block = pfs_fat32_utils_callGetBlock(next);
+						block = pfs_fat32_utils_callGetBlock(next, fatFile);
 					}
 				}
             }
@@ -163,17 +162,17 @@
 			if( file->dirEntryOffset >= volume->bpc ){
 				file->nextCluster = pfs_fat32_utils_getNextClusterInChain(volume , file->nextCluster);
 				file->dirEntryOffset = 0;
-				block = pfs_fat32_utils_callGetBlock(file->nextCluster , file);
+				block = pfs_fat32_utils_callGetBlock(file->nextCluster, file);
 			} else {
-				block = pfs_fat32_utils_callGetBlock(file->source , file);
+				block = pfs_fat32_utils_callGetBlock(file->source, file);
 			}
 		} else {
 			if( file->dirEntryOffset >= volume->bpc ){
 				file->nextCluster = pfs_fat32_utils_getNextClusterInChain(volume , file->nextCluster);
 				file->dirEntryOffset = 0;
-				block = pfs_fat32_utils_callGetBlock(file->nextCluster , file);
+				block = pfs_fat32_utils_callGetBlock(file->nextCluster, file);
 			} else {
-				block = pfs_fat32_utils_callGetBlock(file->nextCluster , file);
+				block = pfs_fat32_utils_callGetBlock(file->nextCluster, file);
 			}
 		}
 
@@ -187,7 +186,6 @@
 				} else {
 					file->nextCluster = pfs_fat32_utils_getNextClusterInChain(volume, file->nextCluster);
 					file->dirEntryOffset = 0;
-					block = pfs_fat32_utils_callGetBlock(file->nextCluster , file);
 				}
 			}
 

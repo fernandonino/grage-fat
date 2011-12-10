@@ -407,7 +407,7 @@
 
 		f->fileAbsoluteClusterNumberWrite = c;
 
-		Block block = pfs_fat32_utils_callGetBlock(c);
+		Block block = pfs_fat32_utils_callGetBlock(c, f);
 
 		return block;
 	}
