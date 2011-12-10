@@ -18,8 +18,8 @@
 #include "pfs-fat32.h"
 
 	struct fuse_operations grage_oper = {
-	  .getattr = pfs_fuse_getattr,
-	  .mkdir = pfs_fuse_mkdir,
+	  .getattr = pfs_fuse_getattr,			// Bloque-Cluster: revisada (falla el ls -la en ...)
+	  .mkdir = pfs_fuse_mkdir,				// Bloque-Cluster: revisada y aprobada
 	  .unlink = pfs_fuse_unlink,
 	  .rmdir = pfs_fuse_rmdir,
 	  .rename = pfs_fuse_rename,
