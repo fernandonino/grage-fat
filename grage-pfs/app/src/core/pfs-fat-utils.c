@@ -387,9 +387,10 @@
 		}
 
 		//Revisar en el caso que de 0
-		f->fileClusterNumber = offset / v->bpc + 1;
-		f->fileSectorNumberOfCluster = offset % v->bpc / v->bps + 1;
-		//f->sectorByteOffset = offset % v->bps;
+		f->fileClusterNumber = offset / v->bpc;
+		if((offset % v->bpc) != 0)
+			f->fileClusterNumber++;
+		f->fileClusterOffset = offset % v->bpc;
 
 		return EXIT_SUCCESS;
 	}
@@ -729,30 +730,24 @@
 		}
 
 		f->shortEntry.DIR_FileSize += newsize;
-		uint32_t dirSector = pfs_fat_utils_getFirstSectorOfCluster(v, f->source);
-		uint32_t secInClus = f->sourceOffset / v->bps;
-		dirSector = dirSector + secInClus;
-		uint32_t sectorOffset = f->sourceOffset % v->bps;
-
+		Block block = pfs_fat32_utils_callGetBlock(f->source, f);
+		uint32_t sectorOffset = f->sourceOffset;
+		uint32_t blockId;
 
 		if(FAT_32_LDIR_ISLONG(f->longEntry.LDIR_Attr)){
-			if(sectorOffset + FAT_32_DIR_ENTRY_SIZE >= v->bps){
-				if(pfs_fat32_utils_isLastSectorFromCluster(v, dirSector)){
-					dirSector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v, f->source);
-				}
-				else{
-					dirSector++;
-				}
+			if(sectorOffset + FAT_32_DIR_ENTRY_SIZE >= v->bpc){
+				blockId = pfs_fat32_utils_getNextClusterInChain(v, f->source);
 				sectorOffset = 0;
 			}
 			else{
 				sectorOffset += FAT_32_DIR_ENTRY_SIZE;
+				blockId = block.id;
 			}
 		}
 
-		DiskSector diskSector = pfs_endpoint_callCachedGetSector(dirSector , f);
-		memcpy(diskSector.sectorContent + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
-		pfs_endpoint_callPutSector(diskSector , NULL);
+		block = pfs_fat32_utils_callGetBlock(blockId , f);
+		memcpy(block.content + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
+		pfs_fat32_utils_callPutBlock(block , NULL);
 	}
 
 
@@ -931,36 +926,31 @@
 
 	void pfs_fat32_utils_updateFilesize(Volume * v , FatFile * f , uint32_t newsize){
 		f->shortEntry.DIR_FileSize = newsize;
-		uint32_t dirSector = pfs_fat_utils_getFirstSectorOfCluster(v, f->source);
-		uint32_t secInClus = f->sourceOffset / v->bps;
-		dirSector = dirSector + secInClus;
-		uint32_t sectorOffset = f->sourceOffset % v->bps;
-
+		//Block block = pfs_fat32_utils_callGetBlock(f->source, f);
+		uint32_t clusterOffset = f->sourceOffset;
+		uint32_t clusterId = f->source;
 
 		if(FAT_32_LDIR_ISLONG(f->longEntry.LDIR_Attr)){
-			if(sectorOffset + FAT_32_DIR_ENTRY_SIZE >= v->bps){
-				if(pfs_fat32_utils_isLastSectorFromCluster(v, dirSector)){
-					dirSector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v, f->source);
-				}
-				else{
-					dirSector++;
-				}
-				sectorOffset = 0;
+			if(clusterOffset + FAT_32_DIR_ENTRY_SIZE >= v->bpc){
+				clusterId = pfs_fat32_utils_getNextClusterInChain(v, clusterId);
+				clusterOffset = 0;
 			}
 			else{
-				sectorOffset += FAT_32_DIR_ENTRY_SIZE;
+				clusterOffset += FAT_32_DIR_ENTRY_SIZE;
 			}
 		}
 
-		DiskSector diskSector = pfs_endpoint_callCachedGetSector(dirSector , f);
-		memcpy(diskSector.sectorContent + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
-		pfs_endpoint_callPutSector(diskSector , NULL);
+		Block block = pfs_fat32_utils_callGetBlock(clusterId, f);
+		memcpy(block.content + clusterOffset, &(f->shortEntry), sizeof(DirEntry));
+		pfs_fat32_utils_callPutBlock(block , f);
 	}
 
 	uint32_t pfs_fat_utils_FATsizeKilobytes(){
 		Volume * v = pfs_state_getVolume();
 		return (v->fatSize*v->bps)/1024;
 	}
+
+
 
 	Block pfs_fat32_utils_callGetBlock(uint32_t blockNumber , FatFile * f){
 		Block block;
@@ -980,4 +970,22 @@
 		block.id = blockNumber;
 
 		return block;
+	}
+
+	void pfs_fat32_utils_callPutBlock(Block block , FatFile * f){
+		DiskSector sector;
+		uint16_t offset = 0;
+
+		Volume * v = pfs_state_getVolume();
+		uint32_t firstSector = pfs_fat_utils_getFirstSectorOfCluster(v , block.id);
+		uint32_t lastSector = firstSector + 8;
+
+		for( ; firstSector < lastSector ; firstSector++ ){
+			//sector = pfs_endpoint_callGetSector(firstSector);
+			sector.sectorNumber = firstSector;
+			memcpy(sector.sectorContent , block.content + offset , SECTOR_SIZE);
+			pfs_endpoint_callPutSector(sector, f);
+			offset += SECTOR_SIZE;
+		}
+
 	}

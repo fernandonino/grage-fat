@@ -373,61 +373,56 @@
 	}
 
 	uint32_t pfs_fat32_write(Volume * v , FatFile * f , const char * buf , size_t size){
-/*
+
 		uint32_t bytesWritten = 0 ;
 		uint32_t bytesLeft = size;
-		uint32_t bytesToWrite , sectorId;
+		uint32_t bytesToWrite;
+		Block block;
+		uint32_t current;
 
-
-		DiskSector sector;
 		if (f->fileAbsoluteClusterNumberWrite == 0){
-			sector = pfs_fat32_utils_getSectorFromNthClusterWrite(f);
+			block = pfs_fat32_utils_getBlockFromNthClusterWrite(f);
 		}
 		else{
-			f->fileAbsoluteClusterNumberWrite = pfs_fat32_utils_getNextClusterInChain(v,f->fileAbsoluteClusterNumberWrite);
-			sectorId = pfs_fat_utils_getFirstSectorOfCluster(v , f->fileAbsoluteClusterNumberWrite);
-			sector = pfs_endpoint_callCachedGetSector(sectorId, f);
+			current = f->fileAbsoluteClusterNumberWrite;
+			current = pfs_fat32_utils_getNextClusterInChain(v,current);
+			block = pfs_fat32_utils_callGetBlock(current, f);
 		}
 
-		if( size + f->sectorByteOffset <= v->bps ){
-			memcpy(sector.sectorContent + f->sectorByteOffset , buf , size);
-			pfs_endpoint_callPutSector(sector , f);
+		if( size + f->fileClusterOffset <= v->bpc ){
+			memcpy(block.content + f->fileClusterOffset , buf , size);
+			pfs_fat32_utils_callPutBlock(block , f);
 			return bytesWritten += size;
 		} else {
-			memcpy(sector.sectorContent + f->sectorByteOffset , buf , v->bps - f->sectorByteOffset);
-			bytesWritten = v->bps - f->sectorByteOffset;
+			memcpy(block.content + f->fileClusterOffset , buf , v->bpc - f->fileClusterOffset);
+			bytesWritten = v->bpc - f->fileClusterOffset;
 			bytesLeft -= bytesWritten;
 		}
 
-		pfs_endpoint_callPutSector(sector , f);
+		pfs_fat32_utils_callPutBlock(block , f);
 
-		uint32_t current = f->fileAbsoluteClusterNumberWrite;
+		//current = f->fileAbsoluteClusterNumberWrite;
 
 		while( bytesWritten < size ){
 
-			if( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) ){
-				uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , current);
-				current = pfs_fat_utils_getClusterBySector(v , sectorId);
-				sector = pfs_endpoint_callCachedGetSector(sectorId , f);
-			} else {
-				sector = pfs_endpoint_callCachedGetSector(sector.sectorNumber + 1 , f);
-
-			}
-
-			if ( (bytesLeft <= v->bps) || FAT_32_ISEOC(current) ){
+			if ( (bytesLeft <= v->bpc) || FAT_32_ISEOC(current) ){
 				bytesToWrite = bytesLeft;
 			} else {
-				bytesToWrite = v->bps;
+				bytesToWrite = v->bpc;
 			}
 
-			memcpy(sector.sectorContent , buf + bytesWritten , bytesToWrite);
+			memcpy(block.content , buf + bytesWritten , bytesToWrite);
 			bytesWritten += bytesToWrite;
 			bytesLeft -= bytesToWrite;
-			pfs_endpoint_callPutSector(sector , f);
+			pfs_fat32_utils_callPutBlock(block , f);
+
+			if(size - bytesWritten > 0){
+				current = pfs_fat32_utils_getNextClusterInChain(v, block.id);
+				block = pfs_fat32_utils_callGetBlock(current , f);
+			}
 		}
 
 		return bytesWritten;
-*/return 0;
 	}
 
 	uint32_t pfs_fat32_read(Volume * v , FatFile * f , char * buf , size_t size){
