@@ -336,7 +336,7 @@
 
 		nextCluster = pfs_fat32_utils_getNextClusterInChain(v ,fd->nextCluster);
 		sector = pfs_fat_utils_getFatEntrySector(v, fd->nextCluster);
-		DiskSector diskSector = pfs_endpoint_callCachedGetSector(sector , NULL);
+		DiskSector diskSector = pfs_endpoint_callCachedGetSector(sector);
 		offset = pfs_fat_utils_getFatEntryOffset(v, fd->nextCluster);
 
 		memcpy(&EntryValue, diskSector.sectorContent + offset, sizeof(uint32_t));
@@ -725,7 +725,7 @@
 				pfs_fat32_utils_callPutBlock(block, f);
 
 				sectorId = pfs_fat_utils_getFatEntrySector(v, block.id);
-				diskSector = pfs_endpoint_callCachedGetSector(sectorId , NULL);
+				diskSector = pfs_endpoint_callCachedGetSector(sectorId);
 				fatEntryOffset = pfs_fat_utils_getFatEntryOffset(v, nextCluster);
 
 				memcpy(&nextCluster, diskSector.sectorContent + fatEntryOffset, sizeof(uint32_t));
@@ -859,7 +859,7 @@
 //			}
 //		}
 
-		DiskSector sector = pfs_endpoint_callCachedGetSector(1 , NULL);
+		DiskSector sector = pfs_endpoint_callCachedGetSector(1);
 		uint32_t nextFree = v->nextFreeCluster - 1;
 		memcpy(sector.sectorContent + 488 , &(v->freeClusterCount) , sizeof(uint32_t));
 		memcpy(sector.sectorContent + 492 , &(nextFree) , sizeof(uint32_t));

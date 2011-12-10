@@ -15,9 +15,9 @@
 #define FILE_CACHE		1
 
 		typedef struct {
-			Cluster * cluster;
+			Block * block;
 			uint32_t estado;
-		}CacheRecord;
+		}CacheBlockRecord;
 
 		typedef struct {
 			uint8_t estado;
@@ -44,6 +44,6 @@
 		void pfs_cache_setCacheSectorsFatMaxCount(uint32 count);
 		uint32 pfs_cache_getCacheSectorsFatMaxCount();
 
-		DiskSector pfs_endpoint_callCachedGetSector(uint32_t sectorNumber , FatFile  * fatFile);
+		DiskSector pfs_endpoint_callCachedGetSector(uint32_t);
 
 #endif /* PFS_CACHE_H_ */

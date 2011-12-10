@@ -95,7 +95,6 @@
 	}
 
 
-
 	DiskSector pfs_endpoint_buildDiskSectorFromCacheCluster(CacheSectorRecord * a){
 		DiskSector d;
 		d.sectorNumber = 0;
@@ -108,6 +107,18 @@
 		return d;
 	}
 
+	Block pfs_endpoint_buildBlockFromCacheCluster(CacheBlockRecord * a){
+		Block d;
+		d.id = 0;
+
+		if(a == NULL)
+			return d;
+
+		memcpy(d.content , a->block->content , sizeof(a->block->content));
+		d.id = a->block->id;
+		return d;
+	}
+
 	DiskSector pfs_endpoint_utils_getFromFatCache(uint32_t sectorNumber){
 		CacheSectorRecord * s = pfs_cache_get_sector(
 			sectorNumber,pfs_cache_getListaCacheFat()
@@ -116,18 +127,21 @@
 		return pfs_endpoint_buildDiskSectorFromCacheCluster(s);
 	}
 
-	DiskSector pfs_endpoint_utils_getFromFileCache(uint32_t sectorNumber , FatFile * fatFile){
+	Block pfs_endpoint_utils_getFromFileCache(uint32_t clusterId , FatFile * fatFile){
 
-		CacheSectorRecord * s = pfs_cache_get_sector(
-				sectorNumber,
-				fatFile->cache,
-				pfs_cache_getCacheSectorsMaxCount());
+		if( pfs_cache_habilitada() ){
+			CacheBlockRecord * s = pfs_cache_getBlock(clusterId, fatFile->cache ,
+					pfs_cache_getCacheSectorsMaxCount());
 
-		return pfs_endpoint_buildDiskSectorFromCacheCluster(s);
-
+			return pfs_endpoint_buildBlockFromCacheCluster(s);
+		} else {
+			Block b;
+			b.id = 0;
+			return b;
+		}
 	}
 
-	DiskSector pfs_endpoint_utils_getFromCache(uint32_t sectorNumber , FatFile  * fatFile){
+	DiskSector pfs_endpoint_utils_getFromCache(uint32_t sectorNumber){
 
 		DiskSector defaultSector;
 		defaultSector.sectorNumber = 0;
@@ -149,9 +163,9 @@
 	}
 
 
-	DiskSector pfs_endpoint_callCachedGetSector(uint32_t sectorNumber , FatFile  * fatFile){
+	DiskSector pfs_endpoint_callCachedGetSector(uint32_t sectorNumber){
 
-		DiskSector returningSector = pfs_endpoint_utils_getFromCache(sectorNumber , fatFile);
+		DiskSector returningSector = pfs_endpoint_utils_getFromCache(sectorNumber);
 
 		if(returningSector.sectorNumber != 0){
 			//printf("Se toma de la cache el sector %i\n" , returningSector.sectorNumber);
