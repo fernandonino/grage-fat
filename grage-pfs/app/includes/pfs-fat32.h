@@ -158,7 +158,7 @@
 	uint8_t pfs_fat32_utils_fillTime(uint16_t * , uint16_t * , time_t);
 
 	int8_t pfs_fat32_utils_seek(Volume * , FatFile * , off_t , uint32_t);
-	DiskSector pfs_fat32_utils_getSectorFromNthClusterWrite(FatFile *);
+	DiskSector pfs_fat32_utils_getBlockFromNthClusterWrite(FatFile *);
 	Block pfs_fat32_utils_getBlockFromNthClusterRead(FatFile *);
 
 	uint32_t pfs_fat32_utils_getNextFreeCluster(void); // Esta funcion se deberia poder borrar
