@@ -456,7 +456,7 @@
 	int8_t pfs_fat32_mknod(Volume * v , FatFile * destination , char * filename){
 		DirEntry shortEntry;
 		LongDirEntry longEntry , auxEntry;
-		uint32_t sectorId;
+		uint32_t blockNumber;
 		uint16_t offset = 0;
 		uint8_t freeCount = 0;
 
@@ -482,11 +482,17 @@
 		 * 32 para el LongDirEntry y 32 para el DirEntry
 		 */
 
-		DiskSector sector = pfs_endpoint_callCachedGetSector(destination->currentSector , destination);
+		//DiskSector sector = pfs_endpoint_callCachedGetSector(destination->currentSector , destination);
+		if (destination->dirType == 0)
+			blockNumber = destination->source;
+		else
+			blockNumber = pfs_fat_getFirstClusterFromDirEntry(&(destination->shortEntry));
+
+		Block block = pfs_fat32_utils_callGetBlock(blockNumber , destination);
 
 		while( freeCount < 2 ) {
 			do {
-				memcpy(&auxEntry , sector.sectorContent + offset , FAT_32_DIR_ENTRY_SIZE);
+				memcpy(&auxEntry , block.content + offset , FAT_32_DIR_ENTRY_SIZE);
 				offset += 32;
 
 				if ( FAT_32_DIRENT_ISFREE(auxEntry.LDIR_Ord) ){
@@ -494,28 +500,19 @@
 					break;
 				}
 
-				if( offset >= v->bps ){
-					if ( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) ) {
-						if ( FAT_32_ISEOC(destination->nextCluster)){
-							uint32_t newCluster = pfs_fat32_utils_allocateNewCluster(v , destination->nextCluster);
-							sectorId = pfs_fat_utils_getFirstSectorOfCluster(v , newCluster);
-							sector = pfs_endpoint_callCachedGetSector(sectorId , destination);
-							freeCount = 2;
-							offset = 64;
-							break;
-						} else {
-							uint32_t sectorId = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v , destination->nextCluster);
-							sector = pfs_endpoint_callCachedGetSector(sectorId , destination);
-							offset = 0;
-						}
+				if( offset >= v->bpc ){
+					blockNumber = pfs_fat32_utils_getNextClusterInChain(v, blockNumber);
+					if ( FAT_32_ISEOC(blockNumber) ){
+						//Hay que agregar un cluster nuevo!!!
 					} else {
-						sector = pfs_endpoint_callCachedGetSector(sector.sectorNumber + 1 , destination);
+						block = pfs_fat32_utils_callGetBlock(blockNumber , destination);
 						offset = 0;
 					}
 				}
+
 			} while ( ! FAT_32_DIRENT_ISFREE(auxEntry.LDIR_Ord) ); //Sale cuando encontro 32 bytes libres
 
-			memcpy(&auxEntry , sector.sectorContent + offset , FAT_32_DIR_ENTRY_SIZE); //Se buscan los siguientes 32 bytes libres
+			memcpy(&auxEntry , block.content + offset , FAT_32_DIR_ENTRY_SIZE); //Se buscan los siguientes 32 bytes libres
 			offset += 32;
 
 			if ( FAT_32_DIRENT_ISFREE(auxEntry.LDIR_Ord) )
@@ -524,15 +521,15 @@
 				freeCount = 0; // Solo se encontraron 32 bytes libres - hay que empezar de nuevo
 		}
 
-		/* Escribimos los entries en el sector y lo mandamos a escribir en el disco */
+		/* Escribimos los entries en el cluster y lo mandamos a escribir en el disco */
 
 		uint16_t longOffset = offset - FAT_32_BLOCK_ENTRY_SIZE;
 		uint16_t shortOffset = offset - FAT_32_DIR_ENTRY_SIZE;
 
-		memcpy(sector.sectorContent + longOffset , &longEntry , FAT_32_DIR_ENTRY_SIZE);
-		memcpy(sector.sectorContent + shortOffset , &shortEntry , FAT_32_DIR_ENTRY_SIZE);
+		memcpy(block.content + longOffset , &longEntry , FAT_32_DIR_ENTRY_SIZE);
+		memcpy(block.content + shortOffset , &shortEntry , FAT_32_DIR_ENTRY_SIZE);
 
-		pfs_endpoint_callPutSector(sector , NULL);
+		pfs_fat32_utils_callPutBlock(block , NULL);
 
 		return EXIT_SUCCESS;
 	}
@@ -571,8 +568,12 @@
 		 */
 
 		//DiskSector sector = pfs_endpoint_callCachedGetSector(destination->currentSector , destination);
-		Block block = pfs_fat32_utils_callGetBlock(destination->source , destination);
-		blockNumber = block.id;
+		if (destination->dirType == 0)
+			blockNumber = destination->source;
+		else
+			blockNumber = pfs_fat_getFirstClusterFromDirEntry(&(destination->shortEntry));
+
+		Block block = pfs_fat32_utils_callGetBlock(blockNumber , destination);
 
 		while( freeCount < 2 ) {
 			do {
@@ -605,7 +606,7 @@
 				freeCount = 0; // Solo se encontraron 32 bytes libres - hay que empezar de nuevo
 		}
 
-		/* Escribimos los entries en el sector y lo mandamos a escribir en el disco */
+		/* Escribimos los entries en el cluster y lo mandamos a escribir en el disco */
 
 		uint16_t longOffset = offset - FAT_32_BLOCK_ENTRY_SIZE;
 		uint16_t shortOffset = offset - FAT_32_DIR_ENTRY_SIZE;
