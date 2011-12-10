@@ -27,6 +27,9 @@
 
 #define SOCK_PATH "/opt/grage-repository/.echo_socket"
 
+extern pthread_mutex_t count_mutex;
+extern pthread_cond_t  condition_var;
+
 void consoleObtainSignal();
 
 pthread_t ppdConsoleThread;
@@ -169,11 +172,14 @@ pthread_t ppdConsoleThread;
 					mensajeNipc.payload.diskSector.sectorNumber=ppd_utils_get_sector_from_sectorofcilinder(mensaje.pistaSector.sectorNumber,mensaje.pistaSector.pista);
 					mensajeNipc.header.operationId=69;
 					pthread_t phantomThread;
-					pthread_create(&phantomThread , NULL , consoleObtainSignal, NULL);
-					mensajeNipc.payload.pfsSocket = (uint32_t) phantomThread;
+					//pthread_create(&phantomThread , NULL , consoleObtainSignal, NULL);
+					//mensajeNipc.payload.pfsSocket = (uint32_t) phantomThread;
 					ppd_queues_putInQueue(mensajeNipc);
-					pthread_join(phantomThread , NULL);
-
+					pthread_mutex_lock(&count_mutex);
+					//PAUSAR;
+					pthread_cond_wait( &condition_var, &count_mutex );
+					//pthread_join(phantomThread , NULL);
+					pthread_mutex_unlock(&count_mutex);
 					//sleep(2);
 
 //					while (ppd_alg_planif_strategy_sstf(queue,newJob) != TRUE){

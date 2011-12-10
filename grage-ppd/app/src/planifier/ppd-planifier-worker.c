@@ -27,9 +27,12 @@
 
 	void ppd_planifier_worker_doJob(void * arg);
 
+	pthread_mutex_t count_mutex     = PTHREAD_MUTEX_INITIALIZER;
+	pthread_cond_t  condition_var   = PTHREAD_COND_INITIALIZER;
+
+	pthread_t jobsThread;
 
 	void ppd_planifier_worker_doJobs(){
-		pthread_t jobsThread;
 		pthread_create(&jobsThread , NULL , (void * (*)(void *)) ppd_planifier_worker_doJob , NULL);
 	}
 
@@ -54,6 +57,8 @@
 
 			NipcMessage m = ppd_queues_pickFromQueue();
 
+			puts("pick from queue");
+
 			if ( m.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS ) {
 
 				ppd_planifier_worker_applyDelayForWrite();
@@ -72,7 +77,11 @@
 				ppd_endpoint_responseGetSector(m);
 			}
 			if (m.header.operationId == 69){
-
+				printf("CANTIDAD PROCESOS EN COLA: %d\n",ppd_queues_getJobsQueue()->size);
+				Iterator * cola = commons_iterator_buildIterator(ppd_queues_getJobsQueue());
+				while (commons_iterator_hasMoreElements(cola)){
+					printf("SECTOR DE LA COLA ID: %d\n",((Job *) commons_iterator_next(cola))->sectorId);
+				}
 				MessageConsolePPD mensaje;
 				mensaje.pistaSector.pista = ppd_utils_get_cilinder_from_sector(m.payload.diskSector.sectorNumber);
 				mensaje.pistaSector.sectorNumber = ppd_utils_get_sectorofcilinder_from_sector(m.payload.diskSector.sectorNumber);
@@ -84,7 +93,11 @@
 					mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
 
 				}
-				pthread_kill( (pthread_t *)m.payload.pfsSocket , SIGQUIT);
+				//REANUDAR;
+				pthread_mutex_lock(&count_mutex);
+				pthread_cond_signal( &condition_var );
+				pthread_mutex_unlock(&count_mutex);
+				//pthread_kill( (pthread_t)m.payload.pfsSocket , SIGQUIT);
 				commons_socket_sendBytes(ppd_state_getPpdConsoleSocket(), &mensaje,
 									sizeof mensaje);
 
@@ -93,8 +106,10 @@
 					ppd_utils_get_cilinder_from_sector(m.payload.diskSector.sectorNumber),
 					ppd_utils_get_sectorofcilinder_from_sector(m.payload.diskSector.sectorNumber));
 			//ppd_alg_setCurrentPossition(m.payload.diskSector.sectorNumber);
+
 		}
 	}
+
 
 
 
