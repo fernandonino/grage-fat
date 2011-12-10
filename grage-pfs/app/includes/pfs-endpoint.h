@@ -24,6 +24,9 @@
 	DiskSector pfs_endpoint_buildAndSendGet(ListenSocket ds, uint32_t sectorNumber);
 	void pfs_endpoint_bulidAndSendPut(ListenSocket ds , DiskSector diskSector);
 
+	void pfs_endpoint_blocks_callExecuteGetSector(ListenSocket , uint32_t);
+	DiskSector pfs_endpoint_blocks_callReturnGetSector(ListenSocket);
+
 	//DiskSector pfs_endpoint_callCachedGetSector(uint32_t , FatFile  *);
 
 

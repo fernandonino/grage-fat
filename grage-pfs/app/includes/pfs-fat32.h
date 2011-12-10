@@ -123,7 +123,7 @@
 	void pfs_fat32_rename(Volume * , FatFile * , char * );
 	void pfs_fat32_moveFile(Volume * , FatFile * , const char * , const char * );
 	uint32_t pfs_fat32_write(Volume * , FatFile * , const char * , size_t);
-	void pfs_fat32_flush(Volume *);
+	void pfs_fat32_flush(Volume * , FatFile *);
 
 //UTILS
 	Volume * pfs_fat_utils_loadVolume(BPB * b);
@@ -181,6 +181,7 @@
 
 	void pfs_endpoint_callPutSector(DiskSector , FatFile *);
 
+	Block pfs_endpoint_blocks_callGetBlock(uint32_t);
 	Block pfs_fat32_utils_callGetBlock(uint32_t , FatFile *);
 	void pfs_fat32_utils_callPutBlock(Block , FatFile * );
 

@@ -141,7 +141,9 @@
 	int pfs_fuse_flush(const char *path, struct fuse_file_info *fi){
 
 		Volume * v = pfs_state_getVolume();
-		pfs_fat32_flush(v);
+		FatFile * file = (FatFile *)fi->fh;
+
+		pfs_fat32_flush(v , file);
 
 		return EXIT_SUCCESS;
 	}

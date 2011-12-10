@@ -841,7 +841,18 @@
 	}
 
 
-	void pfs_fat32_flush(Volume * v){
+	void pfs_fat32_flush(Volume * v , FatFile * file){
+
+//		if ( pfs_cache_habilitada() ){
+//			Iterator * i = commons_iterator_buildIterator(file->cache);
+//
+//			while( commons_iterator_hasMoreElements(i) ){
+//
+//				CacheSectorRecord * nodo = (CacheSectorRecord *)commons_iterator_next(i);
+//				//Hay que
+//			}
+//		}
+
 		DiskSector sector = pfs_endpoint_callCachedGetSector(1 , NULL);
 		uint32_t nextFree = v->nextFreeCluster - 1;
 		memcpy(sector.sectorContent + 488 , &(v->freeClusterCount) , sizeof(uint32_t));

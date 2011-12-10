@@ -246,5 +246,16 @@
 		nipc_messaging_send(ds , message );
 	}
 
+    void pfs_endpoint_blocks_callExecuteGetSector(ListenSocket ds , uint32_t sectorId){
 
+        NipcMessage message = nipc_mbuilder_buildNipcMessage();
+        message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_GET_SECTORS);
+        message = nipc_mbuilder_addDiskSectorId(message , sectorId);
+        nipc_messaging_send(ds , message);
+
+    }
+
+    DiskSector pfs_endpoint_blocks_callReturnGetSector(ListenSocket ds){
+        return nipc_messaging_receive(ds).payload.diskSector;
+    }
 

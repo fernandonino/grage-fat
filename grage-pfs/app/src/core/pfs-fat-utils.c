@@ -11,6 +11,9 @@
 #include <grage-commons.h>
 #include "pfs-cache.h"
 
+#include "pfs-connection-pool.h"
+#include "pfs-endpoint.h"
+
 #include "pfs-fat32.h"
 
 
@@ -947,6 +950,7 @@
 
 
 	Block pfs_fat32_utils_callGetBlock(uint32_t blockNumber , FatFile * f){
+
 		Block block;
 		DiskSector sector;
 		uint16_t offset = 0;
@@ -964,6 +968,8 @@
 		block.id = blockNumber;
 
 		return block;
+
+		//return pfs_endpoint_blocks_callGetBlock(blockNumber);
 	}
 
 	void pfs_fat32_utils_callPutBlock(Block block , FatFile * f){
@@ -982,4 +988,59 @@
 			offset += SECTOR_SIZE;
 		}
 
+	}
+
+	Block pfs_blocks_initializeBlock(uint32_t blockId){
+		Block block;
+		block.id = blockId;
+		bzero(block.content , sizeof(block.content));
+		return block;
+	}
+
+	Block pfs_endpoint_blocks_callGetBlock(uint32_t blockId){
+
+		Block block = pfs_blocks_initializeBlock(blockId);
+
+		PooledConnection * conns[8] = {
+				pfs_pool_getConection(),
+				pfs_pool_getConection(),
+				pfs_pool_getConection(),
+				pfs_pool_getConection(),
+				pfs_pool_getConection(),
+				pfs_pool_getConection(),
+				pfs_pool_getConection(),
+				pfs_pool_getConection()
+		};
+
+		DiskSector diskSectors[8];
+		bzero(diskSectors , sizeof(diskSectors));
+
+		uint32_t firstSectorId = pfs_fat_utils_getFirstSectorOfCluster(pfs_state_getVolume() , blockId);
+		uint32_t index;
+		for(index = 0 ; index < 8 ; index++){
+
+			pfs_endpoint_blocks_callExecuteGetSector(conns[ index ]->listenSocket , firstSectorId + index);
+		}
+
+
+		for(index = 0; index < 8 ; index++){
+
+			diskSectors[index] = pfs_endpoint_blocks_callReturnGetSector(conns[ index ]->listenSocket);
+		}
+
+		uint16_t offset = 0;
+		for(index = 0 ; index < 8 ; index++){
+
+			memcpy(block.content + offset, diskSectors[index].sectorContent ,
+					sizeof(diskSectors[index].sectorContent ));
+
+			offset += sizeof(diskSectors[index].sectorContent );
+		}
+
+		for(index = 0 ; index < 8 ; index++){
+			pfs_pool_releaseConnection(conns[index]);
+			log_info_t(commons_string_concat("Liberando conexion " , commons_misc_intToString(index)));
+		}
+
+		return block;
 	}
