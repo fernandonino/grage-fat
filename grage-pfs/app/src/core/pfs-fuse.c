@@ -18,20 +18,20 @@
 #include "pfs-fat32.h"
 
 	struct fuse_operations grage_oper = {
-	  .getattr = pfs_fuse_getattr,			// Bloque-Cluster: revisada (falla el ls -la en ...)
+	  .getattr = pfs_fuse_getattr,			// Bloque-Cluster: revisada (fallan fechas)
 	  .mkdir = pfs_fuse_mkdir,				// Bloque-Cluster: revisada y aprobada
-	  .unlink = pfs_fuse_unlink,
-	  .rmdir = pfs_fuse_rmdir,
+	  .unlink = pfs_fuse_unlink,			// Bloque-Cluster: revisada y aprobada
+	  .rmdir = pfs_fuse_rmdir,				// Bloque-Cluster: revisada y aprobada
 	  .rename = pfs_fuse_rename,
-	  .open = pfs_fuse_open,
-	  .read = pfs_fuse_read,
-	  .write = pfs_fuse_write,
+	  .open = pfs_fuse_open,				// Bloque-Cluster: revisada y aprobada
+	  .read = pfs_fuse_read,				// Bloque-Cluster: revisada y aprobada
+	  .write = pfs_fuse_write,				// Bloque-Cluster: revisada y aprobada
 	  .flush = pfs_fuse_flush,
-	  .release = pfs_fuse_release,
-	  .releasedir = pfs_fuse_releasedir,
-	  .readdir = pfs_fuse_readdir,
-	  .mknod = pfs_fuse_mknod,
-	  .truncate = pfs_fuse_truncate,
+	  .release = pfs_fuse_release,			// Bloque-Cluster: no es necesario modifcarla
+	  .releasedir = pfs_fuse_releasedir,	// Bloque-Cluster: no es necesario modifcarla
+	  .readdir = pfs_fuse_readdir,			// Bloque-Cluster: revisada y aprobada
+	  .mknod = pfs_fuse_mknod,				// Bloque-Cluster: revisada y aprobada
+	  .truncate = pfs_fuse_truncate,		// Bloque-Cluster: revisada y aprobada
 	};
 
 
