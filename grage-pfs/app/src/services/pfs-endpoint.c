@@ -132,62 +132,41 @@
 		DiskSector defaultSector;
 		defaultSector.sectorNumber = 0;
 
-		if (pfs_cache_habilitada()){
-			if (pfs_cache_isFatSectorReserved(sectorNumber)){
+		if (pfs_cache_isFatSectorReserved(sectorNumber))
+			return pfs_endpoint_utils_getFromFatCache(sectorNumber);
 
-				return pfs_endpoint_utils_getFromFatCache(sectorNumber);
-
-			}else{
-
-				if(fatFile != NULL)
-					return pfs_endpoint_utils_getFromFileCache(sectorNumber , fatFile);
-			}
-		}
 		return defaultSector;
 	}
 
 	void pfs_endpoint_utils_putInCache(DiskSector d , List cache , uint8_t cacheType){
-		if (pfs_cache_habilitada()){
-			DiskSector * disk = malloc(sizeof (DiskSector));
-			memcpy(disk->sectorContent , d.sectorContent , sizeof d.sectorContent);
-			disk->sectorNumber = d.sectorNumber;
+		DiskSector * disk = malloc(sizeof (DiskSector));
+		memcpy(disk->sectorContent , d.sectorContent , sizeof d.sectorContent);
+		disk->sectorNumber = d.sectorNumber;
 
-			if ( cacheType == FAT_CACHE ){
-				pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsFatMaxCount());
-			} else if ( cacheType == FILE_CACHE ) {
-				pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsMaxCount());
-			}
+		if ( cacheType == FAT_CACHE ){
+			pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsFatMaxCount());
 		}
 	}
+
 
 	DiskSector pfs_endpoint_callCachedGetSector(uint32_t sectorNumber , FatFile  * fatFile){
 
 		DiskSector returningSector = pfs_endpoint_utils_getFromCache(sectorNumber , fatFile);
 
 		if(returningSector.sectorNumber != 0){
-
 			//printf("Se toma de la cache el sector %i\n" , returningSector.sectorNumber);
-
 			return returningSector;
 		}
 
-		returningSector = pfs_endpoint_callGetSector(sectorNumber );
+		returningSector = pfs_endpoint_callGetSector(sectorNumber);
 
 		if(pfs_cache_isFatSectorReserved(sectorNumber)){
-
 			//printf("Se pone en cache fat el sector %i \n" , sectorNumber);
-
 			pfs_endpoint_utils_putInCache(returningSector , pfs_cache_getListaCacheFat() , FAT_CACHE);
-
-		}else{
-
-			pfs_endpoint_utils_putInCache(returningSector , fatFile->cache , FILE_CACHE);
 		}
 
 		return returningSector;
 	}
-
-
 
 
 	DiskSector pfs_endpoint_callPooledGetSector(uint32_t sectorNumber){

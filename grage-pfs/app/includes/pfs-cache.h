@@ -37,14 +37,13 @@
 		void pfs_cache_sectores_dump();
 
 
+		void pfs_cache_setCacheSectorsMaxCount(uint32 count);
+		uint32 pfs_cache_getCacheSectorsMaxCount();
 
-		void pfs_cache_setCacheSectorsMaxCount(uint32 count) ;
-		uint32 pfs_cache_getCacheSectorsMaxCount() ;
 
+		void pfs_cache_setCacheSectorsFatMaxCount(uint32 count);
+		uint32 pfs_cache_getCacheSectorsFatMaxCount();
 
-		void pfs_cache_setCacheSectorsFatMaxCount(uint32 count) ;
-		uint32 pfs_cache_getCacheSectorsFatMaxCount() ;
-
-	DiskSector pfs_endpoint_callCachedGetSector(uint32_t sectorNumber , FatFile  * fatFile)  ;
+		DiskSector pfs_endpoint_callCachedGetSector(uint32_t sectorNumber , FatFile  * fatFile);
 
 #endif /* PFS_CACHE_H_ */

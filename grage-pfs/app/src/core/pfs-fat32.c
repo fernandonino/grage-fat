@@ -15,7 +15,10 @@
 	FatFile * pfs_fat32_utils_openRootDirectory(Volume * v) {
 		FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
 
-		fatFile->cache = pfs_cache_sectors_initialize();
+		if (pfs_cache_habilitada())
+			fatFile->cache = pfs_cache_sectors_initialize();
+		else
+			fatFile->cache = NULL;
 
 		uint32_t cluster = pfs_fat32_utils_getNextClusterInChain(v , v->root);
 
@@ -38,101 +41,104 @@
 
 
 
-    FatFile * pfs_fat32_utils_openNonRootDirectory(const char * path , Volume * v ){
+	FatFile * pfs_fat32_utils_openNonRootDirectory(const char * path , Volume * v ){
 
-            uint32_t next = v->root;
-            FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
-            LongDirEntry longEntry;
-            DirEntry sDirEntry;
-            uint32_t offset;
-            uint32_t blockNumber;
-            char utf8name[14];
+		uint32_t next = v->root;
+		FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
+		LongDirEntry longEntry;
+		DirEntry sDirEntry;
+		uint32_t offset;
+		uint32_t blockNumber;
+		char utf8name[14];
 
-            if(pfs_cache_habilitada())
-            	fatFile->cache = pfs_cache_sectors_initialize();
+		if (pfs_cache_habilitada())
+			fatFile->cache = pfs_cache_sectors_initialize();
+		else
+			fatFile->cache = NULL;
 
-            Block block;
-            block = pfs_fat32_utils_callGetBlock(v->root, fatFile);
 
-            List directories = commons_list_tokenize((char *)path, '/');
-            Iterator * ite = commons_iterator_buildIterator(directories);
+		Block block;
+		block = pfs_fat32_utils_callGetBlock(v->root, fatFile);
 
-            while (commons_iterator_hasMoreElements(ite)) {
+		List directories = commons_list_tokenize((char *)path, '/');
+		Iterator * ite = commons_iterator_buildIterator(directories);
 
-				offset = 0;
+		while (commons_iterator_hasMoreElements(ite)) {
 
-				char * token = commons_iterator_next(ite);
+			offset = 0;
 
-				do{
-					if (offset < v->bpc) {
-						memcpy(&longEntry, block.content + offset, FAT_32_DIR_ENTRY_SIZE);
-						if(FAT_32_LDIR_ISLONG(longEntry.LDIR_Attr)){
-							pfs_fat_utils_getFileName(&longEntry , utf8name);
-							offset += FAT_32_BLOCK_ENTRY_SIZE;
-						}
-						else{
-							memcpy(&sDirEntry, block.content + offset, FAT_32_DIR_ENTRY_SIZE);
-							pfs_fat32_utils_getShortName(&sDirEntry , utf8name);
-							offset += FAT_32_DIR_ENTRY_SIZE;
-						}
-					} else if (offset >= v->bpc) {
-						blockNumber = pfs_fat32_utils_getNextClusterInChain(v, block.id);
-						block = pfs_fat32_utils_callGetBlock(blockNumber, fatFile);
-						offset = 0;
-					}
+			char * token = commons_iterator_next(ite);
 
-				}while (longEntry.LDIR_Ord != FAT_32_ENDOFDIR && !commons_string_equals(token, utf8name));
-
-				if (longEntry.LDIR_Ord == FAT_32_ENDOFDIR) {
-						//commons_misc_doFreeNull((void **)utf8name);
-						return NULL;
-				} else if (commons_string_equals(utf8name, token)) {
-
-					if (offset >= v->bpc) {
-						Block auxBlock;
-						blockNumber = pfs_fat32_utils_getNextClusterInChain(v, block.id);
-						auxBlock = pfs_fat32_utils_callGetBlock(blockNumber, fatFile);
-
-						memcpy(&sDirEntry, auxBlock.content, FAT_32_DIR_ENTRY_SIZE);
-						offset -= FAT_32_BLOCK_ENTRY_SIZE;
+			do{
+				if (offset < v->bpc) {
+					memcpy(&longEntry, block.content + offset, FAT_32_DIR_ENTRY_SIZE);
+					if(FAT_32_LDIR_ISLONG(longEntry.LDIR_Attr)){
+						pfs_fat_utils_getFileName(&longEntry , utf8name);
+						offset += FAT_32_BLOCK_ENTRY_SIZE;
 					}
 					else{
-						if(FAT_32_LDIR_ISLONG(longEntry.LDIR_Attr)){
-							offset -= FAT_32_DIR_ENTRY_SIZE;
-							memcpy(&sDirEntry, block.content + offset, FAT_32_DIR_ENTRY_SIZE);
-							offset -= FAT_32_DIR_ENTRY_SIZE; //Esto es para el calculo del dirEntryOffset
-						}
+						memcpy(&sDirEntry, block.content + offset, FAT_32_DIR_ENTRY_SIZE);
+						pfs_fat32_utils_getShortName(&sDirEntry , utf8name);
+						offset += FAT_32_DIR_ENTRY_SIZE;
 					}
+				} else if (offset >= v->bpc) {
+					blockNumber = pfs_fat32_utils_getNextClusterInChain(v, block.id);
+					block = pfs_fat32_utils_callGetBlock(blockNumber, fatFile);
+					offset = 0;
+				}
 
-					fatFile->longEntry = longEntry;
-					fatFile->shortEntry = sDirEntry;
+			}while (longEntry.LDIR_Ord != FAT_32_ENDOFDIR && !commons_string_equals(token, utf8name));
 
-					fatFile->source = next;
-					next = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
+			if (longEntry.LDIR_Ord == FAT_32_ENDOFDIR) {
+				//commons_misc_doFreeNull((void **)utf8name);
+				return NULL;
+			} else if (commons_string_equals(utf8name, token)) {
 
-					if ( commons_iterator_hasMoreElements(ite) ){
-						block = pfs_fat32_utils_callGetBlock(next, fatFile);
+				if (offset >= v->bpc) {
+					Block auxBlock;
+					blockNumber = pfs_fat32_utils_getNextClusterInChain(v, block.id);
+					auxBlock = pfs_fat32_utils_callGetBlock(blockNumber, fatFile);
+
+					memcpy(&sDirEntry, auxBlock.content, FAT_32_DIR_ENTRY_SIZE);
+					offset -= FAT_32_BLOCK_ENTRY_SIZE;
+				}
+				else{
+					if(FAT_32_LDIR_ISLONG(longEntry.LDIR_Attr)){
+						offset -= FAT_32_DIR_ENTRY_SIZE;
+						memcpy(&sDirEntry, block.content + offset, FAT_32_DIR_ENTRY_SIZE);
+						offset -= FAT_32_DIR_ENTRY_SIZE; //Esto es para el calculo del dirEntryOffset
 					}
 				}
-            }
 
-            fatFile->sourceOffset = offset;
-            fatFile->nextCluster = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
-            //fatFile->currentSector = pfs_fat_utils_getFirstSectorOfCluster(v , fatFile->nextCluster);
-            fatFile->dirEntryOffset = 0;
-            fatFile->dirType = 1;
-            fatFile->EOC = 0;
+				fatFile->longEntry = longEntry;
+				fatFile->shortEntry = sDirEntry;
 
-            //El siguiente if es un cambio para arreglar un tema con el unlink.
-            //No esta probado con el resto de las funciones
-            if(!FAT_32_LDIR_ISLONG(fatFile->longEntry.LDIR_Attr)){
-            	fatFile->sourceOffset -= FAT_32_DIR_ENTRY_SIZE;
-            }
+				fatFile->source = next;
+				next = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
 
-            pfs_state_addOpenFile(fatFile);
+				if ( commons_iterator_hasMoreElements(ite) ){
+					block = pfs_fat32_utils_callGetBlock(next, fatFile);
+				}
+			}
+		}
 
-            return fatFile;
-    }
+		fatFile->sourceOffset = offset;
+		fatFile->nextCluster = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
+		//fatFile->currentSector = pfs_fat_utils_getFirstSectorOfCluster(v , fatFile->nextCluster);
+		fatFile->dirEntryOffset = 0;
+		fatFile->dirType = 1;
+		fatFile->EOC = 0;
+
+		//El siguiente if es un cambio para arreglar un tema con el unlink.
+		//No esta probado con el resto de las funciones
+		if(!FAT_32_LDIR_ISLONG(fatFile->longEntry.LDIR_Attr)){
+			fatFile->sourceOffset -= FAT_32_DIR_ENTRY_SIZE;
+		}
+
+		pfs_state_addOpenFile(fatFile);
+
+		return fatFile;
+	}
 
 
 
@@ -433,7 +439,7 @@
 			if (FAT_32_ISEOC(current)){
 				return bytesRead;
 			} else {
-				current = pfs_fat32_utils_getNextClusterInChain(v , block.id);
+				current = pfs_fat32_utils_getNextClusterInChain(v , current);
 				block = pfs_fat32_utils_callGetBlock(current , f);
 			}
 
