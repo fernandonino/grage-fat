@@ -112,7 +112,7 @@
 	FatFile * pfs_fat32_utils_openNonRootDirectory(const char * path , Volume * v );
 	FatFile * pfs_fat32_open(const char * path);
 	int8_t pfs_fat32_readDirectory( struct dirent * direntry , FatFile * file , Volume * volume);
-	void pfs_fat32_unlink_dirEntry(Volume *  , FatFile *  , DiskSector );
+	void pfs_fat32_unlink_dirEntry(Volume *  , FatFile *  , Block );
 	int8_t pfs_fat32_unlink_FatEntryChain(Volume * v , FatFile * fd);
 	void pfs_fat32_unlink(Volume * v , FatFile * fd);
 	void pfs_fat32_rmdir(Volume * v , FatFile * fd);
