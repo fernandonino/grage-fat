@@ -375,7 +375,7 @@
 	}
 
 	uint32_t pfs_fat32_write(Volume * v , FatFile * f , const char * buf , size_t size){
-
+/*
 		uint32_t bytesWritten = 0 ;
 		uint32_t bytesLeft = size;
 		uint32_t bytesToWrite , sectorId;
@@ -429,56 +429,53 @@
 		}
 
 		return bytesWritten;
+*/return 0;
 	}
 
 	uint32_t pfs_fat32_read(Volume * v , FatFile * f , char * buf , size_t size){
 		uint32_t bytesRead = 0;
 		uint32_t bytesLeft = size;
-		uint32_t bytesToRead , sectorId , current;
-		DiskSector sector;
+		uint32_t bytesToRead , current;
+		Block block;
 
 		if (f->fileAbsoluteClusterNumberRead == 0){
-			sector = pfs_fat32_utils_getSectorFromNthClusterRead(f);
+			block = pfs_fat32_utils_getBlockFromNthClusterRead(f);
+			current = block.id;
 		} else {
 			current = f->fileAbsoluteClusterNumberRead;
 			current = pfs_fat32_utils_getNextClusterInChain(v , current);
-			sectorId = pfs_fat_utils_getFirstSectorOfCluster(v, current);
 			if ( ! FAT_32_ISEOC(current) ){
-				sector = pfs_endpoint_callCachedGetSector(sectorId , f);
+				block = pfs_fat32_utils_callGetBlock(current , f);
 			}
 		}
 
-		if ( f->sectorByteOffset + size <= v->bps ){	// Lo que se pide para leer + el offset caen dentro de un sector
-			memcpy(buf , sector.sectorContent + f->sectorByteOffset , size);
+		if ( f->fileClusterOffset + size <= v->bpc ){	// Lo que se pide para leer + el offset caen dentro de un cluster
+			memcpy(buf , block.content + f->fileClusterOffset , size);
 			return bytesRead += size;
-		} else {										// El contenido de un sector no alcanza; se lee lo necesario y se sigue
-			memcpy(buf , sector.sectorContent + f->sectorByteOffset , v->bps - f->sectorByteOffset);
-			bytesRead += v->bps - f->sectorByteOffset;
+		} else {										// El contenido de un cluster no alcanza; se lee lo necesario y se sigue
+			memcpy(buf , block.content + f->fileClusterOffset , v->bpc - f->fileClusterOffset);
+			bytesRead += v->bpc - f->fileClusterOffset;
 			bytesLeft -= bytesRead;
 		}
 
-		current = f->fileAbsoluteClusterNumberRead;
+//		current = f->fileAbsoluteClusterNumberRead;
 
 		while( bytesRead < size ){
 
-			if( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) ){
-				current = pfs_fat32_utils_getNextClusterInChain(v, current);
-				if(FAT_32_ISEOC(current)) return bytesRead;
-				sectorId = pfs_fat_utils_getFirstSectorOfCluster(v, current);
-				sector = pfs_endpoint_callCachedGetSector(sectorId , f);
+			if (FAT_32_ISEOC(current)){
+				return bytesRead;
 			} else {
-				sector = pfs_endpoint_callCachedGetSector(sector.sectorNumber + 1 , f);
+				current = pfs_fat32_utils_getNextClusterInChain(v , block.id);
+				block = pfs_fat32_utils_callGetBlock(current , f);
 			}
 
-			if ( (bytesLeft <= v->bps)){
+			if ( (bytesLeft <= v->bpc)){
 				bytesToRead = bytesLeft;
-			//} else if ( pfs_fat32_utils_isLastSectorFromCluster(v , sector.sectorNumber) && FAT_32_ISEOC(current) ){
-			//	bytesToRead = bytesLeft; //Verificar el uso de FAT_32_ISEOC ---> creo que habria que preguntar por el siguiente cluster
 			} else {
-				bytesToRead = v->bps;
+				bytesToRead = v->bpc;
 			}
 
-			memcpy( buf + bytesRead , sector.sectorContent , bytesToRead);
+			memcpy( buf + bytesRead , block.content , bytesToRead);
 			bytesRead += bytesToRead;
 			bytesLeft -= bytesToRead;
 		}

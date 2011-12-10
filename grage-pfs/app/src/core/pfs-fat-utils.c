@@ -370,10 +370,12 @@
 			return EXIT_FAILURE;
 		}
 
-		//Revisar en el caso que de 0
-		f->fileClusterNumber = offset / v->bpc + 1;
-		f->fileSectorNumberOfCluster = offset % v->bpc / v->bps + 1;
-		f->sectorByteOffset = offset % v->bps;
+		f->fileClusterNumber = offset / v->bpc;
+
+		if ( (offset % v->bpc) != 0 )
+			f->fileClusterNumber += 1;
+
+		f->fileClusterOffset = offset % v->bpc;
 
 		return EXIT_SUCCESS;
 	}
@@ -387,7 +389,7 @@
 		//Revisar en el caso que de 0
 		f->fileClusterNumber = offset / v->bpc + 1;
 		f->fileSectorNumberOfCluster = offset % v->bpc / v->bps + 1;
-		f->sectorByteOffset = offset % v->bps;
+		//f->sectorByteOffset = offset % v->bps;
 
 		return EXIT_SUCCESS;
 	}
@@ -410,7 +412,7 @@
 		return block;
 	}
 
-	DiskSector pfs_fat32_utils_getSectorFromNthClusterRead(FatFile * f){
+	Block pfs_fat32_utils_getBlockFromNthClusterRead(FatFile * f){
 		Volume * v = pfs_state_getVolume();
 		uint16_t clusterCount = 0;
 
@@ -423,12 +425,9 @@
 
 		f->fileAbsoluteClusterNumberRead = c;
 
-		uint32_t s = pfs_fat_utils_getFirstSectorOfCluster(v,c);
+		Block block = pfs_fat32_utils_callGetBlock(c , f);
 
-		if ( f->fileSectorNumberOfCluster != 1)
-			s = s + f->fileSectorNumberOfCluster - 1;
-
-		return pfs_endpoint_callCachedGetSector(s , f);
+		return block;
 	}
 
 	void pfs_fat32_utils_fileStat(Volume * v , FatFile * fatFile , struct stat * st) {

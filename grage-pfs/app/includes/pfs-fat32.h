@@ -101,7 +101,8 @@
 		uint32_t fileAbsoluteClusterNumberWrite;
 		uint32_t fileAbsoluteClusterNumberRead;
 		uint32_t fileSectorNumberOfCluster;
-		uint16_t sectorByteOffset;
+		uint16_t fileClusterOffset;
+
 		List cache;
 
 	} FatFile;
@@ -158,7 +159,7 @@
 
 	int8_t pfs_fat32_utils_seek(Volume * , FatFile * , off_t , uint32_t);
 	DiskSector pfs_fat32_utils_getSectorFromNthClusterWrite(FatFile *);
-	DiskSector pfs_fat32_utils_getSectorFromNthClusterRead(FatFile *);
+	Block pfs_fat32_utils_getBlockFromNthClusterRead(FatFile *);
 
 	uint32_t pfs_fat32_utils_getNextFreeCluster(void); // Esta funcion se deberia poder borrar
 	void pfs_fat32_utils_setNextFreeCluster(uint32_t);
