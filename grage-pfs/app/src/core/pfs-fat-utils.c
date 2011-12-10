@@ -642,61 +642,55 @@
 
 	void pfs_fat32_utils_extendFileTruncate(Volume * v , FatFile * f , off_t newsize){
 
-		uint32_t clusterCount;
-		uint32_t lastCluster;
-		uint32_t clusterAmountToReserve = newsize / v->bpc;
-		if(newsize % v->bpc != 0) clusterAmountToReserve++;
+			uint32_t clusterCount;
+			uint32_t lastCluster;
+			uint32_t clusterAmountToReserve = newsize / v->bpc;
+			if(newsize % v->bpc != 0) clusterAmountToReserve++;
 
-		if(f->nextCluster == 0){
+			if(f->nextCluster == 0){
 
-			lastCluster = pfs_fat32_utils_assignCluster(v);
-			pfs_fat_setFirstClusterToDirEntry(&f->shortEntry , lastCluster);
-			f->nextCluster = lastCluster;
-			clusterCount = 1;
-		}
-		else{
-			clusterCount = 0;
-		}
-
-		if(f->EOC == 0){
-			lastCluster = pfs_fat32_utils_findEOC(v, f->nextCluster);
-			f->EOC = lastCluster;
-		}
-		else{
-			lastCluster = f->EOC;
-		}
-
-		for(; clusterCount < clusterAmountToReserve ; clusterCount++){
-			lastCluster = pfs_fat32_utils_allocateNewCluster(v,lastCluster);
-			f->EOC = lastCluster;
-		}
-
-		f->shortEntry.DIR_FileSize = newsize;
-		uint32_t dirSector = pfs_fat_utils_getFirstSectorOfCluster(v, f->source);
-		uint32_t secInClus = f->sourceOffset / v->bps;
-		dirSector = dirSector + secInClus;
-		uint32_t sectorOffset = f->sourceOffset % v->bps;
-
-
-		if(FAT_32_LDIR_ISLONG(f->longEntry.LDIR_Attr)){
-			if(sectorOffset + FAT_32_DIR_ENTRY_SIZE >= v->bps){
-				if(pfs_fat32_utils_isLastSectorFromCluster(v, dirSector)){
-					dirSector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v, f->source);
-				}
-				else{
-					dirSector++;
-				}
-				sectorOffset = 0;
+				lastCluster = pfs_fat32_utils_assignCluster(v);
+				pfs_fat_setFirstClusterToDirEntry(&f->shortEntry , lastCluster);
+				f->nextCluster = lastCluster;
+				clusterCount = 1;
 			}
 			else{
-				sectorOffset += FAT_32_DIR_ENTRY_SIZE;
+				clusterCount = 0;
 			}
-		}
 
-		DiskSector diskSector = pfs_endpoint_callCachedGetSector(dirSector , f);
-		memcpy(diskSector.sectorContent + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
-		pfs_endpoint_callPutSector(diskSector , NULL);
-	}
+			if(f->EOC == 0){ //El ECO aun no fue hallado. 0: valor por defecto asignado por el open
+				lastCluster = pfs_fat32_utils_findEOC(v, f->nextCluster);
+				f->EOC = lastCluster;
+			}
+			else{
+				lastCluster = f->EOC;
+			}
+
+			for(; clusterCount < clusterAmountToReserve ; clusterCount++){
+				lastCluster = pfs_fat32_utils_allocateNewCluster(v,lastCluster);
+				f->EOC = lastCluster;
+			}
+
+			f->shortEntry.DIR_FileSize = newsize;
+			Block block = pfs_fat32_utils_callGetBlock(f->source, f);
+			uint32_t sectorOffset = f->sourceOffset;
+			uint32_t blockId;
+
+			if(FAT_32_LDIR_ISLONG(f->longEntry.LDIR_Attr)){
+				if(sectorOffset + FAT_32_DIR_ENTRY_SIZE >= v->bpc){
+					blockId = pfs_fat32_utils_getNextClusterInChain(v, f->source);
+					sectorOffset = 0;
+				}
+				else{
+					sectorOffset += FAT_32_DIR_ENTRY_SIZE;
+					blockId = block.id;
+				}
+			}
+
+			block = pfs_fat32_utils_callGetBlock(blockId , f);
+			memcpy(block.content + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
+			pfs_fat32_utils_callPutBlock(block , NULL);
+		}
 
 	void pfs_fat32_utils_extendFileWrite(Volume * v , FatFile * f , off_t newsize){
 

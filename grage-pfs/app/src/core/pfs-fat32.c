@@ -668,7 +668,7 @@
 
 	uint8_t pfs_fat32_truncate(Volume * v, FatFile * f, off_t newsize){
 
-		DiskSector diskSector;
+		Block block;
 		DirEntry sDirEntry;
 		uint8_t setEndOfData = FAT_32_ENDOFDIR;
 		uint32_t setFatEntryFree = FAT_32_FAT_FREE_ENTRY;
@@ -689,31 +689,23 @@
 		}
 
 		//Actualizar tamanio de archivo
-		uint32_t dirSector = pfs_fat_utils_getFirstSectorOfCluster(v, f->source);
-		uint32_t secInClus = f->sourceOffset / v->bps;
-		dirSector = dirSector + secInClus;
-		uint32_t sectorOffset = f->sourceOffset % v->bps;
+		uint32_t clusterId = f->source;
+		uint32_t clusterOffset = f->sourceOffset;
 
 		if(FAT_32_LDIR_ISLONG(f->longEntry.LDIR_Attr)){
-			if(sectorOffset + FAT_32_DIR_ENTRY_SIZE >= v->bps){
-				if(pfs_fat32_utils_isLastSectorFromCluster(v, dirSector)){
-					dirSector = pfs_fat32_utils_getFirstSectorFromNextClusterInChain(v, f->source);
-				}
-				else{
-					dirSector++;
-				}
-				sectorOffset = 0;
+			if(clusterOffset + FAT_32_DIR_ENTRY_SIZE >= v->bpc){
+				clusterId = pfs_fat32_utils_getNextClusterInChain(v, clusterId);
 			}
 			else{
-				sectorOffset += FAT_32_DIR_ENTRY_SIZE;
+				clusterOffset += FAT_32_DIR_ENTRY_SIZE;
 			}
 		}
 
-		diskSector = pfs_endpoint_callCachedGetSector(dirSector , f);
-		memcpy(&sDirEntry, diskSector.sectorContent + sectorOffset, sizeof(DirEntry));
+		block = pfs_fat32_utils_callGetBlock(clusterId, f);
+		memcpy(&sDirEntry, block.content + clusterOffset, sizeof(DirEntry));
 		sDirEntry.DIR_FileSize = newsize;
-		memcpy(diskSector.sectorContent + sectorOffset, &sDirEntry, sizeof(DirEntry));
-		pfs_endpoint_callPutSector(diskSector , NULL);
+		memcpy(block.content + clusterOffset, &sDirEntry, sizeof(DirEntry));
+		pfs_fat32_utils_callPutBlock(block, NULL);
 
 		//Obtenemos el cluster a partir del cual se va a truncar
 		while(clusterCount * v->bpc < newsize){
@@ -722,34 +714,25 @@
 		}
 
 		uint32_t offsetInCluster = newsize % v->bpc;
-		uint32_t offsetInSector = offsetInCluster % v->bps;
-		uint32_t sectorInCluster = offsetInCluster / v->bps;
-		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v, currentCluster) + sectorInCluster;
 
 		//Borrado del primer cluster considerando que sea a partir del medio de un sector
-		diskSector = pfs_endpoint_callCachedGetSector(sector , f);
-		if(v->bps - offsetInSector == 512){
-			memset(diskSector.sectorContent + offsetInSector, setEndOfData, v->bps - offsetInSector);
+		block = pfs_fat32_utils_callGetBlock(currentCluster , f);
+		if(v->bpc - offsetInCluster == v->bpc){
+			memset(block.content + offsetInCluster, setEndOfData, v->bpc - offsetInCluster);
 		}
 		else{
-			memset(diskSector.sectorContent + offsetInSector + 1, setEndOfData, v->bps - offsetInSector);
+			memset(block.content + offsetInCluster + 1, setEndOfData, v->bpc - offsetInCluster);
 		}
 
-		pfs_endpoint_callPutSector(diskSector , f);
+		pfs_fat32_utils_callPutBlock(block , f);
 
-		uint8_t absoluteSectorNumber = sector % 8 + 1;
-
-		for(; absoluteSectorNumber != 8; absoluteSectorNumber++){
-			sector++;
-			diskSector = pfs_endpoint_callCachedGetSector(sector , f);
-			memset(diskSector.sectorContent, setEndOfData, v->bps);
-			pfs_endpoint_callPutSector(diskSector , f);
-		}
 
 		if( offsetInCluster == 0)
 			v->freeClusterCount++;
 
 
+		DiskSector diskSector;
+		uint32_t sectorId;
 		//Seteo de EOC a la EntryFat correspondiente al cluster obtenido y borrado de datos
 		uint32_t nextCluster;
 		nextCluster = pfs_fat32_utils_getNextClusterInChain(v, currentCluster);
@@ -761,15 +744,12 @@
 		else{
 			uint32_t fatEntryOffset;
 			while(!FAT_32_ISEOC(nextCluster)){
-				sector = pfs_fat_utils_getFirstSectorOfCluster(v, nextCluster);
-				for(absoluteSectorNumber = 0; absoluteSectorNumber != 8; absoluteSectorNumber++){
-					diskSector = pfs_endpoint_callCachedGetSector(sector , f);
-					memset(diskSector.sectorContent, setEndOfData, v->bps);
-					pfs_endpoint_callPutSector(diskSector , f);
-					sector++;
-				}
-				sector = pfs_fat_utils_getFatEntrySector(v, nextCluster);
-				diskSector = pfs_endpoint_callCachedGetSector(sector , NULL);
+				block = pfs_fat32_utils_callGetBlock(nextCluster, f);
+				memset(block.content, setEndOfData, v->bpc);
+				pfs_fat32_utils_callPutBlock(block, f);
+
+				sectorId = pfs_fat_utils_getFatEntrySector(v, block.id);
+				diskSector = pfs_endpoint_callCachedGetSector(sectorId , NULL);
 				fatEntryOffset = pfs_fat_utils_getFatEntryOffset(v, nextCluster);
 
 				memcpy(&nextCluster, diskSector.sectorContent + fatEntryOffset, sizeof(uint32_t));
