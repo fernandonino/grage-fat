@@ -22,7 +22,7 @@
 	  .mkdir = pfs_fuse_mkdir,				// Bloque-Cluster: revisada y aprobada
 	  .unlink = pfs_fuse_unlink,			// Bloque-Cluster: revisada y aprobada
 	  .rmdir = pfs_fuse_rmdir,				// Bloque-Cluster: revisada y aprobada
-	  .rename = pfs_fuse_rename,
+	  .rename = pfs_fuse_rename,			// Bloque-Cluster: revisada y aprobada
 	  .open = pfs_fuse_open,				// Bloque-Cluster: revisada y aprobada
 	  .read = pfs_fuse_read,				// Bloque-Cluster: revisada y aprobada
 	  .write = pfs_fuse_write,				// Bloque-Cluster: revisada y aprobada
