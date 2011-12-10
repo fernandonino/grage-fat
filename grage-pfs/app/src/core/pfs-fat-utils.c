@@ -315,7 +315,7 @@
 	    t.tm_min=m;         /* minutes */
 	    t.tm_hour=h;        /* hours */
 	    t.tm_mday=d;        /* day of the month */
-	    t.tm_mon=mo;         /* month */
+	    t.tm_mon=mo-1;         /* month */
 	    t.tm_year=y;        /* year */
 
 	 	return mktime(&t);
@@ -352,7 +352,7 @@
 
 		date = (uint16_t) time.tm_mday;
 		date &= bmask1; // to set 0 first 11 bits;
-		date |= ((uint16_t) time.tm_mon ) << 5;
+		date |= ((uint16_t) time.tm_mon+1 ) << 5;
 		date &= bmask2; // to set 0 first 6 bits;
 		date |= (((uint16_t) ((time.tm_year + 1900) -1980)) << 9);
 
@@ -1039,7 +1039,6 @@
 
 		for(index = 0 ; index < 8 ; index++){
 			pfs_pool_releaseConnection(conns[index]);
-			log_info_t(commons_string_concat("Liberando conexion " , commons_misc_intToString(index)));
 		}
 
 		return block;
