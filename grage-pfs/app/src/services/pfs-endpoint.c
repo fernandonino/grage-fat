@@ -56,24 +56,7 @@
 
 	void pfs_endpoint_callPutSector( DiskSector diskSector , FatFile * file ){
 
-		if (pfs_cache_habilitada() && file != NULL){
-
-			Volume * v = pfs_state_getVolume();
-
-			Iterator * ite = commons_iterator_buildIterator(file->cache);
-
-			while( commons_iterator_hasMoreElements(ite) ){
-
-				CacheSectorRecord * nodo = (CacheSectorRecord *)commons_iterator_next(ite);
-
-				if (nodo->sector.sectorNumber == diskSector.sectorNumber){
-					memcpy(nodo->sector.sectorContent , diskSector.sectorContent , v->bps);
-					break;
-				}
-			}
-		}else if(file == NULL && pfs_cache_habilitada()){
-			pfs_endpoint_utils_putInCache(diskSector, pfs_cache_getListaCacheFat(), FAT_CACHE);
-		}
+		pfs_endpoint_utils_putInCache(diskSector , pfs_cache_getListaCacheFat());
 
 		if(pfs_pool_isPooledConnectionsEnabled()){
 			return pfs_endpoint_callPooledPutSector(diskSector);
@@ -152,14 +135,12 @@
 		return defaultSector;
 	}
 
-	void pfs_endpoint_utils_putInCache(DiskSector d , List cache , uint8_t cacheType){
+	void pfs_endpoint_utils_putInCache(DiskSector d , List cache){
 		DiskSector * disk = malloc(sizeof (DiskSector));
 		memcpy(disk->sectorContent , d.sectorContent , sizeof d.sectorContent);
 		disk->sectorNumber = d.sectorNumber;
 
-		if ( cacheType == FAT_CACHE ){
-			pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsFatMaxCount());
-		}
+		pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsFatMaxCount());
 	}
 
 
@@ -176,7 +157,7 @@
 
 		if(pfs_cache_isFatSectorReserved(sectorNumber)){
 			//printf("Se pone en cache fat el sector %i \n" , sectorNumber);
-			pfs_endpoint_utils_putInCache(returningSector , pfs_cache_getListaCacheFat() , FAT_CACHE);
+			pfs_endpoint_utils_putInCache(returningSector , pfs_cache_getListaCacheFat());
 		}
 
 		return returningSector;

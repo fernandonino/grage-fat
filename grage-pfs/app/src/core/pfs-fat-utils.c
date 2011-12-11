@@ -950,7 +950,7 @@
 
 
 	Block pfs_fat32_utils_callGetBlock(uint32_t blockNumber , FatFile * f){
-
+/*
 		Block block = pfs_endpoint_utils_getFromFileCache(blockNumber , f);
 
 		if( block.id != 0 ){
@@ -973,8 +973,9 @@
 		block.id = blockNumber;
 
 		return block;
+*/
 
-		//return pfs_endpoint_blocks_callGetBlock(blockNumber , f);
+		return pfs_endpoint_blocks_callGetBlock(blockNumber , f);
 	}
 
 	void pfs_fat32_utils_callPutBlock(Block block , FatFile * f){
