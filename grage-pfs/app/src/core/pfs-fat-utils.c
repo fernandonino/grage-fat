@@ -275,11 +275,17 @@
 	}
 
 	uint8_t pfs_fat32_isDirectoryEmpty(Volume * v, FatFile * fd){
+		/*
 		uint32_t sector = pfs_fat_utils_getFirstSectorOfCluster(v , fd->nextCluster);
 		uint32_t offset = FAT_32_BLOCK_ENTRY_SIZE;
 		uint32_t next = fd->nextCluster;
 		DiskSector diskSector = pfs_endpoint_callCachedGetSector(sector);
+		*/
+		uint32_t offset = FAT_32_BLOCK_ENTRY_SIZE;
+		Block block = pfs_fat32_utils_callGetBlock(fd->nextCluster, fd);
 		LongDirEntry lDirEntry;
+
+		/*
 		memcpy(&lDirEntry, diskSector.sectorContent + offset, sizeof(LongDirEntry));
 
 		while(lDirEntry.LDIR_Ord == FAT_32_FREEENT){
@@ -299,7 +305,21 @@
 				offset = 0;
 			}
 		}
+		*/
+		memcpy(&lDirEntry, block.content + offset, sizeof(LongDirEntry));
+		while(lDirEntry.LDIR_Ord == FAT_32_FREEENT){
 
+			if(FAT_32_LDIR_ISLONG(lDirEntry.LDIR_Attr)) offset += FAT_32_BLOCK_ENTRY_SIZE;
+			else offset += FAT_32_DIR_ENTRY_SIZE;
+
+			if(offset >= v->bpc){
+				block = pfs_fat32_utils_callGetBlock(pfs_fat32_utils_getNextClusterInChain(v, block.id), fd);
+				offset = 0;
+			}
+
+			memcpy(&lDirEntry, block.content + offset, sizeof(LongDirEntry));
+
+		}
 		if(lDirEntry.LDIR_Ord == FAT_32_ENDOFDIR)
 			return 1;
 		else
@@ -464,34 +484,10 @@
 		}
 	}
 
-	/* Esta funcion esta incompleta y se deberia poder borrar*/
-	uint32_t pfs_fat32_utils_getNextFreeCluster(){
 
+	uint32_t pfs_fat32_utils_getNextFreeCluster(){
 		Volume * v = pfs_state_getVolume();
 		return v->nextFreeCluster;
-
-/*
-		Volume * v = pfs_state_getVolume();
-		uint32_t sector = v->rsv;
-		uint32_t clusterId = v->root;
-		uint32_t fatEntry;
-		uint32_t offset;
-		DiskSector diskSector = pfs_endpoint_callGetSector(sector);
-
-		for(;clusterId <= v->clusters; sector++){
-			offset = pfs_fat_utils_getFatEntryOffset(v, clusterId);
-			if(offset == v->bps - FAT_32_FATENTRY_SIZE){
-				diskSector = pfs_endpoint_callGetSector(++sector);
-			}
-			memcpy(&fatEntry, diskSector.sectorContent + offset, sizeof(uint32_t));
-			if(fatEntry == FAT_32_FAT_FREE_ENTRY){
-				v->nextFreeCluster = clusterId;
-				return clusterId;
-			}
-			clusterId++;
-		}
-		return clusterId;
-		*/
 	}
 
 	uint8_t pfs_fat_utils_hasLFN(uint32_t offset, DiskSector diskSector){
