@@ -5,20 +5,30 @@
  *      Author: gonzalo
  */
 
+#include <stdlib.h>
 #include "linux-commons-queue.h"
 
 
 
 	Object commons_queue_get(Queue aQueue){
-		if(aQueue == NULL || aQueue->elements == NULL)
+
+		commons_misc_lockThreadMutex(&aQueue->mutex);
+
+		if(aQueue == NULL || aQueue->elements == NULL){
+
+			commons_misc_unlockThreadMutex(&aQueue->mutex);
 			return NULL;
+		}
+
 
 		Node * theFirst = aQueue->elements;
 		aQueue->elements = theFirst->next;
-		aQueue->size = --aQueue->size;
+		--aQueue->size;
 
 		Object theData = theFirst->data;
-		commons_misc_doFreeNull(theFirst);
+		free(theFirst);
+
+		commons_misc_unlockThreadMutex(&aQueue->mutex);
 
 		return theData;
 	}
@@ -41,6 +51,10 @@
 	Queue commons_queue_buildQueue(
 			Boolean (*aEqualityCriteria)(Object , Object)){
 
+
+
+		Queue theQueue = (Queue)commons_list_buildList(NULL , aEqualityCriteria , commons_list_ORDER_ALWAYS_LAST);
+		/*
 		ThreadMutex m = PTHREAD_MUTEX_INITIALIZER;
 
 		Queue theQueue = malloc(sizeof(L));
@@ -49,6 +63,8 @@
 		theQueue->mutex = m;
 		theQueue->equalityCriteria = aEqualityCriteria;
 		theQueue->sortingCriteria = commons_list_ORDER_ALWAYS_LAST;
+		*/
+
 		return theQueue;
 	}
 
@@ -56,6 +72,7 @@
 			Boolean (*aEqualityCriteria)(Object , Object),
 			Boolean (*sortingCriteria)(Object , Object)){
 
+		/*
 		ThreadMutex m = PTHREAD_MUTEX_INITIALIZER;
 
 		Queue theQueue = malloc(sizeof(L));
@@ -64,6 +81,10 @@
 		theQueue->mutex = m;
 		theQueue->equalityCriteria = aEqualityCriteria;
 		theQueue->sortingCriteria = commons_list_ORDER_ALWAYS_LAST;
+		*/
+
+		Queue theQueue = (Queue)commons_list_buildList(NULL , aEqualityCriteria , sortingCriteria);
+
 		return theQueue;
 	}
 

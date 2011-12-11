@@ -66,15 +66,22 @@
 				aux = aux->next;
 			}
 
-			if(!l->sortingCriteria(aux->data , n->data)){
-				n->next = aux;
-				l->elements = n;
+			if(aux->next == NULL){
+				aux->next = n;
 			}else{
-				if( aux->next != NULL){
-					n->next = aux->next;
-				}
+				n->next = aux->next;
 				aux->next = n;
 			}
+
+//			if(!l->sortingCriteria(aux->data , n->data)){
+//				n->next = aux;
+//				l->elements = n;
+//			}else{
+//				if( aux->next != NULL){
+//					n->next = aux->next;
+//				}
+//				aux->next = n;
+//			}
 		}
 
 		l->size++;
