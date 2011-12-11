@@ -432,7 +432,7 @@
 			bytesLeft -= bytesRead;
 		}
 
-//		current = f->fileAbsoluteClusterNumberRead;
+		current = f->fileAbsoluteClusterNumberRead;
 
 		while( bytesRead < size ){
 
@@ -664,7 +664,7 @@
 			return 0;
 		}
 
-		//Actualizar tamanio de archivo
+		//Actualizar tamanio de archivo y cluster asociados
 		uint32_t clusterId = f->source;
 		uint32_t clusterOffset = f->sourceOffset;
 
@@ -680,6 +680,10 @@
 		block = pfs_fat32_utils_callGetBlock(clusterId, f);
 		memcpy(&sDirEntry, block.content + clusterOffset, sizeof(DirEntry));
 		sDirEntry.DIR_FileSize = newsize;
+		if(newsize == 0){
+			sDirEntry.DIR_FstClusHI = 0x0000;
+			sDirEntry.DIR_FstClusLO = 0x0000;
+		}
 		memcpy(block.content + clusterOffset, &sDirEntry, sizeof(DirEntry));
 		pfs_fat32_utils_callPutBlock(block, NULL);
 
