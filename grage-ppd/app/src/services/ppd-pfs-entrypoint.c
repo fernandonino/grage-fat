@@ -80,17 +80,11 @@
 
 		if(message.header.operationId == NIPC_OPERATION_ID_GET_SECTORS){
 
-			//log_info_t("Recibiendo peticion GET Sectores ");
-			//log_info_t("Solicitando sectorId: " , commons_misc_intToString(message.payload.diskSector.sectorNumber));
-
 			message.payload.pfsSocket = *pfsSocket;
 
 			ppd_entrypoint_executeGetSector(message);
 
 		}else if(message.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS){
-
-			//log_info_t("Recibiendo peticion PUT Sectores ");
-			//log_info_t("Solicitando sectorId: " , commons_misc_intToString(message.payload.diskSector.sectorNumber));
 
 			message.payload.pfsSocket = *pfsSocket;
 

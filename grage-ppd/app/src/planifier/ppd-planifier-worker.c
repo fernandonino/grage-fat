@@ -37,18 +37,6 @@
 	}
 
 
-	void ppd_planifier_worker_applyDelayForRead(){
-		uint8_t delay = atoi( getPpdReadDelay() );
-		if (delay != 0)
-			sleep(delay);
-	}
-
-	void ppd_planifier_worker_applyDelayForWrite(){
-		uint8_t delay = atoi( getPpdWriteDelay() );
-		if (delay != 0)
-			sleep(delay);
-	}
-
 
 
 	void ppd_planifier_worker_doJob(void * arg){
@@ -57,17 +45,11 @@
 
 			NipcMessage m = ppd_queues_pickFromQueue();
 
-			puts("pick from queue");
-
 			if ( m.header.operationId == NIPC_OPERATION_ID_PUT_SECTORS ) {
-
-				ppd_planifier_worker_applyDelayForWrite();
 
 				ppd_persistence_writeSector( m.payload.diskSector );
 
 			} else if ( m.header.operationId == NIPC_OPERATION_ID_GET_SECTORS ) {
-
-				ppd_planifier_worker_applyDelayForRead();
 
 				DiskSector disk = ppd_persistence_readSector(m.payload.diskSector.sectorNumber);
 
@@ -75,9 +57,9 @@
 				m = nipc_mbuilder_addResponseCode(m , NIPC_RESPONSE_CODE_SUCCESS);
 
 				ppd_endpoint_responseGetSector(m);
+
 			}
 			if (m.header.operationId == 69){
-				printf("CANTIDAD PROCESOS EN COLA: %d\n",ppd_queues_getJobsQueue()->size);
 				Iterator * cola = commons_iterator_buildIterator(ppd_queues_getJobsQueue());
 				while (commons_iterator_hasMoreElements(cola)){
 					printf("SECTOR DE LA COLA ID: %d\n",((Job *) commons_iterator_next(cola))->sectorId);
@@ -93,11 +75,10 @@
 					mensaje.messageID = MESSAGE_ID_TIEMPO_CONSUMIDO;
 
 				}
-				//REANUDAR;
 				pthread_mutex_lock(&count_mutex);
 				pthread_cond_signal( &condition_var );
 				pthread_mutex_unlock(&count_mutex);
-				//pthread_kill( (pthread_t)m.payload.pfsSocket , SIGQUIT);
+
 				commons_socket_sendBytes(ppd_state_getPpdConsoleSocket(), &mensaje,
 									sizeof mensaje);
 

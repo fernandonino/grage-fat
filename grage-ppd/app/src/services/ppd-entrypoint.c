@@ -41,7 +41,7 @@
 	void ppd_entrypoint_executePutSector(NipcMessage message){
 
 		log_info_t("Recibiendo peticion PUT Sectores ");
-		log_info_t(commons_string_concat("Solicitando sectorId: " , commons_misc_intToString(message.payload.diskSector.sectorNumber)));
+		log_info_t("Solicitando sectorId: %i" ,message.payload.diskSector.sectorNumber);
 
 		ppd_queues_putInQueue(message);
 	}
@@ -49,7 +49,7 @@
 	void ppd_entrypoint_executeGetSector(NipcMessage message){
 
 		log_info_t("Recibiendo peticion GET Sectores");
-		log_info_t(commons_string_concat("Solicitando sectorId: " , commons_misc_intToString(message.payload.diskSector.sectorNumber)));
+		log_info_t("Solicitando sectorId: %i" ,message.payload.diskSector.sectorNumber);
 
 		ppd_queues_putInQueue(message);
 	}

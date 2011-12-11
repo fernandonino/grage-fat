@@ -73,15 +73,52 @@
 
 
 
-	NipcMessage  ppd_queues_pickFromQueue(){
-		Job * theJob = commons_queue_get(jobsQueue);
 
-		while(theJob == NULL){
-			theJob = commons_queue_get(jobsQueue);
+	void ppd_planifier_worker_applyDelayForRead(){
+		uint8_t delay = atoi( getPpdReadDelay() );
+		if (delay != 0)
+			sleep(delay);
+	}
+
+	void ppd_planifier_worker_applyDelayForWrite(){
+		uint8_t delay = atoi( getPpdWriteDelay() );
+		if (delay != 0)
+			sleep(delay);
+	}
+
+
+	uint32_t ppd_queues_getFirstJobOperationIdFromQueue(Queue queue){
+
+		if(queue == NULL || queue->elements == NULL)
+			return 0;
+		else
+			return ((Job *)queue->elements->data)->operationId;
+	}
+
+
+
+
+
+	NipcMessage  ppd_queues_pickFromQueue(){
+
+		uint32_t firstOperationId = 0;
+
+		while(! (firstOperationId = ppd_queues_getFirstJobOperationIdFromQueue(jobsQueue)));
+
+		if(firstOperationId == NIPC_OPERATION_ID_GET_SECTORS ){
+
+			ppd_planifier_worker_applyDelayForRead();
+		}else if(firstOperationId == NIPC_OPERATION_ID_PUT_SECTORS){
+
+			ppd_planifier_worker_applyDelayForWrite();
 		}
 
+		Job * theJob = commons_queue_get(jobsQueue);
+
 		NipcMessage mes = ppd_queues_buildNipcMessageFromJob(theJob);
-		commons_misc_doFreeNull((void**)theJob);
+
+		free(theJob);
+
 		return mes;
 	}
 

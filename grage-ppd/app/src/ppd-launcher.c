@@ -69,8 +69,10 @@
 
 
 	void ppd_launcher_doLaunch(){
+
  		ppd_launcher_launchConnections();
-		ppd_planifier_worker_doJobs();
+
+ 		ppd_planifier_worker_doJobs();
 
 		if(ppd_conf_isConsoleEnabled())
 			ppd_launcher_console();
@@ -96,6 +98,7 @@
 	int main(){
 
 		ppd_launcher_initialize();
+
 		ppd_launcher_doLaunch();
 
 		ppd_launcher_exit();
