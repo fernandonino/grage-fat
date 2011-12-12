@@ -21,6 +21,7 @@
 
 		typedef struct {
 			uint8_t estado;
+			uint8_t modificado;
 			DiskSector sector;
 		}CacheSectorRecord;
 
@@ -36,14 +37,14 @@
 		void pfs_cache_sectores_dumpBIS(List listaCacheSectors,uint32 sectorsMaxCount);
 		void pfs_cache_sectores_dump();
 
-
 		void pfs_cache_setCacheSectorsMaxCount(uint32 count);
 		uint32 pfs_cache_getCacheSectorsMaxCount();
-
 
 		void pfs_cache_setCacheSectorsFatMaxCount(uint32 count);
 		uint32 pfs_cache_getCacheSectorsFatMaxCount();
 
 		DiskSector pfs_endpoint_callCachedGetSector(uint32_t);
+
+		CacheBlockRecord * pfs_cache_getBlock(uint32_t , List , uint32_t);
 
 #endif /* PFS_CACHE_H_ */

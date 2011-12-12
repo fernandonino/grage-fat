@@ -29,6 +29,13 @@
 		printf("Tamaño de la FAT: %d kb \n", pfs_fat_utils_FATsizeKilobytes());
 	}
 
+	void unmountVolume(void){
+		char command[128];
+		sprintf(command , "fusermount -u %s" , pfs_state_getMountPath());
+		puts(command);
+		system(command);
+	}
+
 	void pfs_console_finfo(String parameter){
 		FatFile * fatFile = pfs_fat32_open(parameter);
 		Volume * v = pfs_state_getVolume();
@@ -54,13 +61,15 @@
 		char buffer[250];
 		String cmd, parameter;
 
-		puts("Se lanza la consola");
+		sleep(1);
+
+		puts("[ Inicializando consola ]");
 
 		while(TRUE){
 			bzero(buffer , 250);
 			//!feof(stdin)
 
-			printf(">");
+			printf("> ");
 
 			if (signal(SIGINT, pfs_cache_sectores_dump) == SIG_ERR){
 				perror ("No se puede cambiar signal");
@@ -88,9 +97,3 @@
 		//pfs_console_thread();
 	}
 
-	void unmountVolume(void){
-		char command[128];
-		sprintf(command , "fusermount -u %s" , pfs_state_getMountPath());
-		puts(command);
-		system(command);
-	}

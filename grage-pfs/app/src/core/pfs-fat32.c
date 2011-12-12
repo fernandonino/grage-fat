@@ -341,7 +341,7 @@
 
 		memcpy(&EntryValue, diskSector.sectorContent + offset, sizeof(uint32_t));
 		memcpy(diskSector.sectorContent + offset, &phantomValue, sizeof(uint32_t));
-		pfs_endpoint_callPutSector(diskSector , NULL);
+		pfs_endpoint_callCachedPutSector(diskSector);
 
 		v->freeClusterCount++;
 
@@ -734,7 +734,7 @@
 
 				memcpy(&nextCluster, diskSector.sectorContent + fatEntryOffset, sizeof(uint32_t));
 				memcpy(diskSector.sectorContent + fatEntryOffset, &setFatEntryFree, sizeof(uint32_t));
-				pfs_endpoint_callPutSector(diskSector , NULL);
+				pfs_endpoint_callCachedPutSector(diskSector);
 
 				v->freeClusterCount++;
 			}
@@ -851,24 +851,32 @@
 	}
 
 
-	void pfs_fat32_flush(Volume * v , FatFile * file){
-
-//		if ( pfs_cache_habilitada() ){
-//			Iterator * i = commons_iterator_buildIterator(file->cache);
-//
-//			while( commons_iterator_hasMoreElements(i) ){
-//
-//				CacheSectorRecord * nodo = (CacheSectorRecord *)commons_iterator_next(i);
-//				//Hay que
-//			}
-//		}
+	void pfs_fat32_updateDiskInformation(Volume * v){
 
 		DiskSector sector = pfs_endpoint_callCachedGetSector(1);
 		uint32_t nextFree = v->nextFreeCluster - 1;
 		memcpy(sector.sectorContent + 488 , &(v->freeClusterCount) , sizeof(uint32_t));
 		memcpy(sector.sectorContent + 492 , &(nextFree) , sizeof(uint32_t));
-		pfs_endpoint_callPutSector(sector , NULL);
+		pfs_endpoint_callPutSector(sector);
 	}
+
+	void pfs_fat32_fatCacheFlush(){
+		List fatCache = pfs_cache_getListaCacheFat();
+		Iterator * ite = commons_iterator_buildIterator(fatCache);
+
+		while( commons_iterator_hasMoreElements(ite) ){
+			CacheSectorRecord * nodo = (CacheSectorRecord *)commons_iterator_next(ite);
+
+			if (nodo->modificado == TRUE){
+				pfs_endpoint_callPutSector(nodo->sector);
+				nodo->modificado = FALSE;
+			}
+		}
+	}
+
+	void pfs_fat32_fileCacheFlush(FatFile * f){
+
+	};
 
 
 

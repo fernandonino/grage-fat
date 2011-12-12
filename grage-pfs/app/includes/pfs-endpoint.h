@@ -28,6 +28,7 @@
 	DiskSector pfs_endpoint_blocks_callReturnGetSector(ListenSocket);
 
 	//DiskSector pfs_endpoint_callCachedGetSector(uint32_t , FatFile  *);
+	void pfs_endpoint_callCachedPutSector(DiskSector);
 
 
 #endif /* PFS_ENDPOINT_H_ */

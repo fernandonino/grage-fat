@@ -16,9 +16,10 @@
 #include <pfs-fuse.h>
 #include "grage-commons.h"
 #include "pfs-fat32.h"
+#include "pfs-cache.h"
 
 	struct fuse_operations grage_oper = {
-	  .getattr = pfs_fuse_getattr,			// Bloque-Cluster: revisada (fallan fechas)
+	  .getattr = pfs_fuse_getattr,			// Bloque-Cluster: revisada y aprobada
 	  .mkdir = pfs_fuse_mkdir,				// Bloque-Cluster: revisada y aprobada
 	  .unlink = pfs_fuse_unlink,			// Bloque-Cluster: revisada y aprobada
 	  .rmdir = pfs_fuse_rmdir,				// Bloque-Cluster: revisada y aprobada
@@ -26,7 +27,7 @@
 	  .open = pfs_fuse_open,				// Bloque-Cluster: revisada y aprobada
 	  .read = pfs_fuse_read,				// Bloque-Cluster: revisada y aprobada
 	  .write = pfs_fuse_write,				// Bloque-Cluster: revisada y aprobada
-	  .flush = pfs_fuse_flush,
+	  .flush = pfs_fuse_flush,				// Actualmente en desarrollo
 	  .release = pfs_fuse_release,			// Bloque-Cluster: no es necesario modifcarla
 	  .releasedir = pfs_fuse_releasedir,	// Bloque-Cluster: no es necesario modifcarla
 	  .readdir = pfs_fuse_readdir,			// Bloque-Cluster: revisada y aprobada
@@ -143,7 +144,19 @@
 		Volume * v = pfs_state_getVolume();
 		FatFile * file = (FatFile *)fi->fh;
 
-		pfs_fat32_flush(v , file);
+		// 1. Se bajan a disco los sectores de FAT cacheados
+		pfs_fat32_fatCacheFlush();
+
+		// 2. Si esta la cache de archivo habilitada,
+		// se bajan a disco los bloques
+		if ( pfs_cache_habilitada() ){
+			pfs_fat32_fileCacheFlush(file);
+		}
+
+		// 3. Se graban el FSInfo actualizando los valores
+		// nextFreeCluster y freeClusterCount
+		// Nota: se la comento por innecesaria
+		//pfs_fat32_updateDiskInformation(v);
 
 		return EXIT_SUCCESS;
 	}

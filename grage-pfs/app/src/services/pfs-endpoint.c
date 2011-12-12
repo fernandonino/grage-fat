@@ -54,7 +54,7 @@
 	}
 
 
-	void pfs_endpoint_callPutSector( DiskSector diskSector , FatFile * file ){
+	void pfs_endpoint_callPutSector(DiskSector diskSector){
 		
 		if(pfs_cache_isFatSectorReserved(diskSector.sectorNumber)){
 			pfs_endpoint_utils_putInCache(diskSector , pfs_cache_getListaCacheFat());
@@ -66,7 +66,6 @@
 
 			return pfs_endpoint_callNonPooledPutSector(diskSector);
 		}
-
 	}
 
 
@@ -138,11 +137,36 @@
 	}
 
 	void pfs_endpoint_utils_putInCache(DiskSector d , List cache){
-		DiskSector * disk = malloc(sizeof (DiskSector));
-		memcpy(disk->sectorContent , d.sectorContent , sizeof d.sectorContent);
-		disk->sectorNumber = d.sectorNumber;
+		uint8_t present = FALSE;
 
-		pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsFatMaxCount());
+		Iterator * ite = commons_iterator_buildIterator(pfs_cache_getListaCacheFat());
+
+		while( commons_iterator_hasMoreElements(ite) ){
+			CacheSectorRecord * nodo = (CacheSectorRecord *)commons_iterator_next(ite);
+			if(nodo->sector.sectorNumber == d.sectorNumber){
+				memcpy(nodo->sector.sectorContent , d.sectorContent , sizeof(d.sectorContent));
+				nodo->modificado = TRUE;
+				present = TRUE;
+				break;
+			}
+		}
+
+		if(present == FALSE){
+			DiskSector * disk = malloc(sizeof (DiskSector));
+			memcpy(disk->sectorContent , d.sectorContent , sizeof d.sectorContent);
+			disk->sectorNumber = d.sectorNumber;
+			pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsFatMaxCount());
+		}
+	}
+
+	void pfs_endpoint_callCachedPutSector(DiskSector sector){
+
+		if(pfs_cache_isFatSectorReserved(sector.sectorNumber)){
+			pfs_endpoint_utils_putInCache(sector , pfs_cache_getListaCacheFat());
+			return;
+		}
+
+		pfs_endpoint_callPutSector(sector);
 	}
 
 

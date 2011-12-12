@@ -137,6 +137,7 @@
 		memcpy(nodo->sector.sectorContent, sectorNuevo->sectorContent,
 				sizeof sectorNuevo->sectorContent);
 		nodo->sector.sectorNumber = sectorNuevo->sectorNumber;
+		nodo->modificado = FALSE;
 		commons_list_addNode(listaCacheSectors, nodo);
 		pfs_cache_sectors_registrar_acceso(listaCacheSectors);
 	}
@@ -166,7 +167,7 @@
 		pfs_cache_sectors_registrar_acceso(blockCache);
 	}
 
-	CacheBlockRecord * pfs_cache_getBlock(uint32 sectorID, List blockCache, uint32 blockMaxCount) {
+	CacheBlockRecord * pfs_cache_getBlock(uint32_t sectorID, List blockCache, uint32_t blockMaxCount) {
 		Boolean get(CacheSectorRecord * a) {
 			return (a->sector.sectorNumber == sectorID);
 		}
