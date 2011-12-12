@@ -55,8 +55,10 @@
 
 
 	void pfs_endpoint_callPutSector( DiskSector diskSector , FatFile * file ){
-
-		pfs_endpoint_utils_putInCache(diskSector , pfs_cache_getListaCacheFat());
+		
+		if(pfs_cache_isFatSectorReserved(diskSector.sectorNumber)){
+			pfs_endpoint_utils_putInCache(diskSector , pfs_cache_getListaCacheFat());
+		}
 
 		if(pfs_pool_isPooledConnectionsEnabled()){
 			return pfs_endpoint_callPooledPutSector(diskSector);
