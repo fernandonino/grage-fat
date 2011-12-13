@@ -178,9 +178,10 @@
 		log_info_t("[ FUSE Operation: release ] %s" , path);
 
 		FatFile * file = (FatFile *)fi->fh;
-		if (file != NULL)
+		if (file != NULL){
+			pfs_state_removeOpenedFile(file);
 			free(file);
-			//pfs_state_removeOpenedFile(file);
+		}
 
 		return EXIT_SUCCESS;
 	}
@@ -190,9 +191,10 @@
 		log_info_t("[ FUSE Operation: releasedir ] %s" , path);
 
 		FatFile * file = (FatFile *)fi->fh;
-		if (file != NULL)
+		if (file != NULL){
+			pfs_state_removeOpenedFile(file);
 			free(file);
-			//pfs_state_removeOpenedFile(file);
+		}
 
 		return EXIT_SUCCESS;
 	}
@@ -319,6 +321,8 @@
 		}
 
 		pfs_fat32_utils_fileStat(v , file , statbuf);
+
+		pfs_state_removeOpenedFile(file);
 		free(file);
 
 		return EXIT_SUCCESS;
