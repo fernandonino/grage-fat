@@ -1048,5 +1048,7 @@
 			pfs_pool_releaseConnection(conns[index]);
 		}
 
+		pfs_endpoint_utils_putInFileCache(block , file);
+
 		return block;
 	}

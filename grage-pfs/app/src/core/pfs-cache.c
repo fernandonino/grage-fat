@@ -30,13 +30,13 @@
 
 
 
-	uint32 cacheSectorsMaxCount;
+	uint32 blockCacheMaxCount;
 
-	void pfs_cache_setCacheSectorsMaxCount(uint32 count) {
-		cacheSectorsMaxCount = count;
+	void pfs_cache_setBlockCacheMaxCount(uint32 count) {
+		blockCacheMaxCount = count;
 	}
-	uint32 pfs_cache_getCacheSectorsMaxCount() {
-		return cacheSectorsMaxCount;
+	uint32 pfs_cache_getBlockCacheMaxCount() {
+		return blockCacheMaxCount;
 	}
 
 
@@ -91,7 +91,7 @@
 
 		pfs_cache_setCacheSectorsFatMaxCount(fatSize * 20 / 100);
 		pfs_cache_setListaCacheFat(pfs_cache_sectors_initialize());
-		pfs_cache_setCacheSectorsMaxCount(pfs_configuration_getCacheSize());
+		pfs_cache_setBlockCacheMaxCount(pfs_configuration_getCacheSize() * 1024 / 4096);
 	}
 
 
@@ -142,7 +142,7 @@
 		pfs_cache_sectors_registrar_acceso(listaCacheSectors);
 	}
 
-	void pfs_cache_putBlock(Block * cluster, List blockCache,	uint32 blockMaxCount) {
+	void pfs_cache_putBlock(Block * cluster , List blockCache , uint32 blockMaxCount) {
 		CacheBlockRecord * auxNode;
 		CacheBlockRecord * nodo = (CacheBlockRecord *) malloc(sizeof(CacheBlockRecord));
 		nodo->estado = 0;
@@ -161,8 +161,8 @@
 		}
 		//AGREGO EL NODO NUEVO
 		nodo->estado = 0;
-		memcpy(nodo->block->content, cluster->content , sizeof(cluster->content));
-		nodo->block->id = cluster->id;
+		memcpy(nodo->block.content, cluster->content , sizeof(cluster->content));
+		nodo->block.id = cluster->id;
 		commons_list_addNode(blockCache, nodo);
 		pfs_cache_sectors_registrar_acceso(blockCache);
 	}

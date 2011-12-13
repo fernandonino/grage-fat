@@ -93,8 +93,8 @@
 		if(a == NULL)
 			return d;
 
-		memcpy(d.content , a->block->content , sizeof(a->block->content));
-		d.id = a->block->id;
+		memcpy(d.content , a->block.content , sizeof(a->block.content));
+		d.id = a->block.id;
 		return d;
 	}
 
@@ -110,13 +110,39 @@
 
 		if( pfs_cache_habilitada() ){
 			CacheBlockRecord * s = pfs_cache_getBlock(clusterId, fatFile->cache ,
-					pfs_cache_getCacheSectorsMaxCount());
+					pfs_cache_getBlockCacheMaxCount());
 
 			return pfs_endpoint_buildBlockFromCacheCluster(s);
 		} else {
 			Block b;
 			b.id = 0;
 			return b;
+		}
+	}
+
+	void pfs_endpoint_utils_putInFileCache(Block newBlock , FatFile * file){
+		Boolean present = FALSE;
+
+		if (pfs_cache_habilitada()){
+
+			Iterator * ite = commons_iterator_buildIterator(file->cache);
+
+			while( commons_iterator_hasMoreElements(ite) ){
+				CacheBlockRecord * nodo = (CacheBlockRecord *)commons_iterator_next(ite);
+				if(nodo->block.id == newBlock.id){
+					memcpy(nodo->block.content , newBlock.content , sizeof(newBlock.content));
+					present = TRUE;
+					break;
+				}
+			}
+			free(ite);
+
+			if(present == FALSE){
+				Block * block = malloc(sizeof (Block));
+				memcpy(block->content , newBlock.content , sizeof(newBlock.content));
+				block->id = newBlock.id;
+				pfs_cache_putBlock(block , file->cache , pfs_cache_getBlockCacheMaxCount());
+			}
 		}
 	}
 
@@ -132,7 +158,7 @@
 	}
 
 	void pfs_endpoint_utils_putInCache(DiskSector d , List cache){
-		uint8_t present = FALSE;
+		Boolean present = FALSE;
 
 		Iterator * ite = commons_iterator_buildIterator(pfs_cache_getListaCacheFat());
 
@@ -145,6 +171,7 @@
 				break;
 			}
 		}
+		free(ite);
 
 		if(present == FALSE){
 			DiskSector * disk = malloc(sizeof (DiskSector));

@@ -15,13 +15,13 @@
 #define FILE_CACHE		1
 
 		typedef struct {
-			Block * block;
+			Block block;
 			uint32_t estado;
 		}CacheBlockRecord;
 
 		typedef struct {
 			uint8_t estado;
-			uint8_t modificado;
+			Boolean modificado;
 			DiskSector sector;
 		}CacheSectorRecord;
 
@@ -37,8 +37,8 @@
 		void pfs_cache_sectores_dumpBIS(List listaCacheSectors,uint32 sectorsMaxCount);
 		void pfs_cache_sectores_dump();
 
-		void pfs_cache_setCacheSectorsMaxCount(uint32 count);
-		uint32 pfs_cache_getCacheSectorsMaxCount();
+		void pfs_cache_setBlockCacheMaxCount(uint32 count);
+		uint32 pfs_cache_getBlockCacheMaxCount();
 
 		void pfs_cache_setCacheSectorsFatMaxCount(uint32 count);
 		uint32 pfs_cache_getCacheSectorsFatMaxCount();
@@ -46,5 +46,6 @@
 		DiskSector pfs_endpoint_callCachedGetSector(uint32_t);
 
 		CacheBlockRecord * pfs_cache_getBlock(uint32_t , List , uint32_t);
+		void pfs_cache_putBlock(Block * , List , uint32 );
 
 #endif /* PFS_CACHE_H_ */

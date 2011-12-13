@@ -23,7 +23,7 @@ extern List openFiles;
 		bzero(linea, 512);
 		int i;
 
-		uint32 sectorsMaxCount = pfs_cache_getCacheSectorsMaxCount();
+		uint32 sectorsMaxCount = pfs_cache_getBlockCacheMaxCount();
 		Iterator * fuckingIterator = commons_iterator_buildIterator(
 				openFiles);
 		time_t log_time;

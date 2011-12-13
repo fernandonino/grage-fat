@@ -15,8 +15,10 @@
 
 #include <pfs-fuse.h>
 #include "grage-commons.h"
+#include "linux-commons-logging.h"
 #include "pfs-fat32.h"
 #include "pfs-cache.h"
+#include "pfs-state.h"
 
 	struct fuse_operations grage_oper = {
 	  .getattr = pfs_fuse_getattr,			// Bloque-Cluster: revisada y aprobada
@@ -53,6 +55,8 @@
 		char basedir[128];
 		Volume * v = pfs_state_getVolume();
 
+		log_info_t("[ FUSE Operation: mknod ] %s" , path);
+
 		pfs_fat32_utils_getDirNameFromPath(path,basedir);
 		pfs_fat32_utils_getFileNameFromPath(path,filename);
 
@@ -75,6 +79,8 @@
 
 	int pfs_fuse_open(const char *path, struct fuse_file_info *fi){
 
+		log_info_t("[ FUSE Operation: open ] %s" , path);
+
 		FatFile * file = pfs_fat32_open(path);
 
 		if(file != NULL){
@@ -86,6 +92,8 @@
 	}
 
 	int pfs_fuse_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi){
+
+		log_info_t("[ FUSE Operation: read ] %s, size %d , offset %d" , path , size , offset);
 
 		Volume * volume = pfs_state_getVolume();
 		FatFile * file = (FatFile *)fi->fh;
@@ -110,6 +118,8 @@
 	}
 
 	int pfs_fuse_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi){
+
+		log_info_t("[ FUSE Operation: read ] %s, size %d , offset %d" , path , size , offset);
 
 		uint32_t result;
 		Volume * volume = pfs_state_getVolume();
@@ -141,7 +151,9 @@
 
 	int pfs_fuse_flush(const char *path, struct fuse_file_info *fi){
 
-		Volume * v = pfs_state_getVolume();
+		log_info_t("[ FUSE Operation: flush] %s" , path);
+
+		//Volume * v = pfs_state_getVolume();
 		FatFile * file = (FatFile *)fi->fh;
 
 		// 1. Se bajan a disco los sectores de FAT cacheados
@@ -163,6 +175,8 @@
 
 	int pfs_fuse_release(const char *path, struct fuse_file_info *fi){
 
+		log_info_t("[ FUSE Operation: release ] %s" , path);
+
 		FatFile * file = (FatFile *)fi->fh;
 		if (file != NULL)
 			free(file);
@@ -173,6 +187,8 @@
 
 	int pfs_fuse_releasedir(const char *path, struct fuse_file_info *fi){
 
+		log_info_t("[ FUSE Operation: releasedir ] %s" , path);
+
 		FatFile * file = (FatFile *)fi->fh;
 		if (file != NULL)
 			free(file);
@@ -182,6 +198,9 @@
 	}
 
 	int pfs_fuse_truncate(const char *path, off_t newsize){
+
+		log_info_t("[ FUSE Operation: truncate ] %s, size %d" , path , newsize);
+
 		Volume * v = pfs_state_getVolume();
 		FatFile * f = pfs_fat32_open(path);
 
@@ -199,6 +218,8 @@
 
 	int pfs_fuse_unlink(const char * path){
 
+		log_info_t("[ FUSE Operation: unlink ] %s" , path);
+
 		Volume * v = pfs_state_getVolume();
 		FatFile * f = pfs_fat32_open(path);
 		if( f == NULL ){
@@ -211,6 +232,9 @@
 	}
 
 	int pfs_fuse_mkdir(const char *path, mode_t mode){
+
+		log_info_t("[ FUSE Operation: mkdir ] %s" , path);
+
 		char dirname[14];
 		char basedir[128];
 		Volume * v = pfs_state_getVolume();
@@ -236,6 +260,8 @@
 	}
 
 	int pfs_fuse_readdir(const char * path , void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi){
+
+		log_info_t("[ FUSE Operation: readdir ] %s" , path);
 
 		uint8_t result;
 		struct dirent de;
@@ -263,6 +289,8 @@
 
 	int pfs_fuse_rmdir(const char * path){
 
+		log_info_t("[ FUSE Operation: rmdir ] %s" , path);
+
 		Volume * v = pfs_state_getVolume();
 		FatFile * fatFile = pfs_fat32_open(path);
 		if (fatFile == NULL || fatFile->shortEntry.DIR_Attr != FAT_32_ATTR_DIRECTORY){
@@ -278,6 +306,9 @@
 	}
 
 	int pfs_fuse_getattr(const char *path, struct stat *statbuf){
+
+		log_info_t("[ FUSE Operation: getattr ] %s" , path);
+
 		Volume * v = pfs_state_getVolume();
 
 		FatFile * file = pfs_fat32_open(path);
@@ -294,6 +325,9 @@
 	}
 
 	int pfs_fuse_rename(const char * path, const char * newpath){
+
+		log_info_t("[ FUSE Operation: rename ] %s" , path);
+
 		FatFile * newFile = pfs_fat32_open(newpath);
 
 		if(newFile != NULL) //Comprobacion de que no exista un archivo con el nuevo nombre
