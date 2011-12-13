@@ -872,6 +872,7 @@
 				nodo->modificado = FALSE;
 			}
 		}
+		free(ite);
 	}
 
 	void pfs_fat32_fileCacheFlush(FatFile * f){
@@ -884,6 +885,7 @@
 			pfs_fat32_utils_callPutBlock(nodo->block , f);
 			commons_list_removeNode(fileCache , nodo , free);
 		}
+		free(ite);
 	}
 
 
