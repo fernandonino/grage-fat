@@ -876,7 +876,15 @@
 
 	void pfs_fat32_fileCacheFlush(FatFile * f){
 
-	};
+		List fileCache = f->cache;
+		Iterator * ite = commons_iterator_buildIterator(fileCache);
+
+		while( commons_iterator_hasMoreElements(ite) ){
+			CacheBlockRecord * nodo = (CacheBlockRecord *)commons_iterator_next(ite);
+			pfs_fat32_utils_callPutBlock(nodo->block , f);
+			commons_list_removeNode(fileCache , nodo , free);
+		}
+	}
 
 
 
