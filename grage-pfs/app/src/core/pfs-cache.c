@@ -66,7 +66,21 @@
 		return FALSE;
 	}
 
+	List pfs_cache_blocks_initialize() {
 
+			Boolean eq(void * s1, void * s2) {
+				CacheBlockRecord * p1 = (CacheBlockRecord *) s1;
+				CacheBlockRecord * p2 = (CacheBlockRecord *) s2;
+				return p1->block.id == p2->block.id;
+			}
+			Boolean ordenar(void * s1, void * s2) {
+				CacheBlockRecord * p1 = (CacheBlockRecord *) s1;
+				CacheBlockRecord * p2 = (CacheBlockRecord *) s2;
+				return p1->estado < p2->estado;
+			}
+
+			return (commons_list_buildList(NULL, eq, commons_list_ORDER_ALWAYS_FIRST));
+		}
 	List pfs_cache_sectors_initialize() {
 
 		Boolean eq(void * s1, void * s2) {
@@ -104,7 +118,15 @@
 		}
 		free(fuckingIterator);
 	}
+	void pfs_cache_blocks_registrar_acceso(List listaCacheBlocks) {
+		Iterator * fuckingIterator = commons_iterator_buildIterator(
+				listaCacheBlocks);
 
+		while (commons_iterator_hasMoreElements(fuckingIterator)) {
+			((CacheBlockRecord *) commons_iterator_next(fuckingIterator))->estado++;
+		}
+		free(fuckingIterator);
+	}
 
 	CacheSectorRecord * pfs_cache_get_sector(uint32 sectorID,
 			List listaCacheSectors, uint32 sectorsMaxCount) {
@@ -164,14 +186,14 @@
 		memcpy(nodo->block.content, cluster->content , sizeof(cluster->content));
 		nodo->block.id = cluster->id;
 		commons_list_addNode(blockCache, nodo);
-		pfs_cache_sectors_registrar_acceso(blockCache);
+		pfs_cache_blocks_registrar_acceso(blockCache);
 	}
 
-	CacheBlockRecord * pfs_cache_getBlock(uint32_t sectorID, List blockCache, uint32_t blockMaxCount) {
-		Boolean get(CacheSectorRecord * a) {
-			return (a->sector.sectorNumber == sectorID);
+	CacheBlockRecord * pfs_cache_getBlock(uint32_t blockID, List blockCache, uint32_t blockMaxCount) {
+		Boolean get(CacheBlockRecord * a) {
+			return (a->block.id == blockID);
 		}
 
-		pfs_cache_sectors_registrar_acceso(blockCache);
+		pfs_cache_blocks_registrar_acceso(blockCache);
 		return commons_list_getNodeByCriteria(blockCache, (Boolean (*)(Object))get);
 	}

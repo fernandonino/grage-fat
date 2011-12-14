@@ -16,7 +16,7 @@
 		FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
 
 		if (pfs_cache_habilitada())
-			fatFile->cache = pfs_cache_sectors_initialize();
+			fatFile->cache = pfs_cache_blocks_initialize();
 		else
 			fatFile->cache = NULL;
 
@@ -52,7 +52,7 @@
 		char utf8name[14];
 
 		if (pfs_cache_habilitada())
-			fatFile->cache = pfs_cache_sectors_initialize();
+			fatFile->cache = pfs_cache_blocks_initialize();
 		else
 			fatFile->cache = NULL;
 

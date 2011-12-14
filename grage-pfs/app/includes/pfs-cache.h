@@ -30,6 +30,7 @@
 		List pfs_cache_getListaCacheFat();
 		void pfs_cache_setListaCacheFat(List lista);
 		List pfs_cache_sectors_initialize();
+		List pfs_cache_blocks_initialize();
 		Boolean pfs_cache_isFatSectorReserved(uint32 sectorNumber);
 		CacheSectorRecord * pfs_cache_get_sector(uint32 sectorID,List listaCacheSectors,uint32 sectorsMaxCount);
 		void pfs_cache_put_sectors(DiskSector * sectorNuevo,List listaCacheSectors,uint32 sectorsMaxCount);
