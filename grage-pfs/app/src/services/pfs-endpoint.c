@@ -141,7 +141,8 @@
 				Block * block = malloc(sizeof (Block));
 				memcpy(block->content , newBlock.content , sizeof(newBlock.content));
 				block->id = newBlock.id;
-				pfs_cache_putBlock(block , file->cache , pfs_cache_getBlockCacheMaxCount());
+				uint32_t BlockCacheMaxCount = pfs_cache_getBlockCacheMaxCount();
+				pfs_cache_putBlock(block , file->cache , BlockCacheMaxCount);
 			}
 		}
 	}
