@@ -178,6 +178,20 @@
 					break;
 				}
 			}
+			DiskSector sector;
+			uint16_t offset = 0;
+
+			Volume * v = pfs_state_getVolume();
+			uint32_t firstSector = pfs_fat_utils_getFirstSectorOfCluster(v , auxNode->block.id);
+			uint32_t lastSector = firstSector + 8;
+
+			for( ; firstSector < lastSector ; firstSector++ ){
+				//sector = pfs_endpoint_callGetSector(firstSector);
+				sector.sectorNumber = firstSector;
+				memcpy(sector.sectorContent , auxNode->block.content + offset , SECTOR_SIZE);
+				pfs_endpoint_callPutSector(sector);
+				offset += SECTOR_SIZE;
+			}
 
 			commons_list_removeNode(blockCache, auxNode, free);
 		}
