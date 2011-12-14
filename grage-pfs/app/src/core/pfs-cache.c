@@ -149,10 +149,10 @@
 			while (commons_iterator_hasMoreElements(fuckingIterator)) {
 				auxNode = (CacheSectorRecord *) commons_iterator_next(fuckingIterator);
 				if (nodo->estado <= auxNode->estado) {
-					break;
+					nodo=auxNode;
 				}
 			}
-			commons_list_removeNode(listaCacheSectors, auxNode, free);
+			commons_list_removeNode(listaCacheSectors, nodo, free);
 		}
 		//AGREGO EL NODO NUEVO
 		nodo->estado = 0;
@@ -175,7 +175,7 @@
 			while (commons_iterator_hasMoreElements(fuckingIterator)) {
 				auxNode = (CacheBlockRecord *) commons_iterator_next(fuckingIterator);
 				if (nodo->estado <= auxNode->estado) {
-					break;
+					nodo=auxNode;
 				}
 			}
 			DiskSector sector;
@@ -193,13 +193,14 @@
 				offset += SECTOR_SIZE;
 			}
 
-			commons_list_removeNode(blockCache, auxNode, free);
+			commons_list_removeNode(blockCache, nodo, free);
 		}
 		//AGREGO EL NODO NUEVO
 		nodo->estado = 0;
 		memcpy(nodo->block.content, cluster->content , sizeof(cluster->content));
 		nodo->block.id = cluster->id;
 		commons_list_addNode(blockCache, nodo);
+		free(nodo);
 		pfs_cache_blocks_registrar_acceso(blockCache);
 	}
 

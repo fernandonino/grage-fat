@@ -35,6 +35,7 @@
 		CacheSectorRecord * pfs_cache_get_sector(uint32 sectorID,List listaCacheSectors,uint32 sectorsMaxCount);
 		void pfs_cache_put_sectors(DiskSector * sectorNuevo,List listaCacheSectors,uint32 sectorsMaxCount);
 		void pfs_cache_sectors_registrar_acceso(List listaCacheSectors);
+		void pfs_cache_blocks_registrar_acceso(List listaCacheBlocks);
 		void pfs_cache_sectores_dumpBIS(List listaCacheSectors,uint32 sectorsMaxCount);
 		void pfs_cache_sectores_dump();
 
