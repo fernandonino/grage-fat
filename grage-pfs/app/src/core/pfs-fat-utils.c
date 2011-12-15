@@ -688,7 +688,7 @@
 
 			block = pfs_fat32_utils_callGetBlock(blockId , f);
 			memcpy(block.content + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
-			pfs_fat32_utils_callPutBlock(block , NULL);
+			pfs_fat32_utils_callPutBlock(block , f);
 		}
 
 	void pfs_fat32_utils_extendFileWrite(Volume * v , FatFile * f , off_t newsize){
@@ -740,7 +740,7 @@
 
 		block = pfs_fat32_utils_callGetBlock(blockId , f);
 		memcpy(block.content + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
-		pfs_fat32_utils_callPutBlock(block , NULL);
+		pfs_fat32_utils_callPutBlock(block , f);
 	}
 
 

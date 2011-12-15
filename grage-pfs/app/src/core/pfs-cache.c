@@ -81,6 +81,7 @@
 
 			return (commons_list_buildList(NULL, eq, commons_list_ORDER_ALWAYS_FIRST));
 		}
+
 	List pfs_cache_sectors_initialize() {
 
 		Boolean eq(void * s1, void * s2) {
@@ -123,7 +124,9 @@
 				listaCacheBlocks);
 
 		while (commons_iterator_hasMoreElements(fuckingIterator)) {
-			((CacheBlockRecord *) commons_iterator_next(fuckingIterator))->estado++;
+
+			CacheBlockRecord * puto = ((CacheBlockRecord *) commons_iterator_next(fuckingIterator));
+			puto->estado++;
 		}
 		free(fuckingIterator);
 	}
@@ -165,8 +168,8 @@
 	}
 
 	void pfs_cache_putBlock(Block * cluster , List blockCache , uint32 blockMaxCount) {
-		CacheBlockRecord * auxNode;
-		CacheBlockRecord * nodo = (CacheBlockRecord *) malloc(sizeof(CacheBlockRecord));
+		CacheBlockRecord * auxNode = (CacheBlockRecord *) malloc(sizeof(CacheBlockRecord));
+		CacheBlockRecord * nodo    = (CacheBlockRecord *) malloc(sizeof(CacheBlockRecord));
 		nodo->estado = 0;
 
 		if (commons_list_getSize(blockCache) >= blockMaxCount) {
@@ -178,17 +181,18 @@
 					nodo=auxNode;
 				}
 			}
+			//free(fuckingIterator);
 			DiskSector sector;
 			uint16_t offset = 0;
 
 			Volume * v = pfs_state_getVolume();
-			uint32_t firstSector = pfs_fat_utils_getFirstSectorOfCluster(v , auxNode->block.id);
+			uint32_t firstSector = pfs_fat_utils_getFirstSectorOfCluster(v , nodo->block.id);
 			uint32_t lastSector = firstSector + 8;
 
 			for( ; firstSector < lastSector ; firstSector++ ){
 				//sector = pfs_endpoint_callGetSector(firstSector);
 				sector.sectorNumber = firstSector;
-				memcpy(sector.sectorContent , auxNode->block.content + offset , SECTOR_SIZE);
+				memcpy(sector.sectorContent , nodo->block.content + offset , SECTOR_SIZE);
 				pfs_endpoint_callPutSector(sector);
 				offset += SECTOR_SIZE;
 			}
@@ -200,8 +204,8 @@
 		memcpy(nodo->block.content, cluster->content , sizeof(cluster->content));
 		nodo->block.id = cluster->id;
 		commons_list_addNode(blockCache, nodo);
-		free(nodo);
 		pfs_cache_blocks_registrar_acceso(blockCache);
+		free(auxNode);
 	}
 
 	CacheBlockRecord * pfs_cache_getBlock(uint32_t blockID, List blockCache, uint32_t blockMaxCount) {
