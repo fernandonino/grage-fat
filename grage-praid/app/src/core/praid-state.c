@@ -92,7 +92,7 @@
 
 		void removingStorage(PPDConnectionStorage * s){
 
-			praid_state_storage_setDisconnected(storage);
+			//praid_state_storage_setDisconnected(s);
 			//remover la cola del storage
 			close(s->connection);
 			//free(s);

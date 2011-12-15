@@ -22,8 +22,9 @@
 	void praid_balancer_redistributeJobs(Queue jobs);
 	void praid_balancer_assignJob(PPDConnectionStorage * storage , Job * job);
 
+
 	ThreadMutex loadBalancingMutex = PTHREAD_MUTEX_INITIALIZER;
-	ThreadMutex jobsRedistributionMutex = PTHREAD_MUTEX_INITIALIZER;
+	ThreadMutex redistributionMutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 
@@ -74,8 +75,9 @@
 
 
 
-
 	void praid_balancer_redistributeJobs(Queue jobs){
+
+		commons_misc_lockThreadMutex(&redistributionMutex);
 
 		Iterator * ite = commons_iterator_buildIterator(jobs);
 
@@ -97,6 +99,8 @@
 		}
 
 		free(ite);
+
+		commons_misc_unlockThreadMutex(&redistributionMutex);
 	}
 
 

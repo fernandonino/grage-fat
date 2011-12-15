@@ -87,7 +87,7 @@
 
 			}else{
 
-				printf("Recibiendo sectorId %i desde el ppd-%i\n" , message.payload.diskSector.sectorNumber , storage->id);
+				//printf("Recibiendo sectorId %i desde el ppd-%i\n" , message.payload.diskSector.sectorNumber , storage->id);
 
 				praid_state_storage_decrementPendingResponses(storage);
 
@@ -143,7 +143,7 @@
 
 		commons_misc_unlockThreadMutex(&storage->disconnectionMutex);
 
-		puts("finaliza el listener del ppd muerto");
+		//puts("finaliza el listener del ppd muerto");
 	}
 
 
@@ -157,9 +157,9 @@
 			/*
 			 * Si se esta realizando la replicacion entonces no se envian trabajos
 			 */
-			printf("checkeando replicacion activa en ppd-%i \n" , aStorage->id);
+			//printf("checkeando replicacion activa en ppd-%i \n" , aStorage->id);
 			if(praid_sync_isReplicationActive()){
-				printf("replicacion activa, se esperan 10 segundos en ppd-%i \n"  , aStorage->id);
+				//printf("replicacion activa, se esperan 10 segundos en ppd-%i \n"  , aStorage->id);
 				sleep(10);
 				continue;
 			}
@@ -167,15 +167,16 @@
 			commons_misc_lockThreadMutex(&aStorage->disconnectionMutex);
 
 			if(!aStorage->connected){
-				puts("se elimina el ppd desde el hilo sender y se finaliza el hilo");
-				free(aStorage);
+				//puts("se elimina el ppd desde el hilo sender y se finaliza el hilo");
+				//free(aStorage);
+				commons_misc_unlockThreadMutex(&aStorage->disconnectionMutex);
 				return;
 			}
 
 			NipcMessage message = praid_storage_queue_get(aStorage->pendingJobs);
 
 
-			printf("pidiendo sectorId %i al ppd-%i \n", message.payload.diskSector.sectorNumber , aStorage->id);
+			//printf("pidiendo sectorId %i al ppd-%i \n", message.payload.diskSector.sectorNumber , aStorage->id);
 
 			praid_endpoint_ppd_sendMessage(aStorage->connection , message);
 
@@ -186,10 +187,7 @@
 			}
 
 			commons_misc_unlockThreadMutex(&aStorage->disconnectionMutex);
-
 		}
-
-		puts("Se cierra el sender");
 	}
 
 

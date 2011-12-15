@@ -11,11 +11,11 @@
 #ifndef PRAID_CONFIGURATION_H_
 #define PRAID_CONFIGURATION_H_
 
-#define PRAID_DEFAULT_CONFIGURATION_FILE		"../conf/grage-praid.properties"
-#define PRAIND_DEFAULT_LOG_FILE 				"../logs/grage-praid.log"
+//#define PRAID_DEFAULT_CONFIGURATION_FILE		"../conf/grage-praid.properties"
+//#define PRAIND_DEFAULT_LOG_FILE 				"../logs/grage-praid.log"
 
-//#define PRAID_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/grage-praid.properties"
-//#define PRAIND_DEFAULT_LOG_FILE 				"/opt/grage-repository/logs/grage-praid.log"
+#define PRAID_DEFAULT_CONFIGURATION_FILE		"/opt/grage-repository/grage-praid.properties"
+#define PRAIND_DEFAULT_LOG_FILE 				"/opt/grage-repository/logs/grage-praid.log"
 
 #define PRAID_CONF_DEVICE_PORT						"praid.device.port"
 #define PRAID_CONF_CONSOLE_LEVEL 					"praid.console.level"
