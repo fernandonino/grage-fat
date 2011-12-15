@@ -1,7 +1,7 @@
 #
 # Linux Commons Makefile
 #
-
+ 
 ## Parametros a customizar para cada aplicacion
 GRAGE_PROJECT_NAME=grage-pfs
 BUILD_SOURCE=app/src/core/* ./app/src/*.c
