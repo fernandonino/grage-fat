@@ -150,11 +150,16 @@
 
 	int pfs_fuse_release(const char *path, struct fuse_file_info *fi){
 
+<<<<<<< .mine
+		log_info_t("[ FUSE Operation: release ] %s" , path);
+/*
+=======
+>>>>>>> .r538
 		FatFile * file = (FatFile *)fi->fh;
 		if (file != NULL)
 			free(file);
 			//pfs_state_removeOpenedFile(file);
-
+*/
 		return EXIT_SUCCESS;
 	}
 
