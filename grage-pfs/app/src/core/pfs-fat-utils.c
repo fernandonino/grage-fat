@@ -712,7 +712,7 @@
 
 			block = pfs_fat32_utils_callGetBlock(blockId , f);
 			memcpy(block.content + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
-			pfs_fat32_utils_callPutBlock(block , NULL);
+			pfs_fat32_utils_callPutBlock(block , f);
 		}
 
 	void pfs_fat32_utils_extendFileWrite(Volume * v , FatFile * f , off_t newsize){
@@ -764,7 +764,7 @@
 
 		block = pfs_fat32_utils_callGetBlock(blockId , f);
 		memcpy(block.content + sectorOffset, &(f->shortEntry), sizeof(DirEntry));
-		pfs_fat32_utils_callPutBlock(block , NULL);
+		pfs_fat32_utils_callPutBlock(block , f);
 	}
 
 
@@ -1004,33 +1004,21 @@
 
 	Block pfs_fat32_utils_callGetBlock(uint32_t blockNumber , FatFile * f){
 		Block block;
-		Volume * v = pfs_state_getVolume();
 
 
 		if(pfs_cache_habilitada()){
+			Volume * v = pfs_state_getVolume();
+
 			uint32_t firstSector = pfs_fat_utils_getFirstSectorOfCluster(v, blockNumber);
 			uint32_t lastSector = firstSector + 8;
 			uint32_t offset = 0;
 
-			if(!pfs_cache_get_sector(firstSector, f->cache, pfs_cache_getCacheSectorsMaxCount())){
-				//El bloque esta cacheado
-				DiskSector diskSector;
-				for(;firstSector < lastSector; firstSector++){
-					diskSector = pfs_cache_get_sector(firstSector, f->cache, pfs_cache_getCacheSectorsMaxCount())->sector;
-					memcpy(block.content + offset, diskSector.sectorContent, SECTOR_SIZE);
-					offset += SECTOR_SIZE;
-				}
-			}
-			else{
-				//El bloque no esta cacheado
-				DiskSector diskSector;
-				block = pfs_endpoint_blocks_callGetBlock(blockNumber);
-				for(; firstSector < lastSector; firstSector++){
-					diskSector.sectorNumber = firstSector;
-					memcpy(diskSector.sectorContent, block.content, SECTOR_SIZE);
-					offset += SECTOR_SIZE;
-					pfs_cache_put_sectors(&diskSector, f->cache, pfs_cache_getCacheSectorsMaxCount());
-				}
+			DiskSector diskSector;
+			block.id = blockNumber;
+			for(;firstSector < lastSector; firstSector++){
+				diskSector = pfs_endpoint_callCachedGetSector(firstSector, f);
+				memcpy(block.content + offset, diskSector.sectorContent, SECTOR_SIZE);
+				offset += SECTOR_SIZE;
 			}
 		}
 		else

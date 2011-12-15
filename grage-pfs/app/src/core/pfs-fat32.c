@@ -298,8 +298,8 @@
 				memcpy(auxBlock.content, &phantomValue, sizeof(DirEntry));
 
 			}
-			pfs_fat32_utils_callPutBlock(block , NULL);
-			pfs_fat32_utils_callPutBlock(auxBlock , NULL);;
+			pfs_fat32_utils_callPutBlock(block , fd);
+			pfs_fat32_utils_callPutBlock(auxBlock , fd);;
 		}
 		else{
 			clusterOffset = fd->sourceOffset;
@@ -324,7 +324,7 @@
 					memcpy(block.content + clusterOffset, &phantomValue, sizeof(DirEntry));
 				}
 			}
-			pfs_fat32_utils_callPutBlock(block , NULL);
+			pfs_fat32_utils_callPutBlock(block , fd);
 		}
 	}
 
@@ -534,7 +534,7 @@
 		memcpy(block.content + longOffset , &longEntry , FAT_32_DIR_ENTRY_SIZE);
 		memcpy(block.content + shortOffset , &shortEntry , FAT_32_DIR_ENTRY_SIZE);
 
-		pfs_fat32_utils_callPutBlock(block , NULL);
+		pfs_fat32_utils_callPutBlock(block , destination);
 
 		return EXIT_SUCCESS;
 	}
@@ -686,7 +686,7 @@
 
 
 		memcpy(block.content + clusterOffset, &sDirEntry, sizeof(DirEntry));
-		pfs_fat32_utils_callPutBlock(block, NULL);
+		pfs_fat32_utils_callPutBlock(block, f);
 
 		//Obtenemos el cluster a partir del cual se va a truncar
 		while(clusterCount * v->bpc < newsize){
@@ -814,7 +814,7 @@
 			shortOffset -= FAT_32_DIR_ENTRY_SIZE;
 			memcpy(block.content + shortOffset , &oldFatFile->shortEntry , FAT_32_DIR_ENTRY_SIZE);
 		}
-		pfs_fat32_utils_callPutBlock(block , NULL);
+		pfs_fat32_utils_callPutBlock(block , newFatFile);
 
 		uint32_t blockToDeleteEntry = oldFatFile->source;
 		block = pfs_fat32_utils_callGetBlock(blockToDeleteEntry, oldFatFile);
@@ -839,7 +839,7 @@
 				Block auxBlock = pfs_fat32_utils_callGetBlock(clusterId , fatFile);
 
 				memcpy(auxBlock.content, &fatFile->shortEntry, sizeof(DirEntry));
-				pfs_fat32_utils_callPutBlock(auxBlock , NULL);
+				pfs_fat32_utils_callPutBlock(auxBlock , fatFile);
 			}
 			else{
 				memcpy(block.content + clusterOffset + FAT_32_DIR_ENTRY_SIZE, &fatFile->shortEntry, sizeof(DirEntry));
@@ -848,7 +848,7 @@
 		else{
 			memcpy(block.content + clusterOffset, &fatFile->shortEntry, sizeof(DirEntry));
 		}
-		pfs_fat32_utils_callPutBlock(block , NULL);
+		pfs_fat32_utils_callPutBlock(block , fatFile);
 	}
 
 

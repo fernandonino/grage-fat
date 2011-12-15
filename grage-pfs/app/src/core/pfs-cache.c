@@ -117,11 +117,10 @@
 
 
 
-	void pfs_cache_put_sectors(DiskSector * sectorNuevo, List listaCacheSectors,
-		uint32 sectorsMaxCount) {
+	void pfs_cache_put_sectors(DiskSector * sectorNuevo, List listaCacheSectors, uint32 sectorsMaxCount) {
 		CacheSectorRecord * auxNode;
-		CacheSectorRecord * nodo = (CacheSectorRecord *) malloc(
-				sizeof(CacheSectorRecord));
+		CacheSectorRecord * nodo = (CacheSectorRecord *) malloc(sizeof(CacheSectorRecord));
+
 		nodo->estado = 0;
 		if (commons_list_getSize(listaCacheSectors) >= sectorsMaxCount) {
 			Iterator * fuckingIterator = commons_iterator_buildIterator(
@@ -137,8 +136,7 @@
 		}
 		//AGREGO EL NODO NUEVO
 		nodo->estado = 0;
-		memcpy(nodo->sector.sectorContent, sectorNuevo->sectorContent,
-				sizeof sectorNuevo->sectorContent);
+		memcpy(nodo->sector.sectorContent, sectorNuevo->sectorContent, sizeof(sectorNuevo->sectorContent));
 		nodo->sector.sectorNumber = sectorNuevo->sectorNumber;
 		commons_list_addNode(listaCacheSectors, nodo);
 		pfs_cache_sectors_registrar_acceso(listaCacheSectors);
