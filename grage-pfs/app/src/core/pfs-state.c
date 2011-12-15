@@ -63,9 +63,12 @@
 
 		void pfs_state_clearFileCache(FatFile * f){
 			commons_list_removeList(f->cache , free);
-			//free(f); Con el free da "stack smashing error" !!! Igual se hace cuando sale
+			puts("Liberando lista de cache...");
+			free(f);
+			puts("Liberando FatFile...");
 		}
 
+		puts("Llamando a la funcion eliminar");
 		commons_list_removeNode(openFiles,fatFile,pfs_state_clearFileCache);
 	}
 
