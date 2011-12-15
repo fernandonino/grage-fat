@@ -54,18 +54,13 @@
 	}
 
 
-	void pfs_endpoint_callPutSector( DiskSector diskSector , FatFile * file ){
-
-		if(file == NULL && pfs_cache_habilitada()){
-			pfs_endpoint_utils_putInCache(diskSector, pfs_cache_getListaCacheFat(), FAT_CACHE);
-		}
-
+	void pfs_endpoint_callPutSector(DiskSector diskSector){
 		if(pfs_pool_isPooledConnectionsEnabled()){
 			return pfs_endpoint_callPooledPutSector(diskSector);
 		}else{
+
 			return pfs_endpoint_callNonPooledPutSector(diskSector);
 		}
-
 	}
 
 
@@ -77,7 +72,6 @@
 			return pfs_endpoint_callNonPooledGetSector(sectorNumber);
 		}
 	}
-
 
 
 	DiskSector pfs_endpoint_buildDiskSectorFromCacheCluster(CacheSectorRecord * a){
@@ -92,6 +86,18 @@
 		return d;
 	}
 
+	Block pfs_endpoint_buildBlockFromCacheCluster(CacheBlockRecord * a){
+		Block d;
+		d.id = 0;
+
+		if(a == NULL)
+			return d;
+
+		memcpy(d.content , a->block.content , sizeof(a->block.content));
+		d.id = a->block.id;
+		return d;
+	}
+
 	DiskSector pfs_endpoint_utils_getFromFatCache(uint32_t sectorNumber){
 		CacheSectorRecord * s = pfs_cache_get_sector(
 			sectorNumber,pfs_cache_getListaCacheFat()
@@ -100,79 +106,71 @@
 		return pfs_endpoint_buildDiskSectorFromCacheCluster(s);
 	}
 
-	DiskSector pfs_endpoint_utils_getFromFileCache(uint32_t sectorNumber , FatFile * fatFile){
 
-		CacheSectorRecord * s = pfs_cache_get_sector(
-				sectorNumber,
-				fatFile->cache,
-				pfs_cache_getCacheSectorsMaxCount());
-
-		return pfs_endpoint_buildDiskSectorFromCacheCluster(s);
-
-	}
-
-	DiskSector pfs_endpoint_utils_getFromCache(uint32_t sectorNumber , FatFile  * fatFile){
+	DiskSector pfs_endpoint_utils_getFromCache(uint32_t sectorNumber){
 
 		DiskSector defaultSector;
 		defaultSector.sectorNumber = 0;
 
-		if (pfs_cache_habilitada()){
-			if (pfs_cache_isFatSectorReserved(sectorNumber)){
+		if (pfs_cache_isFatSectorReserved(sectorNumber))
+			return pfs_endpoint_utils_getFromFatCache(sectorNumber);
 
-				return pfs_endpoint_utils_getFromFatCache(sectorNumber);
-
-			}else{
-
-				if(fatFile != NULL)
-					return pfs_endpoint_utils_getFromFileCache(sectorNumber , fatFile);
-			}
-		}
 		return defaultSector;
 	}
 
-	void pfs_endpoint_utils_putInCache(DiskSector d , List cache , uint8_t cacheType){
-		if (pfs_cache_habilitada()){
+	void pfs_endpoint_utils_putInCache(DiskSector d , List cache){
+		Boolean present = FALSE;
+
+		Iterator * ite = commons_iterator_buildIterator(cache);
+
+		while( commons_iterator_hasMoreElements(ite) ){
+			CacheSectorRecord * nodo = (CacheSectorRecord *)commons_iterator_next(ite);
+			if(nodo->sector.sectorNumber == d.sectorNumber){
+				memcpy(nodo->sector.sectorContent , d.sectorContent , sizeof(d.sectorContent));
+				nodo->modificado = TRUE;
+				present = TRUE;
+				break;
+			}
+		}
+		free(ite);
+
+		if(present == FALSE){
 			DiskSector * disk = malloc(sizeof (DiskSector));
 			memcpy(disk->sectorContent , d.sectorContent , sizeof d.sectorContent);
 			disk->sectorNumber = d.sectorNumber;
-
-			if ( cacheType == FAT_CACHE ){
-				pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsFatMaxCount());
-			} else if ( cacheType == FILE_CACHE ) {
-				pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsMaxCount());
-			}
+			pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsFatMaxCount());
 		}
 	}
 
-	DiskSector pfs_endpoint_callCachedGetSector(uint32_t sectorNumber , FatFile  * fatFile){
+	void pfs_endpoint_callCachedPutSector(DiskSector sector){
 
-		DiskSector returningSector = pfs_endpoint_utils_getFromCache(sectorNumber , fatFile);
+		if(pfs_cache_isFatSectorReserved(sector.sectorNumber)){
+			pfs_endpoint_utils_putInCache(sector , pfs_cache_getListaCacheFat());
+			return;
+		}
+
+		pfs_endpoint_callPutSector(sector);
+	}
+
+
+	DiskSector pfs_endpoint_callCachedGetSector(uint32_t sectorNumber){
+
+		DiskSector returningSector = pfs_endpoint_utils_getFromCache(sectorNumber);
 
 		if(returningSector.sectorNumber != 0){
-
 			//printf("Se toma de la cache el sector %i\n" , returningSector.sectorNumber);
-
 			return returningSector;
 		}
 
-		returningSector = pfs_endpoint_callGetSector(sectorNumber );
+		returningSector = pfs_endpoint_callGetSector(sectorNumber);
 
 		if(pfs_cache_isFatSectorReserved(sectorNumber)){
-
 			//printf("Se pone en cache fat el sector %i \n" , sectorNumber);
-
-			pfs_endpoint_utils_putInCache(returningSector , pfs_cache_getListaCacheFat() , FAT_CACHE);
-
-		}else{
-
-			pfs_endpoint_utils_putInCache(returningSector , fatFile->cache , FILE_CACHE);
+			pfs_endpoint_utils_putInCache(returningSector , pfs_cache_getListaCacheFat());
 		}
 
 		return returningSector;
 	}
-
-
-
 
 	DiskSector pfs_endpoint_callPooledGetSector(uint32_t sectorNumber){
 		PooledConnection * conn = pfs_pool_getConection();
@@ -217,7 +215,12 @@
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();
 		message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_GET_SECTORS);
 		message = nipc_mbuilder_addDiskSectorId(message , sectorNumber);
+		log_info_t("Invocando GetSector Sincronico con sectorId: %i " , message.payload.diskSector.sectorNumber);
+
 		nipc_messaging_send(ds , message);
+
+		log_info_t("Recibiendo GetSector Sincronico con sectorId: %i " , message.payload.diskSector.sectorNumber);
+
 		message = nipc_messaging_receive(ds);
 
 		return message.payload.diskSector;
@@ -227,6 +230,9 @@
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();
 		message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_PUT_SECTORS);
 		message = nipc_mbuilder_addDiskSector(message , diskSector);
+
+		log_info_t("Invocando PutSector Sincronico con sectorId: %i " , message.payload.diskSector.sectorNumber);
+
 		nipc_messaging_send(ds , message );
 	}
 
@@ -235,11 +241,21 @@
         NipcMessage message = nipc_mbuilder_buildNipcMessage();
         message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_GET_SECTORS);
         message = nipc_mbuilder_addDiskSectorId(message , sectorId);
+
+        log_info_t("Invocando GetSector Asincronico con sectorId: %i " , message.payload.diskSector.sectorNumber);
+
         nipc_messaging_send(ds , message);
 
     }
 
     DiskSector pfs_endpoint_blocks_callReturnGetSector(ListenSocket ds){
-        return nipc_messaging_receive(ds).payload.diskSector;
+
+    	log_info_t("Recibiendo GetSector Asincronico");
+
+    	DiskSector disk = nipc_messaging_receive(ds).payload.diskSector;
+
+    	log_info_t("Recibido Sector Asincronico con sectorId: %i " , disk.sectorNumber);
+
+    	return disk;
     }
 
