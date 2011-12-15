@@ -15,7 +15,10 @@
 	FatFile * pfs_fat32_utils_openRootDirectory(Volume * v) {
 		FatFile * fatFile = (FatFile *)calloc(1,sizeof(FatFile));
 
-		fatFile->cache = pfs_cache_sectors_initialize();
+		if(pfs_cache_habilitada())
+			fatFile->cache = pfs_cache_sectors_initialize();
+		else
+			fatFile->cache = NULL;
 
 		uint32_t cluster = pfs_fat32_utils_getNextClusterInChain(v , v->root);
 
@@ -50,6 +53,8 @@
 
             if(pfs_cache_habilitada())
             	fatFile->cache = pfs_cache_sectors_initialize();
+            else
+            	fatFile->cache = NULL;
 
             Block block;
             block = pfs_fat32_utils_callGetBlock(v->root, fatFile);
