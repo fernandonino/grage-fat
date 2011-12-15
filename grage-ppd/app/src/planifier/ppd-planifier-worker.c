@@ -56,6 +56,8 @@
 				m = nipc_mbuilder_addDiskSector( m , disk);
 				m = nipc_mbuilder_addResponseCode(m , NIPC_RESPONSE_CODE_SUCCESS);
 
+				printf("Enviando sectorId: %i\n" , disk.sectorNumber);
+
 				ppd_endpoint_responseGetSector(m);
 
 			}
