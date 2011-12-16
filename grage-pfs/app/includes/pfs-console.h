@@ -14,6 +14,7 @@
 	void pfs_console_fsinfo();
 	void pfs_console_finfo(String parameter);
 	void * 	pfs_console_thread(void *thread_init_parameter);
-	int 	pfs_console_initialize();
+	int pfs_console_initialize();
+	void unmountVolume(void);
 
 #endif /* PFS_CONSOLE_H_ */

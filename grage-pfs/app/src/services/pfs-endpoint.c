@@ -86,18 +86,6 @@
 		return d;
 	}
 
-	Block pfs_endpoint_buildBlockFromCacheCluster(CacheBlockRecord * a){
-		Block d;
-		d.id = 0;
-
-		if(a == NULL)
-			return d;
-
-		memcpy(d.content , a->block.content , sizeof(a->block.content));
-		d.id = a->block.id;
-		return d;
-	}
-
 	DiskSector pfs_endpoint_utils_getFromFatCache(uint32_t sectorNumber){
 		CacheSectorRecord * s = pfs_cache_get_sector(
 			sectorNumber,pfs_cache_getListaCacheFat()
@@ -105,7 +93,6 @@
 
 		return pfs_endpoint_buildDiskSectorFromCacheCluster(s);
 	}
-
 
 	DiskSector pfs_endpoint_utils_getFromCache(uint32_t sectorNumber){
 
@@ -121,7 +108,7 @@
 	void pfs_endpoint_utils_putInCache(DiskSector d , List cache){
 		Boolean present = FALSE;
 
-		Iterator * ite = commons_iterator_buildIterator(cache);
+		Iterator * ite = commons_iterator_buildIterator(pfs_cache_getListaCacheFat());
 
 		while( commons_iterator_hasMoreElements(ite) ){
 			CacheSectorRecord * nodo = (CacheSectorRecord *)commons_iterator_next(ite);
@@ -171,6 +158,7 @@
 
 		return returningSector;
 	}
+
 
 	DiskSector pfs_endpoint_callPooledGetSector(uint32_t sectorNumber){
 		PooledConnection * conn = pfs_pool_getConection();

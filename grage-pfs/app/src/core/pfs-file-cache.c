@@ -24,7 +24,7 @@
 
 		returningSector = pfs_endpoint_callGetSector(sectorNumber);
 
-		//TODO: Agregar en cache de archivo
+		pfs_endpoint_utils_putInFileCache(returningSector , f->cache);
 
 		return returningSector;
 	}
