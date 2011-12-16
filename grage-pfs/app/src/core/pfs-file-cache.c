@@ -35,7 +35,7 @@
 		DiskSector defaultSector;
 		defaultSector.sectorNumber = 0;
 
-		CacheSectorRecord * sectorRecord = pfs_cache_get_sector(sectorNumber, f->cache , pfs_cache_getBlockCacheMaxCount());
+		CacheSectorRecord * sectorRecord = pfs_cache_get_sector(sectorNumber, f->cache , pfs_cache_getCacheSectorsFatMaxCount());
 
 		return pfs_endpoint_buildDiskSectorFromCacheCluster(sectorRecord);
 	}

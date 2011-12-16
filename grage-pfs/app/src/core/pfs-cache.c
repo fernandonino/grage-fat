@@ -32,10 +32,10 @@
 
 	uint32 blockCacheMaxCount;
 
-	void pfs_cache_setBlockCacheMaxCount(uint32 count) {
+	void pfs_cache_setFileCacheMaxCount(uint32 count) {
 		blockCacheMaxCount = count;
 	}
-	uint32 pfs_cache_getBlockCacheMaxCount() {
+	uint32 pfs_cache_getFileCacheMaxCount() {
 		return blockCacheMaxCount;
 	}
 
@@ -90,7 +90,7 @@
 
 		pfs_cache_setCacheSectorsFatMaxCount(fatSize * 20 / 100);
 		pfs_cache_setListaCacheFat(pfs_cache_sectors_initialize());
-		pfs_cache_setBlockCacheMaxCount(pfs_configuration_getCacheSize() * 2);
+		pfs_cache_setFileCacheMaxCount(pfs_configuration_getCacheSize() * 2);
 	}
 
 

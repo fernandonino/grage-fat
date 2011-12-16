@@ -878,23 +878,9 @@
 		Iterator * ite = commons_iterator_buildIterator(fileCache);
 
 		while( commons_iterator_hasMoreElements(ite) ){
-			CacheBlockRecord * nodo = (CacheBlockRecord *)commons_iterator_next(ite);
+			CacheSectorRecord * nodo = (CacheSectorRecord *)commons_iterator_next(ite);
+			pfs_endpoint_callPutSector(nodo->sector);
 
-			//pfs_fat32_utils_callPutBlock(nodo->block , f);
-			DiskSector sector;
-			uint16_t offset = 0;
-
-			Volume * v = pfs_state_getVolume();
-			uint32_t firstSector = pfs_fat_utils_getFirstSectorOfCluster(v , nodo->block.id);
-			uint32_t lastSector = firstSector + 8;
-
-			for( ; firstSector < lastSector ; firstSector++ ){
-				//sector = pfs_endpoint_callGetSector(firstSector);
-				sector.sectorNumber = firstSector;
-				memcpy(sector.sectorContent , nodo->block.content + offset , SECTOR_SIZE);
-				pfs_endpoint_callPutSector(sector);
-				offset += SECTOR_SIZE;
-			}
 			commons_list_removeNode(fileCache , nodo , free);
 		}
 		free(ite);

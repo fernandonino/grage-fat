@@ -29,7 +29,7 @@
 	  .open = pfs_fuse_open,				// Bloque-Cluster: revisada y aprobada
 	  .read = pfs_fuse_read,				// Bloque-Cluster: revisada y aprobada
 	  .write = pfs_fuse_write,				// Bloque-Cluster: revisada y aprobada
-	  .flush = pfs_fuse_flush,				// Actualmente en desarrollo
+	  .flush = pfs_fuse_flush,				// Terminada
 	  .release = pfs_fuse_release,			// Bloque-Cluster: no es necesario modifcarla
 	  .releasedir = pfs_fuse_releasedir,	// Bloque-Cluster: no es necesario modifcarla
 	  .readdir = pfs_fuse_readdir,			// Bloque-Cluster: revisada y aprobada
@@ -119,7 +119,7 @@
 
 	int pfs_fuse_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi){
 
-		log_info_t("[ FUSE Operation: read ] %s, size %d , offset %d" , path , size , offset);
+		log_info_t("[ FUSE Operation: write ] %s, size %d , offset %d" , path , size , offset);
 
 		uint32_t result;
 		Volume * volume = pfs_state_getVolume();
@@ -169,11 +169,6 @@
 		if ( pfs_cache_habilitada() ){
 			pfs_fat32_fileCacheFlush(file);
 		}
-
-		// 3. Se graban el FSInfo actualizando los valores
-		// nextFreeCluster y freeClusterCount
-		// Nota: se la comento por innecesaria
-		//pfs_fat32_updateDiskInformation(v);
 
 		return EXIT_SUCCESS;
 	}
