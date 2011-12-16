@@ -112,28 +112,27 @@
 		return commons_list_getNodeByCriteria(cache, (Boolean (*)(Object))get);
 	}
 
-	void pfs_cache_put_sectors(DiskSector * sectorNuevo, List listaCacheSectors,
-		uint32 sectorsMaxCount) {
+	void pfs_cache_put_sectors(DiskSector * sectorNuevo, List listaCacheSectors,uint32 sectorsMaxCount) {
 		CacheSectorRecord * auxNode;
-		CacheSectorRecord * nodo = (CacheSectorRecord *) malloc(
-				sizeof(CacheSectorRecord));
-		nodo->estado = 0;
+		CacheSectorRecord * nodo = (CacheSectorRecord *) malloc(sizeof(CacheSectorRecord));
+
 		if (commons_list_getSize(listaCacheSectors) >= sectorsMaxCount) {
-			Iterator * fuckingIterator = commons_iterator_buildIterator(
-					listaCacheSectors);
+			Iterator * fuckingIterator = commons_iterator_buildIterator(listaCacheSectors);
+			nodo->estado = 0;
 			while (commons_iterator_hasMoreElements(fuckingIterator)) {
 				auxNode = (CacheSectorRecord *) commons_iterator_next(fuckingIterator);
 				if (nodo->estado <= auxNode->estado) {
-					nodo=auxNode;
+					//nodo=auxNode;
+					break;
 				}
 			}
-			pfs_endpoint_callPutSector(nodo->sector);
-			commons_list_removeNode(listaCacheSectors, nodo, free);
+			pfs_endpoint_callPutSector(auxNode->sector);
+			commons_list_removeNode(listaCacheSectors, auxNode, free);
+			free(fuckingIterator);
 		}
 		//AGREGO EL NODO NUEVO
 		nodo->estado = 0;
-		memcpy(nodo->sector.sectorContent, sectorNuevo->sectorContent,
-				sizeof sectorNuevo->sectorContent);
+		memcpy(nodo->sector.sectorContent, sectorNuevo->sectorContent, sizeof sectorNuevo->sectorContent);
 		nodo->sector.sectorNumber = sectorNuevo->sectorNumber;
 		nodo->modificado = FALSE;
 		commons_list_addNode(listaCacheSectors, nodo);

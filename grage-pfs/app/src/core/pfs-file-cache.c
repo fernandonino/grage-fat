@@ -60,6 +60,6 @@
 			DiskSector * disk = malloc(sizeof (DiskSector));
 			memcpy(disk->sectorContent , d.sectorContent , sizeof d.sectorContent);
 			disk->sectorNumber = d.sectorNumber;
-			pfs_cache_put_sectors(disk , cache, pfs_cache_getCacheSectorsFatMaxCount());
+			pfs_cache_put_sectors(disk , cache, pfs_cache_getFileCacheMaxCount());
 		}
 	}
