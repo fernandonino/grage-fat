@@ -91,7 +91,6 @@
 			}while (longEntry.LDIR_Ord != FAT_32_ENDOFDIR && !commons_string_equals(token, utf8name));
 
 			if (longEntry.LDIR_Ord == FAT_32_ENDOFDIR) {
-				//commons_misc_doFreeNull((void **)utf8name);
 				return NULL;
 			} else if (commons_string_equals(utf8name, token)) {
 
@@ -125,13 +124,10 @@
 
 		fatFile->sourceOffset = offset;
 		fatFile->nextCluster = pfs_fat_getFirstClusterFromDirEntry(&sDirEntry);
-		//fatFile->currentSector = pfs_fat_utils_getFirstSectorOfCluster(v , fatFile->nextCluster);
 		fatFile->dirEntryOffset = 0;
 		fatFile->dirType = 1;
 		fatFile->EOC = 0;
 
-		//El siguiente if es un cambio para arreglar un tema con el unlink.
-		//No esta probado con el resto de las funciones
 		if(!FAT_32_LDIR_ISLONG(fatFile->longEntry.LDIR_Attr)){
 			fatFile->sourceOffset -= FAT_32_DIR_ENTRY_SIZE;
 		}
@@ -883,6 +879,7 @@
 
 		while( commons_iterator_hasMoreElements(ite) ){
 			CacheBlockRecord * nodo = (CacheBlockRecord *)commons_iterator_next(ite);
+
 			//pfs_fat32_utils_callPutBlock(nodo->block , f);
 			DiskSector sector;
 			uint16_t offset = 0;
@@ -898,7 +895,6 @@
 				pfs_endpoint_callPutSector(sector);
 				offset += SECTOR_SIZE;
 			}
-
 			commons_list_removeNode(fileCache , nodo , free);
 		}
 		free(ite);

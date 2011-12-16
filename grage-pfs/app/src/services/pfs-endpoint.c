@@ -74,15 +74,15 @@
 	}
 
 
-	DiskSector pfs_endpoint_buildDiskSectorFromCacheCluster(CacheSectorRecord * a){
+	DiskSector pfs_endpoint_buildDiskSectorFromCacheCluster(CacheSectorRecord * sectorRecord){
 		DiskSector d;
 		d.sectorNumber = 0;
 
-		if(a == NULL)
+		if(sectorRecord == NULL)
 			return d;
 
-		memcpy(d.sectorContent , a->sector.sectorContent , sizeof(a->sector.sectorContent));
-		d.sectorNumber = a->sector.sectorNumber;
+		memcpy(d.sectorContent , sectorRecord->sector.sectorContent , sizeof(sectorRecord->sector.sectorContent));
+		d.sectorNumber = sectorRecord->sector.sectorNumber;
 		return d;
 	}
 

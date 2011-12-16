@@ -35,10 +35,9 @@
 		DiskSector defaultSector;
 		defaultSector.sectorNumber = 0;
 
-		CacheSectorRecord * s = pfs_cache_get_sector(
-					sectorNumber, f->cache , pfs_cache_getBlockCacheMaxCount());
+		CacheSectorRecord * sectorRecord = pfs_cache_get_sector(sectorNumber, f->cache , pfs_cache_getBlockCacheMaxCount());
 
-		return pfs_endpoint_buildDiskSectorFromCacheCluster(s);
+		return pfs_endpoint_buildDiskSectorFromCacheCluster(sectorRecord);
 	}
 
 	void pfs_endpoint_utils_putInFileCache(DiskSector d , List cache){

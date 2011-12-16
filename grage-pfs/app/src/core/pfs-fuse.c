@@ -157,7 +157,12 @@
 		FatFile * file = (FatFile *)fi->fh;
 
 		// 1. Se bajan a disco los sectores de FAT cacheados
-		pfs_fat32_fatCacheFlush();
+				/*
+				 * Esta funcion no tiene sentido usarla aca. Cuando se llena la fatCache, el pfs_cache_put_sectors
+				 * reemplaza y escribe lo que corresponde en disco. Considero que la escritura debe hacerse cuando
+				 * se hace el exit en el sistema.
+				 */
+		//pfs_fat32_fatCacheFlush();
 
 		// 2. Si esta la cache de archivo habilitada,
 		// se bajan a disco los bloques

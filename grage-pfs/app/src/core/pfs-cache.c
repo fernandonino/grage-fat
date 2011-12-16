@@ -113,7 +113,7 @@
 	}
 
 	void pfs_cache_put_sectors(DiskSector * sectorNuevo, List listaCacheSectors,
-			uint32 sectorsMaxCount) {
+		uint32 sectorsMaxCount) {
 		CacheSectorRecord * auxNode;
 		CacheSectorRecord * nodo = (CacheSectorRecord *) malloc(
 				sizeof(CacheSectorRecord));
