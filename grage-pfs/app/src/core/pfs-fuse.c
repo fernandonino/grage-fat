@@ -166,7 +166,7 @@
 				 * reemplaza y escribe lo que corresponde en disco. Considero que la escritura debe hacerse cuando
 				 * se hace el exit en el sistema.
 				 */
-		//pfs_fat32_fatCacheFlush();
+		pfs_fat32_fatCacheFlush();
 
 		// 2. Si esta la cache de archivo habilitada,
 		// se bajan a disco los bloques

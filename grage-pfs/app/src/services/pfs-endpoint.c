@@ -145,14 +145,14 @@
 		DiskSector returningSector = pfs_endpoint_utils_getFromCache(sectorNumber);
 
 		if(returningSector.sectorNumber != 0){
-			//printf("Se toma de la cache el sector %i\n" , returningSector.sectorNumber);
+
 			return returningSector;
 		}
 
 		returningSector = pfs_endpoint_callGetSector(sectorNumber);
 
 		if(pfs_cache_isFatSectorReserved(sectorNumber)){
-			//printf("Se pone en cache fat el sector %i \n" , sectorNumber);
+
 			pfs_endpoint_utils_putInCache(returningSector , pfs_cache_getListaCacheFat());
 		}
 
@@ -198,7 +198,6 @@
 	}
 
 
-
 	DiskSector pfs_endpoint_buildAndSendGet(ListenSocket ds, uint32_t sectorNumber){
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();
 		message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_GET_SECTORS);
@@ -206,8 +205,6 @@
 		log_info_t("Invocando GetSector Sincronico con sectorId: %i " , message.payload.diskSector.sectorNumber);
 
 		nipc_messaging_send(ds , message);
-
-		log_info_t("Recibiendo GetSector Sincronico con sectorId: %i " , message.payload.diskSector.sectorNumber);
 
 		message = nipc_messaging_receive(ds);
 
@@ -219,7 +216,7 @@
 		message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_PUT_SECTORS);
 		message = nipc_mbuilder_addDiskSector(message , diskSector);
 
-		log_info_t("Invocando PutSector Sincronico con sectorId: %i " , message.payload.diskSector.sectorNumber);
+		log_info_t("Enviado Sector con Sector Id: %i " , message.payload.diskSector.sectorNumber);
 
 		nipc_messaging_send(ds , message );
 	}
@@ -230,19 +227,15 @@
         message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_GET_SECTORS);
         message = nipc_mbuilder_addDiskSectorId(message , sectorId);
 
-        log_info_t("Invocando GetSector Asincronico con sectorId: %i " , message.payload.diskSector.sectorNumber);
-
         nipc_messaging_send(ds , message);
 
     }
 
     DiskSector pfs_endpoint_blocks_callReturnGetSector(ListenSocket ds){
 
-    	log_info_t("Recibiendo GetSector Asincronico");
-
     	DiskSector disk = nipc_messaging_receive(ds).payload.diskSector;
 
-    	log_info_t("Recibido Sector Asincronico con sectorId: %i " , disk.sectorNumber);
+    	log_info_t("Sector Recibido ucon Sector Id: %i " , disk.sectorNumber);
 
     	return disk;
     }
