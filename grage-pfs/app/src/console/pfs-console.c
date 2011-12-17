@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <unistd.h>
+
 #include <linux-commons.h>
 #include <grage-commons.h>
 #include "pfs-console-utils.h"

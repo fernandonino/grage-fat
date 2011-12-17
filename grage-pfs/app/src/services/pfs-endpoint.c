@@ -65,11 +65,15 @@
 
 
 	DiskSector pfs_endpoint_callGetSector(uint32_t sectorNumber){
+		DiskSector sector;
 		if(pfs_pool_isPooledConnectionsEnabled()){
-			return pfs_endpoint_callPooledGetSector(sectorNumber);
-
+			sector = pfs_endpoint_callPooledGetSector(sectorNumber);
+			log_info_t("Sector Recibido con Sector Id: %i " , sector.sectorNumber);
+			return sector;
 		}else{
-			return pfs_endpoint_callNonPooledGetSector(sectorNumber);
+			sector = pfs_endpoint_callNonPooledGetSector(sectorNumber);
+			log_info_t("Sector Recibido con Sector Id: %i " , sector.sectorNumber);
+			return sector;
 		}
 	}
 
@@ -202,7 +206,6 @@
 		NipcMessage message = nipc_mbuilder_buildNipcMessage();
 		message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_GET_SECTORS);
 		message = nipc_mbuilder_addDiskSectorId(message , sectorNumber);
-		log_info_t("Invocando GetSector Sincronico con sectorId: %i " , message.payload.diskSector.sectorNumber);
 
 		nipc_messaging_send(ds , message);
 
@@ -216,7 +219,7 @@
 		message = nipc_mbuilder_addOperationId(message , NIPC_OPERATION_ID_PUT_SECTORS);
 		message = nipc_mbuilder_addDiskSector(message , diskSector);
 
-		log_info_t("Enviado Sector con Sector Id: %i " , message.payload.diskSector.sectorNumber);
+		log_info_t("Sector Enviado con Sector Id: %i " , message.payload.diskSector.sectorNumber);
 
 		nipc_messaging_send(ds , message );
 	}
@@ -235,7 +238,7 @@
 
     	DiskSector disk = nipc_messaging_receive(ds).payload.diskSector;
 
-    	log_info_t("Sector Recibido ucon Sector Id: %i " , disk.sectorNumber);
+    	log_info_t("Sector Recibido con Sector Id: %i " , disk.sectorNumber);
 
     	return disk;
     }
