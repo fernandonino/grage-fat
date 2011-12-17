@@ -139,7 +139,7 @@
 
 		if ( clusterToWriteOffset + size > realSize * volume->bpc){
 			pfs_fat32_utils_extendFileWrite(volume , file , size);
-		} else {
+		} else if ( size + offset > filesize ){
 			filesize = total;
 			pfs_fat32_utils_updateFilesize(volume , file , filesize);
 		}
