@@ -40,11 +40,13 @@
 
 	void pfs_fuse_launchFuse( int argc , char * argv[] ){
 		int32_t result;
+//		if ( (result = fuse_main(argc, argv, &grage_oper , NULL)) != 0) {
 		if ( (result = fuse_main(argc, argv, &grage_oper)) != 0) {
 			char command[32];
 			sprintf(command , "fusermount -u %s" , argv[1]);
 			system(command);
 			puts("Relaunching the FUSE...");
+//			fuse_main(argc, argv, &grage_oper , NULL);
 			fuse_main(argc, argv, &grage_oper);
 		}
 	}
@@ -119,6 +121,7 @@
 
 	int pfs_fuse_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi){
 
+//		log_info_t("[ FUSE Operation: write ] %s, size %d , offset %d , flush %d" , path , size , offset , fi->flush);
 		log_info_t("[ FUSE Operation: write ] %s, size %d , offset %d" , path , size , offset);
 
 		uint32_t result;
@@ -126,15 +129,16 @@
 		FatFile * file = (FatFile *)fi->fh;
 		uint32_t filesize= file->shortEntry.DIR_FileSize;
 		uint32_t total = size + offset;
-		uint32_t amount = size + offset - filesize;
+		uint32_t clusterToWriteOffset = offset % volume->bpc;
+		uint32_t realSize = filesize / volume->bpc;
+		if ( filesize % volume->bpc != 0)
+			realSize++;
 
 		if ( size == 0)
 			return size;
 
-		uint32_t usedBytes = filesize % volume->bpc;
-		if ( amount > volume->bpc - usedBytes || usedBytes == 0) {
+		if ( clusterToWriteOffset + size > realSize * volume->bpc){
 			pfs_fat32_utils_extendFileWrite(volume , file , size);
-
 		} else {
 			filesize = total;
 			pfs_fat32_utils_updateFilesize(volume , file , filesize);

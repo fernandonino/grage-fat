@@ -131,7 +131,7 @@
 
 	void pfs_launcher_exit() {
 		Volume * v = pfs_state_getVolume();
-		pfs_fat32_fatCacheFlush();
+		//pfs_fat32_fatCacheFlush();
 		pfs_fat32_updateDiskInformation(v);
 		log_destroy();
 	}

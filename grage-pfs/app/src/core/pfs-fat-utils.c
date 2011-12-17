@@ -952,7 +952,7 @@
 		uint32_t firstSector = pfs_fat_utils_getFirstSectorOfCluster(v , block.id);
 		uint32_t lastSector = firstSector + 8;
 
-		if(pfs_cache_habilitada()){
+		if(pfs_cache_habilitada() && block.id != v->root){
 
 			for(; firstSector < lastSector; firstSector++){
 				diskSector.sectorNumber = firstSector;
@@ -974,9 +974,9 @@
 
 	Block pfs_fat32_utils_callGetBlock(uint32_t blockNumber , FatFile * f){
 		Block block;
+		Volume * v = pfs_state_getVolume();
 
-
-		if(pfs_cache_habilitada()){
+		if(pfs_cache_habilitada() && blockNumber != v->root){
 			Volume * v = pfs_state_getVolume();
 
 			uint32_t firstSector = pfs_fat_utils_getFirstSectorOfCluster(v, blockNumber);
